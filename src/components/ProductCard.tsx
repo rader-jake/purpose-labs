@@ -100,7 +100,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {product.short_description && (
           <div
-            className="text-sm leading-relaxed"
+            className="line-clamp-3 text-sm leading-relaxed"
             style={{
               color: "var(--pl-text-secondary)",
               fontFamily: "var(--pl-font-body)",

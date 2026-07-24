@@ -5,10 +5,12 @@
 // component. Don't merge these back into one "use client" file — that
 // breaks async data fetching in the App Router.
 
-import { getProduct } from "@/lib/woocommerce";
+import { getProduct, getRelatedProducts } from "@/lib/woocommerce";
 import { ParticleBackground } from "@/components/ParticleBackground";
 import { ProductTilt } from "@/components/ProductTilt";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
+import { ProductCard } from "@/components/ProductCard";
+import { SectionHeading } from "@/components/SectionHeading";
 import { notFound } from "next/navigation";
 
 export default async function ProductPage({
@@ -21,6 +23,10 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const image = product.images?.[0];
+  // related_ids is reliably populated on real products (verified against
+  // the live catalog) but empty for at least one dev-only product, so
+  // this section simply doesn't render rather than assuming data exists.
+  const relatedProducts = await getRelatedProducts(product.related_ids);
 
   return (
     <main>
@@ -74,6 +80,20 @@ export default async function ProductPage({
           />
         )}
       </section>
+
+      {relatedProducts.length > 0 && (
+        <section
+          className="mx-auto max-w-7xl px-6 pb-16 sm:px-10"
+          style={{ fontFamily: "var(--pl-font-body)" }}
+        >
+          <SectionHeading eyebrow="Purpose Labs" title="You May Also Like" />
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {relatedProducts.map((related) => (
+              <ProductCard key={related.id} product={related} />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

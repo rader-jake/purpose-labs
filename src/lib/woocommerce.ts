@@ -16,6 +16,12 @@ export interface WooProduct {
   // ever present as plain text ("CAS: <number>") inside short_description
   // HTML, confirmed by inspecting the live API response for all 20 products.
   casNumber: string | null;
+  /** WooCommerce's own related-products algorithm (shared category/tags).
+   * Verified against the live catalog: reliably populated (5 IDs on every
+   * real product checked), empty only for the dev-only "Test Item". Can
+   * include non-merchandisable IDs like bac water — see
+   * NON_MERCHANDISABLE_PRODUCT_IDS below. */
+  related_ids: number[];
 }
 
 interface WooApiProduct {
@@ -30,6 +36,7 @@ interface WooApiProduct {
   stock_quantity: number | null;
   short_description: string;
   images: { id: number; src: string; alt: string }[];
+  related_ids: number[];
 }
 
 // Every product that has a CAS number renders it the same way: its own
@@ -67,6 +74,7 @@ function mapProduct(raw: WooApiProduct): WooProduct {
       : raw.short_description,
     images: raw.images,
     casNumber,
+    related_ids: raw.related_ids,
   };
 }
 
@@ -119,13 +127,17 @@ export interface GetProductsOptions {
   /** Product IDs to omit from the result (e.g. gifted or dev-only items
    * that would otherwise pollute a "popularity" sort). */
   exclude?: number[];
+  /** Fetch only these specific product IDs (WooCommerce's `include` param) —
+   * used for batch-fetching related products by ID in one request. */
+  include?: number[];
 }
 
 export async function getProducts(options: GetProductsOptions = {}): Promise<WooProduct[]> {
-  const { perPage = 100, orderby, exclude } = options;
+  const { perPage = 100, orderby, exclude, include } = options;
   const params: Record<string, string> = { per_page: String(perPage) };
   if (orderby) params.orderby = orderby;
   if (exclude && exclude.length > 0) params.exclude = exclude.join(",");
+  if (include && include.length > 0) params.include = include.join(",");
 
   const raw = await wooCommerceFetch<WooApiProduct[]>("/products", params);
   return raw.map(mapProduct);
@@ -133,16 +145,28 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Woo
 
 // Bac water (id 94) is auto-added to every qualifying order rather than
 // something a customer chooses to buy, and Test Item (id 1057) is a dev
-// artifact — both would otherwise show up near the top of a real
-// popularity/total_sales sort and misrepresent what's actually selling.
-const BEST_SELLERS_EXCLUDE_IDS = [94, 1057];
+// artifact — both would otherwise show up as a "best seller" or a "you may
+// also like" suggestion despite not being real merchandise a customer
+// would choose. Confirmed bac water genuinely turns up in other products'
+// related_ids (e.g. Tesamorelin's), not just a hypothetical risk.
+const NON_MERCHANDISABLE_PRODUCT_IDS = [94, 1057];
 
 export async function getBestSellers(limit = 8): Promise<WooProduct[]> {
   return getProducts({
     perPage: limit,
     orderby: "popularity",
-    exclude: BEST_SELLERS_EXCLUDE_IDS,
+    exclude: NON_MERCHANDISABLE_PRODUCT_IDS,
   });
+}
+
+export async function getRelatedProducts(relatedIds: number[]): Promise<WooProduct[]> {
+  if (relatedIds.length === 0) return [];
+  // NOTE: WooCommerce silently ignores `exclude` when `include` is also
+  // set (verified directly — a request with both still returned bac
+  // water), so the non-merchandisable filter has to happen client-side
+  // here instead of at the query level like getBestSellers does.
+  const products = await getProducts({ include: relatedIds });
+  return products.filter((p) => !NON_MERCHANDISABLE_PRODUCT_IDS.includes(p.id));
 }
 
 export async function getProduct(slug: string): Promise<WooProduct | null> {
