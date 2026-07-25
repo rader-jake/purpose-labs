@@ -29,6 +29,16 @@ export class StoreApiError extends Error {
   }
 }
 
+// EXPERIMENT — attempt to reduce false-positive bot-detection hits from
+// SiteGround's "AI Anti-Bot" (confirmed via production logs: intermittent
+// /.well-known/sgcaptcha/ interstitials instead of the real API response).
+// Node's default fetch User-Agent is a well-known bot signature; a
+// realistic browser one is a cheap, reversible thing to try first. Not
+// guaranteed to fully resolve it — a hosting-side allowlist may still be
+// needed in parallel.
+const REALISTIC_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
+
 function getStoreApiBase() {
   const url = process.env.WOOCOMMERCE_URL;
   if (!url) {
@@ -44,11 +54,13 @@ async function storeApiFetch(
 ): Promise<{ data: unknown; tokens: CartTokens }> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "User-Agent": REALISTIC_USER_AGENT,
   };
   if (tokens.cartToken) headers["Cart-Token"] = tokens.cartToken;
   if (tokens.nonce) headers["Nonce"] = tokens.nonce;
 
-  const response = await fetch(`${getStoreApiBase()}${path}`, {
+  const targetUrl = `${getStoreApiBase()}${path}`;
+  const response = await fetch(targetUrl, {
     ...init,
     headers,
     cache: "no-store",
@@ -59,14 +71,59 @@ async function storeApiFetch(
     nonce: response.headers.get("Nonce") ?? tokens.nonce,
   };
 
-  const data = await response.json();
+  // Read as text first, not response.json() directly — the body can only
+  // be consumed once, and this way we can inspect/log the raw payload
+  // regardless of whether it turns out to be valid JSON.
+  const contentType = response.headers.get("content-type") ?? "";
+  const rawBody = await response.text();
+
+  // TEMPORARY DIAGNOSTIC LOGGING — for the production 500 on
+  // /api/cart/add-item ("Unexpected token '<' ... is not valid JSON").
+  // Remove once root-caused. Never logs the consumer key/secret, only the
+  // resolved store URL (public) and response metadata.
+  console.log("[storeApiFetch] diagnostic", {
+    woocommerceUrl: process.env.WOOCOMMERCE_URL,
+    targetUrl,
+    status: response.status,
+    contentType,
+    bodyPreview: rawBody.slice(0, 300),
+  });
+
+  if (!contentType.includes("application/json")) {
+    console.error(
+      `[storeApiFetch] Non-JSON response from WooCommerce Store API — status=${response.status} url=${targetUrl} contentType="${contentType}" bodyPreview=${JSON.stringify(rawBody.slice(0, 300))}`
+    );
+    throw new StoreApiError(
+      "The store's checkout service returned an unexpected response. Please try again in a moment.",
+      response.status || 502,
+      { targetUrl, contentType, bodyPreview: rawBody.slice(0, 300) }
+    );
+  }
+
+  let data: unknown;
+  try {
+    data = JSON.parse(rawBody);
+  } catch (parseError) {
+    // Belt-and-suspenders: some misconfigured proxies/WAFs send
+    // `content-type: application/json` on an HTML error page, so the
+    // header check above isn't a total guarantee.
+    console.error(
+      `[storeApiFetch] Body claimed to be JSON but failed to parse — status=${response.status} url=${targetUrl} bodyPreview=${JSON.stringify(rawBody.slice(0, 300))}`,
+      parseError
+    );
+    throw new StoreApiError(
+      "The store's checkout service returned an invalid response. Please try again in a moment.",
+      response.status || 502,
+      { targetUrl, bodyPreview: rawBody.slice(0, 300) }
+    );
+  }
 
   if (!response.ok) {
-    throw new StoreApiError(
-      typeof data?.message === "string" ? data.message : "Store API error",
-      response.status,
-      data
-    );
+    const message =
+      typeof (data as { message?: unknown } | null)?.message === "string"
+        ? (data as { message: string }).message
+        : "Store API error";
+    throw new StoreApiError(message, response.status, data);
   }
 
   return { data, tokens: nextTokens };

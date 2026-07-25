@@ -14,40 +14,40 @@ export function TrustStats() {
   }, []);
 
   return (
-    <section 
+    <section
       className="border-y bg-[#F1F6F9]"
-      style={{ 
+      style={{
         borderColor: "var(--pl-border)",
-        fontFamily: "var(--pl-font-body)" 
+        fontFamily: "var(--pl-font-body)"
       }}
     >
       <div className="mx-auto max-w-7xl px-6 py-12 sm:px-10 md:py-16">
         <Reveal>
           <div className="grid grid-cols-2 divide-y divide-[rgba(155,164,180,0.15)] md:grid-cols-4 md:divide-y-0 md:divide-x md:divide-[rgba(155,164,180,0.2)]">
-            <StatItem 
-              value={1000} 
-              suffix="+" 
-              label="Orders Shipped" 
-              mounted={mounted} 
+            <StatItem
+              value={5000}
+              suffix="+"
+              label="Orders Shipped"
+              mounted={mounted}
             />
             <div className="pt-0 md:pt-0">
-              <StatItem 
-                value={300} 
-                suffix="+" 
-                label="Researchers Served" 
-                mounted={mounted} 
+              <StatItem
+                value={3000}
+                suffix="+"
+                label="Researchers Served"
+                mounted={mounted}
               />
             </div>
             <div className="pt-8 md:pt-0">
-              <StatTextItem 
-                line1="Same-Day" 
-                line2="Order Processing" 
+              <StatTextItem
+                line1="Same-Day"
+                line2="Order Processing"
               />
             </div>
             <div className="pt-8 md:pt-0">
-              <StatTextItem 
-                line1="Secure" 
-                line2="Discreet Shipping" 
+              <StatTextItem
+                line1="Secure"
+                line2="Discreet Shipping"
               />
             </div>
           </div>
@@ -57,16 +57,16 @@ export function TrustStats() {
   );
 }
 
-function StatItem({ 
-  value, 
-  suffix, 
-  label, 
-  mounted 
-}: { 
-  value: number; 
-  suffix: string; 
-  label: string; 
-  mounted: boolean; 
+function StatItem({
+  value,
+  suffix,
+  label,
+  mounted
+}: {
+  value: number;
+  suffix: string;
+  label: string;
+  mounted: boolean;
 }) {
   const [count, setCount] = useState(mounted ? 0 : value);
 
@@ -75,7 +75,7 @@ function StatItem({
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    
+
     if (prefersReducedMotion) {
       const animFrame = requestAnimationFrame(() => {
         setCount(value);
@@ -106,16 +106,16 @@ function StatItem({
 
   return (
     <div className="flex flex-col items-center text-center px-4">
-      <span 
+      <span
         className="text-4xl font-medium tracking-tight md:text-5xl"
-        style={{ 
-          fontFamily: "var(--pl-font-display)", 
-          color: "var(--pl-navy)" 
+        style={{
+          fontFamily: "var(--pl-font-display)",
+          color: "var(--pl-navy)"
         }}
       >
         {formattedCount}{suffix}
       </span>
-      <span 
+      <span
         className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-center"
         style={{ color: "var(--pl-text-secondary)" }}
       >
@@ -125,25 +125,25 @@ function StatItem({
   );
 }
 
-function StatTextItem({ 
-  line1, 
-  line2 
-}: { 
-  line1: string; 
-  line2: string; 
+function StatTextItem({
+  line1,
+  line2
+}: {
+  line1: string;
+  line2: string;
 }) {
   return (
     <div className="flex flex-col items-center text-center px-4">
-      <span 
+      <span
         className="text-4xl font-medium tracking-tight md:text-5xl"
-        style={{ 
-          fontFamily: "var(--pl-font-display)", 
-          color: "var(--pl-navy)" 
+        style={{
+          fontFamily: "var(--pl-font-display)",
+          color: "var(--pl-navy)"
         }}
       >
         {line1}
       </span>
-      <span 
+      <span
         className="mt-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-center"
         style={{ color: "var(--pl-text-secondary)" }}
       >
