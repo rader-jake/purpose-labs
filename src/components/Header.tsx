@@ -38,13 +38,12 @@ export function Header() {
           fontFamily: "var(--pl-font-body)",
         }}
       >
-        Free shipping on orders over $150
+        Free shipping on orders over $200
       </div>
 
       <header
-        className={`sticky top-0 z-40 transition-all duration-300 ${
-          scrolled ? "shadow-sm backdrop-blur-md" : ""
-        }`}
+        className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? "shadow-sm backdrop-blur-md" : ""
+          }`}
         style={{
           backgroundColor: scrolled
             ? "rgba(241, 246, 249, 0.85)"
