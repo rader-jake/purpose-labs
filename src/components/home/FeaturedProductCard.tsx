@@ -81,7 +81,12 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
         </div>
 
         {/* Add to Cart Actions (Client Component) */}
-        <FeaturedAddToCart productId={product.id} stockStatus={product.stock_status} />
+        <FeaturedAddToCart
+          productId={product.id}
+          productSlug={product.slug}
+          productType={product.type}
+          stockStatus={product.stock_status}
+        />
       </div>
     </div>
   );

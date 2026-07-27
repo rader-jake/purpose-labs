@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 
 type FeaturedAddToCartProps = {
   productId: number;
+  productSlug: string;
+  productType: string;
   stockStatus: string;
 };
 
-export function FeaturedAddToCart({ productId, stockStatus }: FeaturedAddToCartProps) {
+export function FeaturedAddToCart({
+  productId,
+  productSlug,
+  productType,
+  stockStatus,
+}: FeaturedAddToCartProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +34,32 @@ export function FeaturedAddToCart({ productId, stockStatus }: FeaturedAddToCartP
     } finally {
       setIsAdding(false);
     }
+  }
+
+  if (productType === "variable") {
+    // Variable products (currently just GHK-CU) need a size picked before
+    // anything can be added — same reasoning as ProductCard.tsx.
+    return (
+      <div className="mt-auto pt-3">
+        <Link
+          href={`/products/${productSlug}`}
+          className="flex h-10 w-full items-center justify-center rounded-full text-[10px] font-bold uppercase tracking-[0.12em] transition-all duration-300"
+          style={{
+            backgroundColor: "var(--pl-navy)",
+            color: "var(--pl-ivory)",
+            fontFamily: "var(--pl-font-body)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "var(--pl-navy)";
+          }}
+        >
+          Select Options
+        </Link>
+      </div>
+    );
   }
 
   return (

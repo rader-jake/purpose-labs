@@ -10,6 +10,10 @@ export interface WooProduct {
   sale_price: string;
   stock_status: string;
   stock_quantity: number | null;
+  /** "simple" | "variable" | etc. — variable products (currently just
+   * GHK-CU) need the variant selector; everything else adds the parent
+   * product id straight to cart. */
+  type: string;
   short_description: string;
   images: { id: number; src: string; alt: string }[];
   // WooCommerce has no dedicated CAS field for these products — it's only
@@ -34,6 +38,7 @@ interface WooApiProduct {
   sale_price: string;
   stock_status: string;
   stock_quantity: number | null;
+  type: string;
   short_description: string;
   images: { id: number; src: string; alt: string }[];
   related_ids: number[];
@@ -69,6 +74,7 @@ function mapProduct(raw: WooApiProduct): WooProduct {
     sale_price: raw.sale_price,
     stock_status: raw.stock_status,
     stock_quantity: raw.stock_quantity,
+    type: raw.type,
     short_description: casNumber
       ? stripCasBadge(raw.short_description)
       : raw.short_description,

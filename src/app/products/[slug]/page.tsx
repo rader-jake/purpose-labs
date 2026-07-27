@@ -5,7 +5,7 @@
 // component. Don't merge these back into one "use client" file — that
 // breaks async data fetching in the App Router.
 
-import { getProduct, getRelatedProducts } from "@/lib/woocommerce";
+import { getProduct, getProductVariations, getRelatedProducts } from "@/lib/woocommerce";
 import { ParticleBackground } from "@/components/ParticleBackground";
 import { ProductTilt } from "@/components/ProductTilt";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
@@ -27,6 +27,9 @@ export default async function ProductPage({
   // the live catalog) but empty for at least one dev-only product, so
   // this section simply doesn't render rather than assuming data exists.
   const relatedProducts = await getRelatedProducts(product.related_ids);
+  // Only variable products (currently just GHK-CU) have real variations to
+  // fetch — skip the extra request for the other 21 simple products.
+  const variations = product.type === "variable" ? await getProductVariations(product.id) : [];
 
   return (
     <main>
@@ -64,6 +67,7 @@ export default async function ProductPage({
             name={product.name}
             price={product.price}
             outOfStock={product.stock_status === "outofstock"}
+            variations={variations}
           />
         </div>
       </section>

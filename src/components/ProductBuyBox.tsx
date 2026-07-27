@@ -2,11 +2,12 @@
 
 // src/components/ProductBuyBox.tsx
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { BulkDiscountTiers } from "./BulkDiscountTiers";
 import { PaymentIcons } from "./PaymentIcons";
 import { CoaButton } from "./CoaButton";
+import type { WooProductVariation } from "@/lib/woocommerce";
 
 type ProductBuyBoxProps = {
   productId: number;
@@ -14,7 +15,17 @@ type ProductBuyBoxProps = {
   name: string;
   price: string;
   outOfStock: boolean;
+  /** Empty for simple products — only GHK-CU currently has real variations. */
+  variations: WooProductVariation[];
 };
+
+/** Leading number in the option label (e.g. "100mg" -> 100), for sorting
+ * variants smallest-first regardless of the order WooCommerce returns
+ * them in. Falls back to 0 (stable original order) if unparseable. */
+function leadingNumber(option: string): number {
+  const match = option.match(/\d+/);
+  return match ? Number(match[0]) : 0;
+}
 
 export function ProductBuyBox({
   productId,
@@ -22,17 +33,40 @@ export function ProductBuyBox({
   name,
   price,
   outOfStock,
+  variations,
 }: ProductBuyBoxProps) {
+  const sortedVariations = useMemo(
+    () =>
+      [...variations].sort(
+        (a, b) => leadingNumber(a.attributes[0]?.option ?? "") - leadingNumber(b.attributes[0]?.option ?? "")
+      ),
+    [variations]
+  );
+  const hasVariations = sortedVariations.length > 0;
+  const [selectedVariationId, setSelectedVariationId] = useState<number | null>(
+    hasVariations ? sortedVariations[0].id : null
+  );
+  const selectedVariation = sortedVariations.find((v) => v.id === selectedVariationId) ?? null;
+
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const { addItem } = useCart();
 
+  // Variable products add the selected variation's id, not the parent
+  // product id — WooCommerce needs the variation id to know which
+  // size/price to actually add.
+  const effectiveId = selectedVariation ? selectedVariation.id : productId;
+  const effectivePrice = selectedVariation ? selectedVariation.price : price;
+  const effectiveOutOfStock = selectedVariation
+    ? selectedVariation.stock_status !== "instock"
+    : outOfStock;
+
   async function handleAddToCart() {
     setIsAdding(true);
     setAddError(null);
     try {
-      await addItem(productId, quantity);
+      await addItem(effectiveId, quantity);
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
     } finally {
@@ -57,8 +91,32 @@ export function ProductBuyBox({
         className="mb-3 text-xl font-semibold sm:mb-6 sm:text-2xl"
         style={{ color: "var(--pl-ivory)" }}
       >
-        ${price}
+        ${effectivePrice}
       </p>
+
+      {hasVariations && (
+        <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
+          {sortedVariations.map((variation) => {
+            const label = variation.attributes[0]?.option ?? "Option";
+            const selected = variation.id === selectedVariationId;
+            return (
+              <button
+                key={variation.id}
+                onClick={() => setSelectedVariationId(variation.id)}
+                aria-pressed={selected}
+                className="rounded-lg border px-3 py-3 text-center text-xs font-medium transition-colors duration-200 hover:border-current"
+                style={{
+                  borderColor: selected ? "var(--pl-ivory)" : "rgba(255,255,255,0.25)",
+                  backgroundColor: selected ? "var(--pl-ivory)" : "transparent",
+                  color: selected ? "var(--pl-navy)" : "var(--pl-ivory)",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mb-3 sm:mb-6">
         <BulkDiscountTiers onSelectQuantity={setQuantity} />
@@ -95,14 +153,14 @@ export function ProductBuyBox({
 
         <button
           onClick={handleAddToCart}
-          disabled={outOfStock || isAdding}
+          disabled={effectiveOutOfStock || isAdding}
           className="flex-1 rounded-full px-8 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           style={{
             backgroundColor: "var(--pl-ivory)",
             color: "var(--pl-navy)",
           }}
         >
-          {outOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to Cart"}
+          {effectiveOutOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to Cart"}
         </button>
       </div>
 

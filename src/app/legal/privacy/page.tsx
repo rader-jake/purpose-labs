@@ -58,7 +58,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul>
           <li>Name, email address, and billing/shipping address when placing an order</li>
-          <li>Payment information processed securely through Stripe</li>
+          <li>Payment information processed securely through Tagada</li>
           <li>Account credentials if you create an account</li>
           <li>Communications you send us via email or contact forms</li>
           <li>Giveaway entry information including name, email, and age confirmation</li>
@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
           categories of third parties:
         </p>
         <ul>
-          <li>Payment processors — Stripe processes all payment transactions securely</li>
+          <li>Payment processors — Tagada processes all payment transactions securely</li>
           <li>Shipping providers — to fulfill and deliver your orders</li>
           <li>Email marketing platforms — Klaviyo for order and marketing communications</li>
           <li>Affiliate tracking — Affiliatly to track and pay affiliate commissions</li>
@@ -214,7 +214,7 @@ export default function PrivacyPolicyPage() {
         <p>
           We implement industry-standard security measures to protect your
           personal information including SSL encryption, secure payment
-          processing through Stripe, and access controls on our systems.
+          processing through Tagada, and access controls on our systems.
           However, no method of transmission over the internet is 100%
           secure and we cannot guarantee absolute security.
         </p>

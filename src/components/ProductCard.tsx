@@ -127,50 +127,79 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <CoaButton productSlug={product.slug} />
 
-        <div className="mt-auto flex items-center gap-3 pt-2">
-          <input
-            type="number"
-            min={1}
-            value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(1, Number(e.target.value) || 1))
-            }
-            className="w-16 rounded border px-3 py-2 text-center text-sm"
-            style={{
-              borderColor: "var(--pl-border)",
-              color: "var(--pl-navy)",
-              fontFamily: "var(--pl-font-body)",
-            }}
-          />
-
-          <button
-            onClick={handleAddToCart}
-            disabled={outOfStock || isAdding}
-            className="flex-1 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-            style={{
-              backgroundColor: "var(--pl-navy)",
-              color: "var(--pl-ivory)",
-              fontFamily: "var(--pl-font-body)",
-            }}
-            onMouseEnter={(e) => {
-              if (!outOfStock)
+        {product.type === "variable" ? (
+          // Variable products (currently just GHK-CU) need a size picked
+          // before anything can be added — the Store API rejects the
+          // parent product id outright ("Missing attributes for variable
+          // product"). Send shoppers to the real selector on the product
+          // page instead of a quick-add button that would just error.
+          <div className="mt-auto pt-2">
+            <Link
+              href={`/products/${product.slug}`}
+              className="flex items-center justify-center rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200"
+              style={{
+                backgroundColor: "var(--pl-navy)",
+                color: "var(--pl-ivory)",
+                fontFamily: "var(--pl-font-body)",
+              }}
+              onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--pl-navy)";
-            }}
-          >
-            {outOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to cart"}
-          </button>
-        </div>
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--pl-navy)";
+              }}
+            >
+              Select Options
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="mt-auto flex items-center gap-3 pt-2">
+              <input
+                type="number"
+                min={1}
+                value={quantity}
+                onChange={(e) =>
+                  setQuantity(Math.max(1, Number(e.target.value) || 1))
+                }
+                className="w-16 rounded border px-3 py-2 text-center text-sm"
+                style={{
+                  borderColor: "var(--pl-border)",
+                  color: "var(--pl-navy)",
+                  fontFamily: "var(--pl-font-body)",
+                }}
+              />
 
-        {addError && (
-          <p
-            className="text-xs"
-            style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
-          >
-            {addError}
-          </p>
+              <button
+                onClick={handleAddToCart}
+                disabled={outOfStock || isAdding}
+                className="flex-1 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{
+                  backgroundColor: "var(--pl-navy)",
+                  color: "var(--pl-ivory)",
+                  fontFamily: "var(--pl-font-body)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!outOfStock)
+                    e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--pl-navy)";
+                }}
+              >
+                {outOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to cart"}
+              </button>
+            </div>
+
+            {addError && (
+              <p
+                className="text-xs"
+                style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
+              >
+                {addError}
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -61,7 +61,7 @@ const TIMEFRAMES = [
   { label: "Our response time", value: "Within 24 hours of your email" },
   { label: "Replacement shipping", value: "Within 48 hours of issue confirmation" },
   { label: "Refund processing", value: "3–5 business days to your original payment method" },
-  { label: "Stripe refunds", value: "May take an additional 5–10 business days to appear depending on your bank" },
+  { label: "Tagada refunds", value: "May take an additional 5–10 business days to appear depending on your bank" },
 ];
 
 export default function RefundPolicyPage() {

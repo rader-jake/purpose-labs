@@ -114,7 +114,7 @@ export default function TermsPage() {
 
       <Section id="payment" number="05" title="Payment">
         <p>
-          All payments are processed securely through Stripe. By providing
+          All payments are processed securely through Tagada. By providing
           payment information, you represent that you are authorized to use
           the payment method provided and that the information is accurate.
         </p>
