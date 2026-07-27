@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CoaModal } from "./CoaModal";
-import { COA_MAP } from "@/lib/coaMap";
+import { COA_MAP } from "@/lib/coaDirectory";
 
 export function CoaButton({ productSlug }: { productSlug: string }) {
   const [open, setOpen] = useState(false);

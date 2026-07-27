@@ -332,7 +332,11 @@ function OrderReview({ cart, onContinue }: { cart: NonNullable<ReturnType<typeof
             <span style={{ color: "var(--pl-slate)" }}>
               {item.name} × {item.quantity}
             </span>
-            <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_total)}</span>
+            {/* Pre-discount, matching "Subtotal" below — line_total is
+                post-coupon and would visibly disagree with a Subtotal that's
+                the pre-discount total_items sum. The coupon's own effect is
+                shown separately as its own Discount line instead. */}
+            <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>
           </li>
         ))}
       </ul>
@@ -342,6 +346,18 @@ function OrderReview({ cart, onContinue }: { cart: NonNullable<ReturnType<typeof
           <span>Subtotal</span>
           <span>{formatMoney(cart.totals.total_items)}</span>
         </div>
+        {cart.coupons.map((coupon) => (
+          <div
+            key={coupon.code}
+            className="flex items-center justify-between"
+            style={{ color: "var(--pl-slate)" }}
+          >
+            <span>
+              Discount ({coupon.code.toUpperCase()})
+            </span>
+            <span>-{formatMoney(coupon.totals.total_discount)}</span>
+          </div>
+        ))}
         {cart.fees.map((fee) => (
           <div key={fee.key} className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
             <span>{fee.name}</span>

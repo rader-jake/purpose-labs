@@ -65,7 +65,9 @@ export function CoaModal({
 
         <div className="flex flex-col gap-8">
           {documents.map((doc) => {
-            const isPdf = doc.url.toLowerCase().endsWith(".pdf");
+            const lowerUrl = doc.url.toLowerCase();
+            const isPdf = lowerUrl.endsWith(".pdf");
+            const isImage = /\.(jpe?g|png|webp|gif)$/.test(lowerUrl);
             return (
               <div key={doc.url}>
                 <div className="mb-3 flex items-center justify-between">
@@ -93,7 +95,7 @@ export function CoaModal({
                     style={{ borderColor: "var(--pl-border)" }}
                     title={doc.label}
                   />
-                ) : (
+                ) : isImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={doc.url}
@@ -101,6 +103,20 @@ export function CoaModal({
                     className="w-full rounded border"
                     style={{ borderColor: "var(--pl-border)" }}
                   />
+                ) : (
+                  // Not an embeddable file — a full page instead (e.g. a
+                  // COA published as its own WordPress page rather than a
+                  // raw image/PDF). Embedding it as an <img> would just
+                  // show a broken image; link out instead.
+                  <a
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center rounded border px-6 py-10 text-sm font-medium"
+                    style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)" }}
+                  >
+                    Open Certificate of Analysis →
+                  </a>
                 )}
               </div>
             );
