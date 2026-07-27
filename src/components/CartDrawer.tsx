@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
-import type { CartItem } from "@/lib/cart/types";
+import type { CartCoupon, CartItem } from "@/lib/cart/types";
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
@@ -106,6 +106,8 @@ export function CartDrawer() {
               ))}
             </div>
           )}
+
+          {cart && cart.items.length > 0 && <CouponSection coupons={cart.coupons} />}
         </div>
 
         {cart && cart.items.length > 0 && (
@@ -199,6 +201,86 @@ function FreeShippingProgress({
           style={{ width: `${progress}%`, backgroundColor: "var(--pl-navy)" }}
         />
       </div>
+    </div>
+  );
+}
+
+function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
+  const { applyCoupon, removeCoupon } = useCart();
+  const [code, setCode] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleApply(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = code.trim();
+    if (!trimmed) return;
+    setIsPending(true);
+    try {
+      await applyCoupon(trimmed);
+      setCode("");
+    } catch {
+      // useCart sets its shared `error`, which CartDrawer already renders
+      // above — same pattern as CartLineItem's handlers below.
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  async function handleRemove(couponCode: string) {
+    setIsPending(true);
+    try {
+      await removeCoupon(couponCode);
+    } catch {
+      // See handleApply above.
+    } finally {
+      setIsPending(false);
+    }
+  }
+
+  return (
+    <div className="mt-6 flex flex-col gap-3 border-t pt-4" style={{ borderColor: "var(--pl-border)" }}>
+      {coupons.map((coupon) => (
+        <div
+          key={coupon.code}
+          className="flex items-center justify-between text-sm"
+          style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
+        >
+          <span>
+            Coupon{" "}
+            <strong style={{ color: "var(--pl-navy)" }}>{coupon.code.toUpperCase()}</strong>
+          </span>
+          <div className="flex items-center gap-3">
+            <span>-{formatMoney(coupon.totals.total_discount)}</span>
+            <button
+              onClick={() => handleRemove(coupon.code)}
+              disabled={isPending}
+              className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
+              style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ))}
+
+      <form onSubmit={handleApply} className="flex gap-2">
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="Coupon code"
+          disabled={isPending}
+          className="flex-1 rounded border px-3 py-2 text-sm"
+          style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
+        />
+        <button
+          type="submit"
+          disabled={isPending || !code.trim()}
+          className="rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40"
+          style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
+        >
+          {isPending ? "Applying…" : "Apply"}
+        </button>
+      </form>
     </div>
   );
 }

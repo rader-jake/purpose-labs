@@ -92,7 +92,11 @@ function getWooCommerceCredentials() {
   return { url: url.replace(/\/+$/, ""), consumerKey, consumerSecret };
 }
 
-async function wooCommerceFetch<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+async function wooCommerceFetch<T>(
+  path: string,
+  params: Record<string, string> = {},
+  options: { cache?: "revalidate" | "no-store" } = {}
+): Promise<T> {
   const { url, consumerKey, consumerSecret } = getWooCommerceCredentials();
 
   const endpoint = new URL(`${url}/wp-json/wc/v3${path}`);
@@ -106,8 +110,13 @@ async function wooCommerceFetch<T>(path: string, params: Record<string, string> 
     headers: {
       Authorization: `Basic ${basicAuth}`,
     },
-    // Products change infrequently; revalidate periodically rather than caching forever.
-    next: { revalidate: 60 },
+    // Products change infrequently; revalidate periodically rather than
+    // caching forever. Order lookups (post-payment confirmation) opt into
+    // "no-store" instead — a stale "pending" status right after a
+    // customer completes payment would be actively misleading.
+    ...(options.cache === "no-store"
+      ? { cache: "no-store" as const }
+      : { next: { revalidate: 60 } }),
   });
 
   if (!response.ok) {
@@ -229,4 +238,131 @@ export async function getProductVariations(productId: number): Promise<WooProduc
   // the module comment above. Drop any variation with no attribute
   // value assigned; it can't be meaningfully selected or labeled.
   return raw.filter((v) => v.attributes.length > 0).map(mapVariation);
+}
+
+// --- Orders (post-payment return flow) --------------------------------
+//
+// Real shape verified against a live test order (#1962, created directly
+// via POST /wc/store/v1/checkout with payment_method: "tagada" — see
+// storeApi.ts's submitCheckout). Confirmed WooCommerce's own order record
+// is correct even where Tagada's hosted checkout page later displays it
+// wrong (bac water: $0 here, $9.99 there) — that's a Tagada-gateway-side
+// bug, tracked separately, not something this mapping should paper over.
+
+export interface WooOrderAddress {
+  first_name: string;
+  last_name: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  email?: string;
+  phone: string;
+}
+
+export interface WooOrderLineItem {
+  id: number;
+  name: string;
+  quantity: number;
+  subtotal: string;
+  subtotal_tax: string;
+  total: string;
+  total_tax: string;
+}
+
+export interface WooOrderFeeLine {
+  id: number;
+  name: string;
+  total: string;
+  total_tax: string;
+}
+
+export interface WooOrderTaxLine {
+  id: number;
+  label: string;
+  rate_percent: number;
+  tax_total: string;
+}
+
+interface WooApiOrder {
+  id: number;
+  number: string;
+  status: string;
+  order_key: string;
+  payment_method: string;
+  payment_method_title: string;
+  currency: string;
+  billing: WooOrderAddress;
+  shipping: WooOrderAddress;
+  line_items: WooOrderLineItem[];
+  fee_lines: WooOrderFeeLine[];
+  tax_lines: WooOrderTaxLine[];
+  discount_total: string;
+  discount_tax: string;
+  shipping_total: string;
+  shipping_tax: string;
+  total: string;
+  total_tax: string;
+}
+
+export interface WooOrder {
+  id: number;
+  number: string;
+  status: string;
+  orderKey: string;
+  paymentMethodTitle: string;
+  billing: WooOrderAddress;
+  shipping: WooOrderAddress;
+  lineItems: WooOrderLineItem[];
+  feeLines: WooOrderFeeLine[];
+  taxLines: WooOrderTaxLine[];
+  discountTotal: string;
+  discountTax: string;
+  shippingTotal: string;
+  shippingTax: string;
+  total: string;
+  totalTax: string;
+}
+
+function mapOrder(raw: WooApiOrder): WooOrder {
+  return {
+    id: raw.id,
+    number: raw.number,
+    status: raw.status,
+    orderKey: raw.order_key,
+    paymentMethodTitle: raw.payment_method_title,
+    billing: raw.billing,
+    shipping: raw.shipping,
+    lineItems: raw.line_items,
+    feeLines: raw.fee_lines,
+    taxLines: raw.tax_lines,
+    discountTotal: raw.discount_total,
+    discountTax: raw.discount_tax,
+    shippingTotal: raw.shipping_total,
+    shippingTax: raw.shipping_tax,
+    total: raw.total,
+    totalTax: raw.total_tax,
+  };
+}
+
+/**
+ * Looks up an order for the post-payment return/confirmation page. Verifies
+ * the caller-supplied `key` against the order's real order_key before
+ * returning anything — our admin API credentials can fetch ANY order by
+ * ID regardless of who's asking, so without this check, a visitor could
+ * view another customer's order just by guessing/incrementing the ID in
+ * the URL.
+ */
+export async function getOrderByIdAndKey(orderId: number, key: string): Promise<WooOrder | null> {
+  if (!Number.isFinite(orderId) || orderId <= 0 || !key) return null;
+  let raw: WooApiOrder;
+  try {
+    raw = await wooCommerceFetch<WooApiOrder>(`/orders/${orderId}`, {}, { cache: "no-store" });
+  } catch {
+    return null;
+  }
+  if (raw.order_key !== key) return null;
+  return mapOrder(raw);
 }

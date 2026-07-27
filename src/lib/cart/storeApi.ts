@@ -177,3 +177,48 @@ export function updateCustomer(
     body: JSON.stringify(addresses),
   });
 }
+
+/**
+ * Verified directly against the live site (OPTIONS + real apply/remove
+ * calls): both endpoints take a single `{ code }` body field and return
+ * the full cart, same as every other cart mutation here. An invalid or
+ * expired code comes back as a normal Store API 400
+ * (woocommerce_rest_cart_coupon_error) with a human-readable `message`,
+ * which storeApiFetch already turns into a StoreApiError — no special
+ * handling needed beyond what every other route already gets.
+ */
+export function applyCoupon(tokens: CartTokens, code: string) {
+  return storeApiFetch("/cart/apply-coupon", tokens, {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export function removeCoupon(tokens: CartTokens, code: string) {
+  return storeApiFetch("/cart/remove-coupon", tokens, {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+/**
+ * Submits the actual order + payment. Verified directly against the live
+ * site: this creates a real WooCommerce order immediately (status
+ * "pending") and returns payment_result.redirect_url pointing at Tagada's
+ * hosted checkout (checkout.purposelabs.shop) — order-before-payment, with
+ * WooCommerce as the source of truth. The browser needs to navigate to
+ * that redirect_url; this function only gets it, it doesn't redirect.
+ */
+export function submitCheckout(
+  tokens: CartTokens,
+  payload: {
+    billing_address: AddressInput;
+    shipping_address: AddressInput;
+    payment_method: string;
+  }
+) {
+  return storeApiFetch("/checkout", tokens, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

@@ -94,8 +94,9 @@ export function OrderConfirmation({ data }: { data: OrderConfirmationData }) {
       </div>
 
       <p className="mb-8 text-xs" style={{ color: "var(--pl-muted)" }}>
-        Paid via {data.paymentMethodLabel}. This confirmation is from the payment stub, not a real
-        order — no charge was made and nothing was submitted to WooCommerce as a completed order.
+        {data.status === "mock-pending"
+          ? `Paid via ${data.paymentMethodLabel}. This confirmation is from the payment stub, not a real order — no charge was made and nothing was submitted to WooCommerce as a completed order.`
+          : `Paid via ${data.paymentMethodLabel}.`}
       </p>
 
       <div className="text-center">

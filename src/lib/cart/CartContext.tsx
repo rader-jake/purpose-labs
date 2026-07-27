@@ -25,14 +25,30 @@ interface CartContextValue {
     shipping_address: AddressInput;
     billing_address: AddressInput;
   }) => Promise<void>;
+  applyCoupon: (code: string) => Promise<void>;
+  removeCoupon: (code: string) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+/**
+ * WooCommerce coupon errors (and only coupon errors, so far) come back
+ * HTML-entity-encoded, e.g. `Coupon &quot;x&quot; does not exist.` —
+ * every other cart error message so far has been plain text. Decoding
+ * via a detached textarea is the standard safe way to unescape entities
+ * without risking the input being parsed as live markup.
+ */
+function decodeHtmlEntities(text: string): string {
+  const el = document.createElement("textarea");
+  el.innerHTML = text;
+  return el.value;
+}
+
 async function parseCartResponse(response: Response): Promise<Cart> {
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(typeof data?.message === "string" ? data.message : "Cart request failed");
+    const message = typeof data?.message === "string" ? data.message : "Cart request failed";
+    throw new Error(decodeHtmlEntities(message));
   }
   return data as Cart;
 }
@@ -110,6 +126,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const applyCoupon = useCallback(async (code: string) => {
+    setError(null);
+    try {
+      const response = await fetch("/api/cart/apply-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await parseCartResponse(response);
+      setCart(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to apply coupon");
+      throw err;
+    }
+  }, []);
+
+  const removeCoupon = useCallback(async (code: string) => {
+    setError(null);
+    try {
+      const response = await fetch("/api/cart/remove-coupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await parseCartResponse(response);
+      setCart(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove coupon");
+      throw err;
+    }
+  }, []);
+
   const updateCustomerAddress = useCallback(
     async (addresses: { shipping_address: AddressInput; billing_address: AddressInput }) => {
       setError(null);
@@ -144,6 +192,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       updateCustomerAddress,
+      applyCoupon,
+      removeCoupon,
     }),
     [
       cart,
@@ -156,6 +206,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateItem,
       removeItem,
       updateCustomerAddress,
+      applyCoupon,
+      removeCoupon,
     ]
   );
 

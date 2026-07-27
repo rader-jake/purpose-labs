@@ -5,9 +5,17 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
 import { PaymentStepStub } from "@/components/checkout/PaymentStepStub";
+import { TagadaPaymentStep } from "@/components/checkout/TagadaPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
+
+// Reversible, off-by-default gate — Tagada's WooCommerce gateway plugin has
+// a confirmed pricing bug (bac water shows full price on its hosted page
+// despite the underlying WooCommerce order being correct at $0), reported
+// to Tagada separately and not fixed here. Do not flip this on in any
+// environment that real customers can reach until that's resolved.
+const ENABLE_TAGADA = process.env.NEXT_PUBLIC_ENABLE_TAGADA === "true";
 
 type Step = "info" | "shipping" | "review" | "payment" | "confirmation";
 
@@ -290,12 +298,23 @@ export default function CheckoutPage() {
               {paymentError}
             </p>
           )}
-          <PaymentStepStub
-            amountCents={Number(cart.totals.total_price)}
-            currencyCode={cart.totals.currency_symbol}
-            onSuccess={handlePaymentSuccess}
-            onError={handlePaymentError}
-          />
+          {ENABLE_TAGADA ? (
+            <TagadaPaymentStep
+              amountCents={Number(cart.totals.total_price)}
+              currencyCode={cart.totals.currency_symbol}
+              billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
+              shippingAddress={buildAddressInput()}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+          ) : (
+            <PaymentStepStub
+              amountCents={Number(cart.totals.total_price)}
+              currencyCode={cart.totals.currency_symbol}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+          )}
         </CheckoutSection>
       </div>
     </main>

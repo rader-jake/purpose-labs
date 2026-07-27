@@ -1,4 +1,5 @@
 import type { AddressInput, Cart, CartFee, CartItem, CartTotals } from "@/lib/cart/types";
+import type { WooOrder, WooOrderAddress } from "@/lib/woocommerce";
 
 // ---------------------------------------------------------------------------
 // Reference: the real Store API checkout contract, verified against
@@ -100,5 +101,108 @@ export function buildMockOrderConfirmation(
     items: cart.items,
     fees: cart.fees,
     totals: cart.totals,
+  };
+}
+
+// --- Real order -> confirmation mapping --------------------------------
+//
+// WooOrder (from src/lib/woocommerce.ts) carries decimal-dollar strings
+// ("35.00"), matching the REST API v3 order schema. OrderConfirmationData
+// (and the OrderConfirmation component that renders it) expects the Store
+// API's cent-integer-string convention ("3500") instead, since that's what
+// the rest of checkout already works in. toCents() bridges the two so
+// OrderConfirmation.tsx doesn't need to know which source its data came
+// from — verified it only reads item.key/name/quantity/totals.line_total
+// per item, plus the totals object, so the fields below that aren't
+// populated with real data (permalink, images, short_description) are
+// safe to leave empty.
+
+function toCents(dollars: string): string {
+  return String(Math.round(parseFloat(dollars) * 100));
+}
+
+function mapOrderAddress(addr: WooOrderAddress): AddressInput {
+  return {
+    first_name: addr.first_name,
+    last_name: addr.last_name,
+    address_1: addr.address_1,
+    address_2: addr.address_2,
+    city: addr.city,
+    state: addr.state,
+    postcode: addr.postcode,
+    country: addr.country,
+    email: addr.email,
+    phone: addr.phone,
+  };
+}
+
+export function mapOrderToConfirmationData(order: WooOrder): OrderConfirmationData {
+  const items: CartItem[] = order.lineItems.map((li) => ({
+    key: String(li.id),
+    id: li.id,
+    quantity: li.quantity,
+    quantity_limits: { minimum: 1, maximum: li.quantity, multiple_of: 1, editable: false },
+    name: li.name,
+    short_description: "",
+    permalink: "",
+    images: [],
+    prices: {
+      price: toCents(li.total),
+      regular_price: toCents(li.total),
+      sale_price: toCents(li.total),
+      currency_minor_unit: 2,
+      currency_symbol: "$",
+    },
+    totals: {
+      line_subtotal: toCents(li.subtotal),
+      line_subtotal_tax: toCents(li.subtotal_tax),
+      line_total: toCents(li.total),
+      line_total_tax: toCents(li.total_tax),
+    },
+  }));
+
+  const fees: CartFee[] = order.feeLines.map((fee) => ({
+    key: String(fee.id),
+    name: fee.name,
+    totals: {
+      total: toCents(fee.total),
+      total_tax: toCents(fee.total_tax),
+    },
+  }));
+
+  const totalItems = order.lineItems.reduce((sum, li) => sum + parseFloat(li.subtotal), 0);
+  const totalItemsTax = order.lineItems.reduce((sum, li) => sum + parseFloat(li.subtotal_tax), 0);
+  const totalFees = order.feeLines.reduce((sum, fee) => sum + parseFloat(fee.total), 0);
+  const totalFeesTax = order.feeLines.reduce((sum, fee) => sum + parseFloat(fee.total_tax), 0);
+
+  const totals: CartTotals = {
+    total_items: toCents(totalItems.toFixed(2)),
+    total_items_tax: toCents(totalItemsTax.toFixed(2)),
+    total_fees: toCents(totalFees.toFixed(2)),
+    total_fees_tax: toCents(totalFeesTax.toFixed(2)),
+    total_discount: toCents(order.discountTotal),
+    total_discount_tax: toCents(order.discountTax),
+    total_shipping: toCents(order.shippingTotal),
+    total_shipping_tax: toCents(order.shippingTax),
+    total_price: toCents(order.total),
+    total_tax: toCents(order.totalTax),
+    tax_lines: order.taxLines.map((t) => ({
+      name: t.label,
+      price: toCents(t.tax_total),
+      rate: String(t.rate_percent),
+    })),
+    currency_minor_unit: 2,
+    currency_symbol: "$",
+  };
+
+  return {
+    orderNumber: order.number,
+    status: order.status,
+    paymentMethodLabel: order.paymentMethodTitle,
+    billingAddress: mapOrderAddress(order.billing),
+    shippingAddress: mapOrderAddress(order.shipping),
+    items,
+    fees,
+    totals,
   };
 }

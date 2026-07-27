@@ -54,6 +54,15 @@ export interface CartFee {
   };
 }
 
+export interface CartCoupon {
+  code: string;
+  discount_type: string;
+  totals: {
+    total_discount: string;
+    total_discount_tax: string;
+  };
+}
+
 export interface CartTotals {
   total_items: string;
   total_items_tax: string;
@@ -100,6 +109,7 @@ export interface AddressInput {
 export interface Cart {
   items: CartItem[];
   fees: CartFee[];
+  coupons: CartCoupon[];
   totals: CartTotals;
   items_count: number;
   items_weight: number;
