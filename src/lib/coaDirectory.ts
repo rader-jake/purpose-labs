@@ -16,15 +16,18 @@
 //   just self-hosted instead of linked cross-domain.
 //
 // Hosting: self-hosted under /public/coas/ for every doc that's a real
-// file (image/PDF), rather than linked directly to
-// purposelabs.shop/wp-content/... — confirmed those absolute links would
-// break if purposelabs.shop's DNS moves to Vercel and WordPress relocates
-// to a subdomain (wp-content paths don't carry over automatically). The
+// file (image/PDF), rather than linked directly to the WordPress origin
+// — this is exactly the risk that materialized: purposelabs.shop's DNS
+// moved to this Vercel frontend and WordPress relocated to
+// joshuar120.sg-host.com, which would have silently broken every
+// hardcoded purposelabs.shop link if they hadn't been self-hosted. The
 // two IGF-1-LR3/Tirzepatide entries are the deliberate exception: their
 // COA lives behind a full WordPress page (not a raw file), so there's
-// nothing static to self-host — those stay as live purposelabs.shop
-// links. CoaModal handles a non-file URL gracefully (link-out card
-// instead of a broken embed) for exactly this case.
+// nothing static to self-host — those stay as live links built from
+// NEXT_PUBLIC_WORDPRESS_ORIGIN (see .env.local) instead of a hardcoded
+// domain, so the next backend move doesn't repeat this. CoaModal
+// handles a non-file URL gracefully (link-out card instead of a broken
+// embed) for exactly this case.
 
 export type CoaDoc = { label: string; url: string };
 
@@ -183,7 +186,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.56%",
     method: "HPLC-UV + LC-MS",
     lot: "IG18584",
-    docs: [{ label: "View COA", url: "https://purposelabs.shop/coa-igf-1-lr3/" }],
+    docs: [{ label: "View COA", url: `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/coa-igf-1-lr3/` }],
   },
   {
     // Same as IGF-1-LR3 above — page link, not a raw file.
@@ -193,7 +196,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.74%",
     method: "HPLC-UV + LC-MS",
     lot: "TR8585",
-    docs: [{ label: "View COA", url: "https://purposelabs.shop/coa-tirzepatide/" }],
+    docs: [{ label: "View COA", url: `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/coa-tirzepatide/` }],
   },
 ];
 

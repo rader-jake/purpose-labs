@@ -5,7 +5,9 @@ import { ProductTilt } from "@/components/ProductTilt";
 import { Reveal } from "./Reveal";
 
 export function EditorialStory() {
-  const storyImage = "https://purposelabs.shop/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-05_57_26-PM.png"; // CJC-1295 + Ipamorelin
+  // Derived from the backend origin, not hardcoded — see
+  // NEXT_PUBLIC_WORDPRESS_ORIGIN in .env.local.
+  const storyImage = `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-05_57_26-PM.png`; // CJC-1295 + Ipamorelin
 
   return (
     <section 

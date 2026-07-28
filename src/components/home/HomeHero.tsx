@@ -3,7 +3,11 @@ import { HeroProductVisual } from "./HeroProductVisual";
 import { Reveal } from "./Reveal";
 
 export function HomeHero() {
-  const heroImage = "https://purposelabs.shop/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-06_06_05-PM.png";
+  // Derived from the backend origin, not hardcoded — see
+  // NEXT_PUBLIC_WORDPRESS_ORIGIN in .env.local. Points at whatever host
+  // WordPress actually lives on, so this doesn't silently break again
+  // next time the backend moves.
+  const heroImage = `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-06_06_05-PM.png`;
 
   return (
     <section 
