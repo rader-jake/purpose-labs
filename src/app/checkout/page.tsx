@@ -392,6 +392,14 @@ function OrderReview({ cart, onContinue }: { cart: NonNullable<ReturnType<typeof
         </div>
       </div>
 
+      {/* Last chance to catch an address mistake before we hand off to
+          Tagada's hosted page — once redirected there, we have no way to
+          fix it. No autocomplete/validation on the address fields yet
+          (future improvement), so this is a manual nudge instead. */}
+      <p className="text-xs" style={{ color: "var(--pl-muted)" }}>
+        Please double-check your shipping address before continuing — orders ship exactly as entered.
+      </p>
+
       <SectionSubmitButton onClick={onContinue}>Continue to payment</SectionSubmitButton>
     </div>
   );
