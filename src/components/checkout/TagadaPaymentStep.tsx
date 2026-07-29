@@ -3,7 +3,6 @@
 import { useState } from "react";
 import type { AddressInput } from "@/lib/cart/types";
 import type { PaymentStepProps } from "@/lib/payment/types";
-import { formatMoney } from "@/lib/cart/money";
 
 export interface TagadaPaymentStepProps extends PaymentStepProps {
   billingAddress: AddressInput;
@@ -22,9 +21,15 @@ export interface TagadaPaymentStepProps extends PaymentStepProps {
  * full-page navigation away from this component, before payment is even
  * attempted, so onSuccess (required by PaymentStepProps) is accepted but
  * never called. Only onError fires, for a failed checkout submission.
+ *
+ * Button reads "Continue to Payment" rather than the amount — checkout is
+ * now a single consolidated page with the order total always visible in
+ * its own summary section just above this, so repeating it here would be
+ * redundant. amountCents is still accepted (required by PaymentStepProps,
+ * shared with PaymentStepStub) even though this component doesn't display
+ * it.
  */
 export function TagadaPaymentStep({
-  amountCents,
   billingAddress,
   shippingAddress,
   onError,
@@ -82,7 +87,7 @@ export function TagadaPaymentStep({
           fontFamily: "var(--pl-font-body)",
         }}
       >
-        {isSubmitting ? "Redirecting…" : `Pay ${formatMoney(amountCents)}`}
+        {isSubmitting ? "Redirecting…" : "Continue to Payment"}
       </button>
     </div>
   );
