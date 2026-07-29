@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import { LogoMark } from "./Logo";
 
 const FOOTER_COLUMNS = [
   {
@@ -42,7 +42,12 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <div className="mb-4 flex items-center gap-2">
-              <LogoMark />
+              <Image
+                src="/purposeLabsLogo.png"
+                alt="Purpose Labs"
+                width={28}
+                height={28}
+              />
               <span
                 className="text-xl"
                 style={{

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LogoMark } from "./Logo";
 import { useCart } from "@/lib/cart/CartContext";
+import Image from "next/image";
 
 const NAV_LINKS = [
   { label: "Quality & COAs", href: "/quality" },
@@ -110,7 +110,12 @@ export function Header() {
             href="/"
             className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3"
           >
-            <LogoMark />
+            <Image
+              src="/purposeLabsLogo.png"
+              alt="Purpose Labs"
+              width={28}
+              height={28}
+            />
             <span
               className="text-2xl sm:text-3xl"
               style={{
