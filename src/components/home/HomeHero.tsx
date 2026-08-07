@@ -33,7 +33,7 @@ export function HomeHero() {
                 className="mb-3 inline-block text-[10px] font-bold uppercase tracking-[0.2em]"
                 style={{ color: "var(--pl-slate)" }}
               >
-                Third-Party Tested in the USA
+                3rd-Party Tested in the USA
               </span>
             </Reveal>
 
