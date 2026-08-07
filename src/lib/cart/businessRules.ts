@@ -19,16 +19,29 @@ import type { CartItem } from "./types";
 export const FREE_SHIPPING_THRESHOLD_CENTS = 20000; // $200.00
 
 /**
- * STOPGAP — price-based inference, not a real "is this free" flag.
+ * STOPGAP — inference from real cart totals, not a real "is this free"
+ * flag.
  *
  * The Store API has no custom flag (pl_free_bac, _bogo_free, etc.)
  * marking a line item as free/gifted — confirmed empirically: item_data
- * is empty and extensions only carries unrelated plugin data. This
- * infers "free" from price being zero while regular_price isn't, which
- * is a reasonable proxy for bac water and BOGO-style gifts but is not
- * authoritative — a legitimately $0 product would be indistinguishable
- * from a gifted one. Replace once the schema exposes a real flag.
+ * is empty and extensions only carries unrelated plugin data.
+ *
+ * This used to check item.prices.price === "0" directly, which matched
+ * how bac water's free pricing worked originally (the item's own price
+ * zeroed out). WooCommerce silently switched mechanisms at some point —
+ * confirmed against a live cart response: bac water's prices.price and
+ * regular_price now both stay at full price ("999"), and the $0 is
+ * applied instead via a cart-level coupon (pl-auto-bacwater). The old
+ * check went stale and stopped disabling quantity controls for it.
+ *
+ * Checking totals.line_total instead of prices.price is a strict
+ * superset that covers both mechanisms: a directly-zeroed price also
+ * zeroes line_total (so nothing regresses for that case), and a
+ * coupon-zeroed line shows up here too, since line_total reflects
+ * whatever discount actually applied — coupon or otherwise. Still not
+ * authoritative: a legitimately $0 product would look identical to a
+ * gifted one. Replace once the schema exposes a real flag.
  */
-export function isFreeItem(item: Pick<CartItem, "prices">): boolean {
-  return item.prices.price === "0" && item.prices.regular_price !== "0";
+export function isFreeItem(item: Pick<CartItem, "totals">): boolean {
+  return item.totals.line_total === "0" && item.totals.line_subtotal !== "0";
 }
