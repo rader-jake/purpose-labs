@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 const VIALS = [
   { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157" },
-  { src: "/hero-rt.png",     alt: "RT 10MG",       label: "RT"      },
-  { src: "/hero-tb500.png",  alt: "TB-500 10MG",   label: "TB-500"  },
+  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C"  },
+  { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500"  },
 ];
 
 type HeroProductVisualProps = {
@@ -64,7 +64,7 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
       {/* Left vial */}
       <div
         className={`absolute bottom-8 flex flex-col items-center ${!reducedMotion ? "float-left" : ""}`}
-        style={{ left: "2%", zIndex: 5 }}
+        style={{ left: "10%", zIndex: 5 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false}
@@ -91,7 +91,7 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
       {/* Right vial */}
       <div
         className={`absolute bottom-8 flex flex-col items-center ${!reducedMotion ? "float-right" : ""}`}
-        style={{ right: "2%", zIndex: 5 }}
+        style={{ right: "10%", zIndex: 5 }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false}
