@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const products = await getProducts();
+  const products = await getProducts({ orderby: "menu_order" });
 
   return (
     <main
