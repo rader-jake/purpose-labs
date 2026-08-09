@@ -77,27 +77,32 @@ export function HeroProductVisual({ imageSrc, imageAlt }: HeroProductVisualProps
     >
       <style>{`
         @keyframes hero-float {
-          0%, 100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-6px) rotate(0.8deg);
-          }
+          0%   { transform: translateY(0px) rotate(-1deg) scale(1); }
+          25%  { transform: translateY(-14px) rotate(0.5deg) scale(1.01); }
+          50%  { transform: translateY(-20px) rotate(1.5deg) scale(1.02); }
+          75%  { transform: translateY(-10px) rotate(0.2deg) scale(1.01); }
+          100% { transform: translateY(0px) rotate(-1deg) scale(1); }
+        }
+        @keyframes hero-glow-pulse {
+          0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+          50%       { opacity: 0.95; transform: translate(-50%, -50%) scale(1.08); }
         }
         .animate-hero-float {
-          animation: hero-float 7.5s ease-in-out infinite;
+          animation: hero-float 5s ease-in-out infinite;
+        }
+        .animate-glow-pulse {
+          animation: hero-glow-pulse 5s ease-in-out infinite;
         }
       `}</style>
 
       {/* Soft Ambient Light Bloom Behind the Vial */}
       <div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none transition-opacity duration-500"
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none ${shouldAnimate ? "animate-glow-pulse" : ""}`}
         style={{
-          width: "130%",
-          height: "130%",
-          background: "radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(155, 164, 180, 0.12) 40%, transparent 65%)",
-          filter: "blur(30px)",
-          opacity: isActive && !isTouch ? 0.95 : 0.75,
+          width: "140%",
+          height: "140%",
+          background: "radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(155, 164, 180, 0.18) 40%, transparent 65%)",
+          filter: "blur(35px)",
           zIndex: 1,
         }}
       />
