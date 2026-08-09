@@ -7,7 +7,7 @@ export function HomeHero() {
   // NEXT_PUBLIC_WORDPRESS_ORIGIN in .env.local. Points at whatever host
   // WordPress actually lives on, so this doesn't silently break again
   // next time the backend moves.
-  const heroImage = `/ghkcu-hero.jpg`;
+  const heroImage = `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/wp-content/uploads/2026/04/theSummerStack-scaled.png`;
 
   return (
     <section 
