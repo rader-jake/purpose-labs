@@ -1,142 +1,123 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-const VIALS = [
-  { src: "/hero-bpc157.jpg", alt: "BPC-157 10MG", label: "BPC-157" },
-  { src: "/hero-tb500.jpg",  alt: "TB-500 10MG",  label: "TB-500"  },
-  { src: "/hero-ghkcu.jpg",  alt: "GHK-CU 50MG",  label: "GHK-CU" },
-  { src: "/hero-rt.jpg",     alt: "RT 10MG",       label: "RT"      },
-];
-
-// Each vial floats independently — different duration, delay, amplitude
-const FLOAT_CONFIGS = [
-  { duration: 5.2, delay: 0,    yAmp: 18, rot: 1.2  }, // left
-  { duration: 6.0, delay: 0.8,  yAmp: 24, rot: -0.8 }, // center (biggest)
-  { duration: 4.8, delay: 1.6,  yAmp: 16, rot: 1.5  }, // right
-];
+import { useEffect, useRef, useState } from "react";
 
 type HeroProductVisualProps = {
-  imageSrc?: string;
-  imageAlt?: string;
+  imageSrc: string;
+  imageAlt: string;
 };
 
-export function HeroProductVisual(_props: HeroProductVisualProps) {
+const MAX_TILT = 8;
+
+export function HeroProductVisual({ imageSrc, imageAlt }: HeroProductVisualProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
+  const [shine, setShine] = useState({ x: 50, y: 50 });
+  const [isActive, setIsActive] = useState(false);
+  const [isTouch, setIsTouch] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const animFrame = requestAnimationFrame(() => {
+      setIsTouch(isTouchDevice);
+      setReducedMotion(motionQuery.matches);
+    });
+    const handleMotionChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    motionQuery.addEventListener("change", handleMotionChange);
+    return () => {
+      cancelAnimationFrame(animFrame);
+      motionQuery.removeEventListener("change", handleMotionChange);
+    };
   }, []);
 
-  // Show 3 vials — pick first 3 from VIALS
-  const displayVials = VIALS.slice(0, 3);
+  function handleMouseMove(clientX: number, clientY: number) {
+    if (isTouch || reducedMotion) return;
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const relX = (clientX - rect.left) / rect.width;
+    const relY = (clientY - rect.top) / rect.height;
+    setTransform({ rotateX: (0.5 - relY) * 2 * MAX_TILT, rotateY: (relX - 0.5) * 2 * MAX_TILT });
+    setShine({ x: relX * 100, y: relY * 100 });
+  }
+
+  function reset() {
+    setTransform({ rotateX: 0, rotateY: 0 });
+    setIsActive(false);
+  }
+
+  const shouldAnimate = !reducedMotion;
+  const shouldTilt = !isTouch && !reducedMotion && isActive;
 
   return (
     <div
-      className="relative mx-auto flex items-end justify-center select-none"
-      style={{ width: "100%", maxWidth: 480, height: 340 }}
+      ref={containerRef}
+      className="relative mx-auto flex items-center justify-center aspect-square w-full select-none cursor-default"
+      style={{ perspective: shouldTilt ? "1000px" : undefined, maxWidth: "min(100%, 360px)" }}
+      onMouseEnter={() => !isTouch && setIsActive(true)}
+      onMouseMove={(e) => handleMouseMove(e.clientX, e.clientY)}
+      onMouseLeave={reset}
     >
       <style>{`
-        @keyframes vial-float-0 {
-          0%,100% { transform: translateY(0px) rotate(-1.2deg); }
-          50%      { transform: translateY(-18px) rotate(1.2deg); }
-        }
-        @keyframes vial-float-1 {
-          0%,100% { transform: translateY(0px) rotate(0.8deg); }
-          50%      { transform: translateY(-24px) rotate(-0.8deg); }
-        }
-        @keyframes vial-float-2 {
-          0%,100% { transform: translateY(0px) rotate(-1.5deg); }
-          50%      { transform: translateY(-16px) rotate(1.5deg); }
+        @keyframes hero-float {
+          0%,100% { transform: translateY(0px) rotate(-0.5deg); }
+          50%      { transform: translateY(-14px) rotate(0.5deg); }
         }
         @keyframes glow-breathe {
-          0%,100% { opacity: 0.5; transform: scale(1); }
-          50%      { opacity: 0.85; transform: scale(1.1); }
+          0%,100% { opacity: 0.75; transform: translate(-50%,-50%) scale(1); }
+          50%      { opacity: 0.95; transform: translate(-50%,-50%) scale(1.06); }
         }
+        .animate-hero-float { animation: hero-float 6s ease-in-out infinite; }
+        .animate-glow-breathe { animation: glow-breathe 6s ease-in-out infinite; }
       `}</style>
 
-      {/* Ambient glow behind all vials */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className={`absolute top-1/2 left-1/2 rounded-full pointer-events-none ${shouldAnimate ? "animate-glow-breathe" : ""}`}
         style={{
-          background: "radial-gradient(ellipse at 50% 80%, rgba(255,255,255,0.9) 0%, rgba(155,164,180,0.15) 50%, transparent 75%)",
-          filter: "blur(28px)",
-          animation: reducedMotion ? "none" : "glow-breathe 5s ease-in-out infinite",
+          width: "140%", height: "140%",
+          background: "radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(155,164,180,0.18) 40%, transparent 65%)",
+          filter: "blur(35px)",
+          zIndex: 1,
         }}
       />
 
-      {/* Three vials */}
-      {displayVials.map((vial, i) => {
-        const cfg = FLOAT_CONFIGS[i];
-        const isCenter = i === 1;
-
-        return (
-          <div
-            key={vial.src}
-            className="absolute bottom-0 flex flex-col items-center"
+      <div
+        className={`relative z-10 flex h-full w-full items-center justify-center ${shouldAnimate ? "animate-hero-float" : ""}`}
+        style={{ transformStyle: shouldTilt ? "preserve-3d" : undefined }}
+      >
+        <div
+          className="relative flex h-full w-full items-center justify-center transition-transform ease-out"
+          style={{
+            transformStyle: shouldTilt ? "preserve-3d" : undefined,
+            transform: shouldTilt ? `rotateX(${transform.rotateX}deg) rotateY(${transform.rotateY}deg)` : "rotateX(0deg) rotateY(0deg)",
+            transitionDuration: shouldTilt ? "100ms" : "500ms",
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imageSrc}
+            alt={imageAlt}
+            draggable={false}
+            className="pointer-events-none max-h-[82%] max-w-[68%] select-none object-contain"
             style={{
-              // Positioning: left, center, right
-              left: i === 0 ? "2%" : i === 1 ? "50%" : "auto",
-              right: i === 2 ? "2%" : "auto",
-              transform: i === 1 ? "translateX(-50%)" : undefined,
-              zIndex: isCenter ? 10 : 5,
-              animation: reducedMotion
-                ? "none"
-                : `vial-float-${i} ${cfg.duration}s ease-in-out ${cfg.delay}s infinite`,
+              filter: "drop-shadow(0 15px 30px rgba(20,39,78,0.12))",
+              transform: shouldTilt ? "translateZ(30px)" : undefined,
             }}
-          >
-            {/* Per-vial glow */}
+          />
+          {shouldTilt && (
             <div
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[82%] max-h-[82%] w-[68%] max-w-[68%] -translate-x-1/2 -translate-y-1/2"
               style={{
-                position: "absolute",
-                bottom: -10,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: isCenter ? 120 : 90,
-                height: isCenter ? 120 : 90,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%)",
-                filter: "blur(16px)",
-                zIndex: -1,
+                background: `radial-gradient(circle at ${shine.x}% ${shine.y}%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 45%)`,
+                mixBlendMode: "soft-light",
+                zIndex: 2,
+                transform: "translateZ(31px)",
               }}
             />
-
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={vial.src}
-              alt={vial.alt}
-              draggable={false}
-              style={{
-                width: isCenter ? 160 : 110,
-                height: "auto",
-                objectFit: "contain",
-                filter: `drop-shadow(0 ${isCenter ? 20 : 12}px ${isCenter ? 40 : 24}px rgba(20,39,78,${isCenter ? 0.18 : 0.12}))`,
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Label badge */}
-            <span
-              style={{
-                marginTop: 10,
-                fontSize: isCenter ? 11 : 9,
-                fontWeight: 700,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "var(--pl-navy)",
-                opacity: 0.55,
-                fontFamily: "var(--pl-font-body)",
-              }}
-            >
-              {vial.label}
-            </span>
-          </div>
-        );
-      })}
+          )}
+        </div>
+      </div>
     </div>
   );
 }
