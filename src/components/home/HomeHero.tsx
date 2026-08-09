@@ -108,7 +108,7 @@ export function HomeHero() {
                 className="mt-6 text-[10px] font-semibold uppercase tracking-[0.12em]"
                 style={{ color: "var(--pl-muted)" }}
               >
-                Free Recon Water With Every Order · Same-Day Fulfillment · ≥99% Purity
+                Veteran Owned · Free Recon Water With Every Order · Same-Day Fulfillment · ≥99% Purity
               </p>
             </Reveal>
           </div>

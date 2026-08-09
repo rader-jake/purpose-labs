@@ -46,8 +46,8 @@ export function TrustStats() {
             </div>
             <div className="pt-8 md:pt-0">
               <StatTextItem
-                line1="Same-Day"
-                line2="Fulfillment"
+                line1="Veteran"
+                line2="Owned & Operated"
               />
             </div>
           </div>
