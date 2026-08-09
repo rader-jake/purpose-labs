@@ -26,6 +26,7 @@ const FOOTER_COLUMNS = [
       { label: "Privacy Policy", href: "/legal/privacy" },
       { label: "Refund Policy", href: "/legal/refund" },
       { label: "Terms", href: "/legal/terms" },
+      { label: "Shipping Policy", href: "/shipping-policy" },
     ],
   },
 ];
