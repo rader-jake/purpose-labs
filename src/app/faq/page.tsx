@@ -60,7 +60,7 @@ const SECTIONS = [
           "No. All products sold by Purpose Labs are strictly for laboratory research use only and are not intended for human or animal consumption. By purchasing, you confirm that you are a qualified researcher and will use products in compliance with all applicable laws and regulations.",
       },
       {
-        question: "Are your products FDA approved?",
+        question: "Are your products independently tested and certified?",
         answer:
           "No. Our products have not been evaluated or approved by the FDA. They are not intended to diagnose, treat, cure, or prevent any disease. Purpose Labs operates as a chemical supplier for research purposes only, not as a pharmacy or medical provider.",
       },
