@@ -196,7 +196,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.74%",
     method: "HPLC-UV + LC-MS",
     lot: "TR8585",
-    docs: [{ label: "View COA", url: `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/coa-tirzepatide/` }],
+    docs: [{ label: "View COA", url: "/coas/TIRZ-COA.jpg" }],
   },
 ];
 
