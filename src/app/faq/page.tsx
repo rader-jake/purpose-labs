@@ -17,12 +17,12 @@ const SECTIONS = [
       {
         question: "What form do the peptides come in?",
         answer:
-          "Our peptides are supplied in lyophilized (freeze-dried) powder form in sealed vials. This format ensures maximum stability during storage and shipping. Bacteriostatic water is required for reconstitution and is available separately in our store.",
+          "Our peptides are supplied in lyophilized (freeze-dried) powder form in sealed vials. This format ensures maximum stability during storage and shipping. Reconstitution water is required for reconstitution and is available separately in our store.",
       },
       {
         question: "How should peptides be stored?",
         answer:
-          "Lyophilized peptides should be stored at −20°C (in a freezer) and kept away from light and moisture. Once reconstituted with bacteriostatic water, store at 4°C (refrigerated) and use within 30 days for optimal stability.",
+          "Lyophilized peptides should be stored at −20°C (in a freezer) and kept away from light and moisture. Once reconstituted with reconstitution water, store at 4°C (refrigerated) and use within 30 days for optimal stability.",
       },
     ],
   },
@@ -32,7 +32,7 @@ const SECTIONS = [
       {
         question: "Do you offer free shipping?",
         answer:
-          "Yes — we offer free shipping on all orders over $200. All orders also include a free vial of bacteriostatic water. Orders are processed and shipped within 48 hours from our US-based facility.",
+          "Yes — we offer free shipping on all orders over $200. All orders also include a free vial of reconstitution water. Orders are processed and shipped within 48 hours from our US-based facility.",
       },
       {
         question: "Where do you ship?",

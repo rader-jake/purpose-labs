@@ -7,7 +7,7 @@ const FOOTER_COLUMNS = [
     links: [
       { label: "Catalog", href: "/products" },
       { label: "Best Sellers", href: "/best-sellers" },
-      { label: "Bac Water", href: "/products/bac-water" },
+      { label: "Reconstitution Water", href: "/products/bac-water" },
     ],
   },
   {
