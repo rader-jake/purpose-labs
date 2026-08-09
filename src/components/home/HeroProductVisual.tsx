@@ -27,7 +27,7 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
   return (
     <div
       className="relative mx-auto select-none"
-      style={{ width: "100%", maxWidth: 480, height: 360 }}
+      style={{ width: "100%", maxWidth: 480, height: 360, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 24 }}
     >
       <style>{`
         @keyframes float-left {
@@ -62,10 +62,7 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
       />
 
       {/* Left vial */}
-      <div
-        className={`absolute bottom-8 flex flex-col items-center ${!reducedMotion ? "float-left" : ""}`}
-        style={{ left: "50%", marginLeft: -210, zIndex: 5 }}
-      >
+      <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-left" : ""}`} style={{ zIndex: 5 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false}
           style={{ width: 115, height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.14))", pointerEvents: "none" }} />
@@ -75,11 +72,8 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
       </div>
 
       {/* Center vial — largest */}
-      <div
-        className={`absolute bottom-4 flex flex-col items-center ${!reducedMotion ? "float-center" : ""}`}
-        style={{ left: "50%", transform: "translateX(-50%)", zIndex: 10 }}
-      >
-        <div style={{ position: "absolute", bottom: -8, left: "50%", transform: "translateX(-50%)", width: 130, height: 130, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.85) 0%, transparent 70%)", filter: "blur(18px)", zIndex: -1 }} />
+      <div className={`relative flex flex-col items-center justify-end pb-4 ${!reducedMotion ? "float-center" : ""}`} style={{ zIndex: 10 }}>
+        <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 130, height: 130, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.85) 0%, transparent 70%)", filter: "blur(18px)", zIndex: -1 }} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={VIALS[1].src} alt={VIALS[1].alt} draggable={false}
           style={{ width: 168, height: "auto", objectFit: "contain", filter: "drop-shadow(0 20px 40px rgba(20,39,78,0.2))", pointerEvents: "none" }} />
@@ -89,10 +83,7 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
       </div>
 
       {/* Right vial */}
-      <div
-        className={`absolute bottom-8 flex flex-col items-center ${!reducedMotion ? "float-right" : ""}`}
-        style={{ left: "50%", marginLeft: 90, zIndex: 5 }}
-      >
+      <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-right" : ""}`} style={{ zIndex: 5 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false}
           style={{ width: 115, height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.14))", pointerEvents: "none" }} />
