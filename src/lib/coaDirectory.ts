@@ -186,7 +186,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.56%",
     method: "HPLC-UV + LC-MS",
     lot: "IG18584",
-    docs: [{ label: "View COA", url: `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/coa-igf-1-lr3/` }],
+    docs: [{ label: "View COA", url: "/coas/IGF-1-LR3-COA.jpg" }],
   },
   {
     // Same as IGF-1-LR3 above — page link, not a raw file.
