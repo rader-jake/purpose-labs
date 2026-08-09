@@ -33,7 +33,7 @@ export function HomeHero() {
                 className="mb-3 inline-block text-[10px] font-bold uppercase tracking-[0.2em]"
                 style={{ color: "var(--pl-slate)" }}
               >
-                3rd-Party Tested in the USA
+                #1 Trusted Peptide Source · US-Based · Ships Same Day
               </span>
             </Reveal>
 
@@ -46,7 +46,7 @@ export function HomeHero() {
                   lineHeight: 1.05
                 }}
               >
-                Research Without<br />Compromise.
+                The Purest<br />Peptides.<br />Shipped Today.
               </h1>
             </Reveal>
           </div>
@@ -71,12 +71,11 @@ export function HomeHero() {
                 className="max-w-lg text-sm sm:text-base leading-relaxed mb-4"
                 style={{ color: "var(--pl-text-secondary)" }}
               >
-                High-purity research compounds backed by third-party testing, 
-                batch-specific documentation, and transparent analytical standards.
+                ≥99% purity. Batch-verified by independent US labs. Every order ships same-day with a free vial of reconstitution water — no minimums, no compromises.
               </p>
             </Reveal>
 
-            {/* Brand Slogan */}
+            {/* Social Proof Line */}
             <Reveal delay={350}>
               <div className="mb-6 flex items-center gap-2">
                 <span className="h-[1px] w-6 bg-[rgba(57,72,103,0.25)]" />
@@ -86,25 +85,19 @@ export function HomeHero() {
                     color: "var(--pl-slate)" 
                   }}
                 >
-                  Your Goals, Our Purpose.
+                  Trusted by 3,000+ researchers across the US
                 </span>
               </div>
             </Reveal>
 
-            {/* CTA Buttons */}
+            {/* Single CTA */}
             <Reveal delay={400}>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
                 <Link
                   href="/products"
-                  className="rounded-full h-11 px-8 text-xs font-semibold uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 bg-[#14274E] text-[#F1F6F9] hover:bg-[#0f1d3b]"
+                  className="rounded-full h-12 px-10 text-sm font-semibold uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 bg-[#14274E] text-[#F1F6F9] hover:bg-[#0f1d3b]"
                 >
-                  Explore the Catalog
-                </Link>
-                <Link
-                  href="/quality"
-                  className="rounded-full border h-11 px-8 text-xs font-semibold uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 border-[rgba(155,164,180,0.32)] text-[#14274E] bg-transparent hover:border-[#14274E] hover:bg-[rgba(20,39,78,0.03)]"
-                >
-                  View Quality Standards
+                  Shop the Catalog →
                 </Link>
               </div>
             </Reveal>
@@ -115,7 +108,7 @@ export function HomeHero() {
                 className="mt-6 text-[10px] font-semibold uppercase tracking-[0.12em]"
                 style={{ color: "var(--pl-muted)" }}
               >
-                Third-Party Tested in the USA · ≥99% Purity · Batch-Specific COAs
+                Free Recon Water With Every Order · Same-Day Fulfillment · ≥99% Purity
               </p>
             </Reveal>
           </div>

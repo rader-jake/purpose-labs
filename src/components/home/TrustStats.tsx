@@ -27,7 +27,7 @@ export function TrustStats() {
             <StatItem
               value={5000}
               suffix="+"
-              label="Orders Shipped"
+              label="Orders Fulfilled"
               mounted={mounted}
             />
             <div className="pt-0 md:pt-0">
@@ -40,14 +40,14 @@ export function TrustStats() {
             </div>
             <div className="pt-8 md:pt-0">
               <StatTextItem
-                line1="Same-Day"
-                line2="Order Processing"
+                line1="Free Recon"
+                line2="Water Every Order"
               />
             </div>
             <div className="pt-8 md:pt-0">
               <StatTextItem
-                line1="Secure"
-                line2="Discreet Shipping"
+                line1="Same-Day"
+                line2="Fulfillment"
               />
             </div>
           </div>
