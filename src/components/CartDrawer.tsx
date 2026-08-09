@@ -318,7 +318,10 @@ function CartLineItem({ item }: { item: CartItem }) {
     }
   }
 
-  const controlsDisabled = free || !item.quantity_limits.editable || isPending;
+  // Allow increasing quantity even on free items (extra units are charged full price via coupon limit)
+  const decreaseDisabled = free || !item.quantity_limits.editable || isPending;
+  const increaseDisabled = !item.quantity_limits.editable || isPending;
+  const controlsDisabled = decreaseDisabled;
 
   return (
     <li className="flex gap-4">
@@ -379,7 +382,7 @@ function CartLineItem({ item }: { item: CartItem }) {
             </span>
             <button
               onClick={() => handleQuantityChange(item.quantity + 1)}
-              disabled={controlsDisabled}
+              disabled={increaseDisabled}
               aria-label="Increase quantity"
               className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40"
               style={{ color: "var(--pl-navy)" }}
