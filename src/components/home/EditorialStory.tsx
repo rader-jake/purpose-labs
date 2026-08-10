@@ -19,7 +19,7 @@ export function EditorialStory() {
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
           
           {/* Left Column: Flappy Vial Game */}
-          <div className="relative overflow-hidden rounded-xl bg-[#0d1c3a] h-[520px] sm:h-[580px] lg:col-span-6 flex items-center justify-center">
+          <div className="relative overflow-hidden rounded-xl bg-[#14274E] h-[400px] sm:h-[480px] lg:col-span-6">
             <FlappyVial />
             {/* Subtle glow border */}
             <div className="absolute inset-0 border border-white/10 rounded-xl pointer-events-none" />
