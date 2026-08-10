@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useCallback } from "react";
 
+const GW = 288; // game width — classic Flappy Bird dimensions
+const GH = 512; // game height
 const GRAVITY = 0.45;
 const JUMP_VELOCITY = -8;
 const PIPE_WIDTH = 52;
-const PIPE_GAP = 160;
+const PIPE_GAP = 150;
 const PIPE_SPEED = 2.4;
 const PIPE_INTERVAL = 1600;
 
@@ -41,16 +43,12 @@ export function FlappyVial() {
     const ctx = canvas.getContext("2d")!;
     if (!ctx) return;
 
-    let W = 0, H = 0;
+    const W = GW;
+    const H = GH;
 
     function resize() {
-      const parent = canvas!.parentElement;
-      if (!parent) return;
-      W = parent.clientWidth;
-      H = parent.clientHeight;
       canvas!.width = W;
       canvas!.height = H;
-      if (stateRef.current !== "playing") birdRef.current.y = H / 2;
     }
 
     function reset() {
@@ -236,22 +234,22 @@ export function FlappyVial() {
     canvas.addEventListener("click", handleClick);
     canvas.addEventListener("touchstart", (e) => { e.preventDefault(); handleClick(); }, { passive: false });
     window.addEventListener("keydown", handleKey);
-    window.addEventListener("resize", resize);
 
     return () => {
       cancelAnimationFrame(animRef.current);
       canvas.removeEventListener("click", handleClick);
       window.removeEventListener("keydown", handleKey);
-      window.removeEventListener("resize", resize);
     };
   }, [jump]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 h-full w-full cursor-pointer"
+      width={GW}
+      height={GH}
+      className="cursor-pointer rounded-lg"
       aria-label="Flappy Vial — tap or press space to play"
-      style={{ touchAction: "none" }}
+      style={{ touchAction: "none", display: "block", maxHeight: "100%", maxWidth: "100%" }}
     />
   );
 }
