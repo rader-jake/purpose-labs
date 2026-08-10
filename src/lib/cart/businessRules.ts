@@ -42,6 +42,10 @@ export const FREE_SHIPPING_THRESHOLD_CENTS = 20000; // $200.00
  * authoritative: a legitimately $0 product would look identical to a
  * gifted one. Replace once the schema exposes a real flag.
  */
-export function isFreeItem(item: Pick<CartItem, "totals">): boolean {
-  return item.totals.line_total === "0" && item.totals.line_subtotal !== "0";
+export function isFreeItem(item: Pick<CartItem, "totals" | "prices">): boolean {
+  // Coupon-zeroed items: line_total=0 but line_subtotal reflects full price
+  if (item.totals.line_total === "0" && item.totals.line_subtotal !== "0") return true;
+  // Price-zeroed items (B2G1 free): price set to 0 directly on the item
+  if (item.prices.price === "0" && item.prices.regular_price !== "0") return true;
+  return false;
 }
