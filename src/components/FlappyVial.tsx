@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 const GRAVITY = 0.45;
 const JUMP_VELOCITY = -8;
 const PIPE_WIDTH = 52;
 const PIPE_GAP = 160;
 const PIPE_SPEED = 2.4;
-const PIPE_INTERVAL = 1600; // ms
+const PIPE_INTERVAL = 1600;
 
 type GameState = "idle" | "playing" | "dead";
+type Pipe = { x: number; gapY: number; scored: boolean };
 
 export function FlappyVial() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -17,16 +18,11 @@ export function FlappyVial() {
   const animRef = useRef<number>(0);
   const lastPipeRef = useRef<number>(0);
   const vialImgRef = useRef<HTMLImageElement | null>(null);
-
   const birdRef = useRef({ y: 0, vy: 0 });
-  const pipesRef = useRef<{ x: number; gapY: number }[]>([]);
+  const pipesRef = useRef<Pipe[]>([]);
   const scoreRef = useRef(0);
+  const bestRef = useRef(0);
 
-  const [displayState, setDisplayState] = useState<GameState>("idle");
-  const [score, setScore] = useState(0);
-  const [best, setBest] = useState(0);
-
-  // Load vial image once
   useEffect(() => {
     const img = new Image();
     img.src = "/hero-bpc157.png";
@@ -35,17 +31,14 @@ export function FlappyVial() {
 
   const jump = useCallback(() => {
     if (stateRef.current === "dead") return;
-    if (stateRef.current === "idle") {
-      stateRef.current = "playing";
-      setDisplayState("playing");
-    }
+    if (stateRef.current === "idle") stateRef.current = "playing";
     birdRef.current.vy = JUMP_VELOCITY;
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
     if (!ctx) return;
 
     let W = 0, H = 0;
@@ -57,8 +50,7 @@ export function FlappyVial() {
       H = parent.clientHeight;
       canvas!.width = W;
       canvas!.height = H;
-      // Reset bird to center on resize
-      birdRef.current.y = H / 2;
+      if (stateRef.current !== "playing") birdRef.current.y = H / 2;
     }
 
     function reset() {
@@ -66,19 +58,16 @@ export function FlappyVial() {
       pipesRef.current = [];
       scoreRef.current = 0;
       lastPipeRef.current = 0;
-      setScore(0);
       stateRef.current = "idle";
-      setDisplayState("idle");
     }
 
-    function drawStars(ctx: CanvasRenderingContext2D) {
-      // Static star pattern based on canvas size
-      const seed = 42;
+    function drawStars() {
+      if (!ctx) return;
       for (let i = 0; i < 60; i++) {
-        const sx = ((seed * (i * 7 + 3)) % W + W) % W;
-        const sy = ((seed * (i * 13 + 7)) % H + H) % H;
+        const sx = (i * 137.5 + 50) % W;
+        const sy = (i * 97.3 + 30) % H;
         const r = i % 3 === 0 ? 1.2 : 0.6;
-        const op = 0.3 + (i % 5) * 0.1;
+        const op = 0.25 + (i % 5) * 0.1;
         ctx.beginPath();
         ctx.arc(sx, sy, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255,255,255,${op})`;
@@ -86,41 +75,44 @@ export function FlappyVial() {
       }
     }
 
-    function drawPipe(ctx: CanvasRenderingContext2D, x: number, gapY: number) {
+    function drawPipe(x: number, gapY: number) {
+      if (!ctx) return;
       const top = gapY - PIPE_GAP / 2;
       const bottom = gapY + PIPE_GAP / 2;
-
-      // Top pipe
       ctx.fillStyle = "#1e3a6e";
       ctx.fillRect(x, 0, PIPE_WIDTH, top);
-      ctx.fillStyle = "#243f7a";
-      ctx.fillRect(x - 4, top - 20, PIPE_WIDTH + 8, 20);
-
-      // Bottom pipe
+      ctx.fillStyle = "#2a4f8a";
+      ctx.fillRect(x - 5, top - 22, PIPE_WIDTH + 10, 22);
       ctx.fillStyle = "#1e3a6e";
       ctx.fillRect(x, bottom, PIPE_WIDTH, H - bottom);
-      ctx.fillStyle = "#243f7a";
-      ctx.fillRect(x - 4, bottom, PIPE_WIDTH + 8, 20);
-
-      // Pipe highlight
-      ctx.fillStyle = "rgba(255,255,255,0.05)";
-      ctx.fillRect(x + 4, 0, 6, top);
-      ctx.fillRect(x + 4, bottom, 6, H - bottom);
+      ctx.fillStyle = "#2a4f8a";
+      ctx.fillRect(x - 5, bottom, PIPE_WIDTH + 10, 22);
+      ctx.fillStyle = "rgba(255,255,255,0.06)";
+      ctx.fillRect(x + 4, 0, 7, top);
+      ctx.fillRect(x + 4, bottom + 22, 7, H - bottom);
     }
 
-    function drawBird(ctx: CanvasRenderingContext2D, y: number, vy: number) {
-      const BIRDW = 36, BIRDH = 72;
+    function drawBird(y: number, vy: number) {
+      const BIRDW = 44, BIRDH = 88;
       const x = W * 0.28;
-      const tilt = Math.max(-30, Math.min(30, vy * 3));
+      const tilt = Math.max(-30, Math.min(35, vy * 3));
 
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate((tilt * Math.PI) / 180);
 
       if (vialImgRef.current) {
+        // Glow effect
+        ctx.shadowColor = "rgba(150,200,255,0.7)";
+        ctx.shadowBlur = 18;
         ctx.drawImage(vialImgRef.current, -BIRDW / 2, -BIRDH / 2, BIRDW, BIRDH);
+        // Second pass for stronger glow
+        ctx.shadowBlur = 8;
+        ctx.globalAlpha = 0.6;
+        ctx.drawImage(vialImgRef.current, -BIRDW / 2, -BIRDH / 2, BIRDW, BIRDH);
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
       } else {
-        // Fallback rectangle
         ctx.fillStyle = "#fff";
         ctx.fillRect(-BIRDW / 2, -BIRDH / 2, BIRDW, BIRDH);
       }
@@ -128,20 +120,14 @@ export function FlappyVial() {
       ctx.restore();
     }
 
-    function checkCollision(y: number, pipes: { x: number; gapY: number }[]): boolean {
-      const BIRDW = 28, BIRDH = 60;
+    function checkCollision(y: number): boolean {
+      const BIRDH = 70;
+      const BIRDW = 22; // tight hitbox
       const bx = W * 0.28;
-
-      // Floor / ceiling
       if (y - BIRDH / 2 < 0 || y + BIRDH / 2 > H) return true;
-
-      for (const p of pipes) {
-        if (
-          bx + BIRDW / 2 > p.x + 6 &&
-          bx - BIRDW / 2 < p.x + PIPE_WIDTH - 6
-        ) {
-          if (y - BIRDH / 2 < p.gapY - PIPE_GAP / 2 ||
-              y + BIRDH / 2 > p.gapY + PIPE_GAP / 2) {
+      for (const p of pipesRef.current) {
+        if (bx + BIRDW / 2 > p.x + 5 && bx - BIRDW / 2 < p.x + PIPE_WIDTH - 5) {
+          if (y - BIRDH / 2 < p.gapY - PIPE_GAP / 2 || y + BIRDH / 2 > p.gapY + PIPE_GAP / 2) {
             return true;
           }
         }
@@ -149,21 +135,24 @@ export function FlappyVial() {
       return false;
     }
 
+    function drawText(text: string, x: number, y: number, size: number, alpha = 1, bold = true) {
+      ctx.font = `${bold ? "bold " : ""}${size}px 'Montserrat', sans-serif`;
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.textAlign = "center";
+      ctx.fillText(text, x, y);
+    }
+
     let lastTime = 0;
 
     function loop(ts: number) {
       animRef.current = requestAnimationFrame(loop);
-      const dt = ts - lastTime;
       lastTime = ts;
-      void dt;
-
-      if (!ctx) return;
       ctx.clearRect(0, 0, W, H);
 
       // Background
       ctx.fillStyle = "#14274E";
       ctx.fillRect(0, 0, W, H);
-      drawStars(ctx);
+      drawStars();
 
       if (stateRef.current === "playing") {
         // Physics
@@ -172,73 +161,63 @@ export function FlappyVial() {
 
         // Spawn pipes
         if (ts - lastPipeRef.current > PIPE_INTERVAL) {
-          const gapY = H * 0.2 + Math.random() * H * 0.6;
-          pipesRef.current.push({ x: W, gapY });
+          pipesRef.current.push({
+            x: W,
+            gapY: H * 0.22 + Math.random() * H * 0.56,
+            scored: false,
+          });
           lastPipeRef.current = ts;
         }
 
-        // Move pipes + score
-        pipesRef.current = pipesRef.current.filter(p => p.x + PIPE_WIDTH > -10);
+        // Move pipes + score using scored flag
+        const birdX = W * 0.28;
+        pipesRef.current = pipesRef.current.filter(p => p.x + PIPE_WIDTH > -20);
         for (const p of pipesRef.current) {
-          const wasRight = p.x > W * 0.28;
           p.x -= PIPE_SPEED;
-          const isLeft = p.x + PIPE_WIDTH < W * 0.28;
-          if (wasRight && isLeft) {
+          // Score: pipe has fully passed the bird's x position
+          if (!p.scored && p.x + PIPE_WIDTH < birdX) {
+            p.scored = true;
             scoreRef.current++;
-            setScore(scoreRef.current);
           }
         }
 
-        // Collision
-        if (checkCollision(birdRef.current.y, pipesRef.current)) {
+        if (checkCollision(birdRef.current.y)) {
           stateRef.current = "dead";
-          setDisplayState("dead");
-          setBest(b => Math.max(b, scoreRef.current));
+          bestRef.current = Math.max(bestRef.current, scoreRef.current);
         }
       }
 
       // Draw pipes
-      for (const p of pipesRef.current) {
-        drawPipe(ctx, p.x, p.gapY);
-      }
+      for (const p of pipesRef.current) drawPipe(p.x, p.gapY);
 
       // Draw bird
-      drawBird(ctx, birdRef.current.y, birdRef.current.vy);
+      drawBird(birdRef.current.y, birdRef.current.vy);
 
-      // Idle screen
+      // Idle
       if (stateRef.current === "idle") {
-        ctx.fillStyle = "rgba(255,255,255,0.85)";
-        ctx.font = `bold 16px 'Montserrat', sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillText("TAP TO PLAY", W / 2, H / 2 + 60);
-        ctx.fillStyle = "rgba(255,255,255,0.4)";
-        ctx.font = `11px 'Montserrat', sans-serif`;
-        ctx.fillText("FLAPPY VIAL", W / 2, H / 2 + 82);
+        drawText("FLAPPY VIAL", W / 2, H / 2 - 10, 20, 0.9);
+        drawText("TAP OR PRESS SPACE TO PLAY", W / 2, H / 2 + 20, 11, 0.6, false);
       }
 
-      // Score
+      // Score during play
       if (stateRef.current === "playing") {
-        ctx.fillStyle = "rgba(255,255,255,0.9)";
-        ctx.font = `bold 28px 'Montserrat', sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillText(String(scoreRef.current), W / 2, 48);
+        ctx.shadowColor = "rgba(0,0,0,0.8)";
+        ctx.shadowBlur = 6;
+        drawText(String(scoreRef.current), W / 2, 52, 36);
+        ctx.shadowBlur = 0;
       }
 
-      // Dead screen
+      // Game over
       if (stateRef.current === "dead") {
-        ctx.fillStyle = "rgba(20,39,78,0.7)";
+        ctx.fillStyle = "rgba(10,25,60,0.75)";
         ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        ctx.font = `bold 22px 'Montserrat', sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillText("GAME OVER", W / 2, H / 2 - 30);
-        ctx.font = `14px 'Montserrat', sans-serif`;
-        ctx.fillText(`Score: ${scoreRef.current}`, W / 2, H / 2);
-        ctx.fillText(`Best: ${Math.max(scoreRef.current, best)}`, W / 2, H / 2 + 22);
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
-        ctx.font = `12px 'Montserrat', sans-serif`;
-        ctx.fillText("TAP TO RESTART", W / 2, H / 2 + 56);
+        drawText("GAME OVER", W / 2, H / 2 - 36, 24);
+        drawText(`Score: ${scoreRef.current}`, W / 2, H / 2 - 4, 15, 0.85, false);
+        drawText(`Best: ${bestRef.current}`, W / 2, H / 2 + 20, 15, 0.85, false);
+        drawText("TAP TO RESTART", W / 2, H / 2 + 58, 12, 0.6, false);
       }
+
+      void lastTime;
     }
 
     resize();
@@ -246,18 +225,12 @@ export function FlappyVial() {
     animRef.current = requestAnimationFrame(loop);
 
     const handleClick = () => {
-      if (stateRef.current === "dead") {
-        reset();
-      } else {
-        jump();
-      }
+      if (stateRef.current === "dead") reset();
+      else jump();
     };
 
     const handleKey = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "ArrowUp") {
-        e.preventDefault();
-        handleClick();
-      }
+      if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); handleClick(); }
     };
 
     canvas.addEventListener("click", handleClick);
@@ -271,13 +244,13 @@ export function FlappyVial() {
       window.removeEventListener("keydown", handleKey);
       window.removeEventListener("resize", resize);
     };
-  }, [jump, best]);
+  }, [jump]);
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 h-full w-full cursor-pointer"
-      aria-label="Flappy Vial game — tap or press space to play"
+      aria-label="Flappy Vial — tap or press space to play"
       style={{ touchAction: "none" }}
     />
   );
