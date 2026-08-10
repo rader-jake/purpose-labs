@@ -88,6 +88,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await parseCartResponse(response);
       setCart(data);
       setIsDrawerOpen(true);
+      // Re-fetch cart to pick up any server-side modifications (e.g. free items
+      // added by the Buy 2 Get 1 Free promotion hook after the add response).
+      fetch("/api/cart")
+        .then(parseCartResponse)
+        .then(setCart)
+        .catch(() => {/* silent — cart already set from add response */});
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to add item");
       throw err;
