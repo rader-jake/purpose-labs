@@ -97,7 +97,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
   {
     slug: "cjc-1295-no-dac-ipamorelin",
     lab: "BT Labs · 2026",
-    title: "CJC 1295 No DAC + IPA",
+    title: "CJC 1295 No DAC",
     purity: "99.8%",
     method: "FTIR + HPLC",
     storage: "R.T.",
