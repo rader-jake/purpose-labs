@@ -98,10 +98,15 @@ export const COA_DIRECTORY: CoaEntry[] = [
     slug: "cjc-1295-no-dac-ipamorelin",
     lab: "BT Labs · 2026",
     title: "CJC 1295 No DAC",
-    purity: "≥99%",
+    purity: "99.8%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    docs: [{ label: "View COA", url: "/coas/CJC-COA.webp" }],
+    lot: "CP10-980012",
+    endotoxinTested: true,
+    docs: [
+      { label: "View COA (FTIR/HPLC)", url: "/coas/CJC-COA-hplc.pdf" },
+      { label: "View COA (Endotoxins)", url: "/coas/CJC-COA-endotoxins.pdf" },
+    ],
   },
   {
     // RESOLVED: this COA's own "Visual Description" is lyophilized-powder
