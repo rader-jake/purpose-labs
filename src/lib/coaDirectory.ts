@@ -189,6 +189,20 @@ export const COA_DIRECTORY: CoaEntry[] = [
     docs: [{ label: "View COA", url: "/coas/IGF-1-LR3-COA.jpg" }],
   },
   {
+    slug: "wolverine-stack-bpc-157-tb-500",
+    lab: "BT Labs · 2026",
+    title: "WOLVERINE STACK\nBPC-157 + TB-500",
+    purity: "99.8%",
+    method: "FTIR + HPLC",
+    storage: "R.T.",
+    lot: "BB10-990010",
+    endotoxinTested: true,
+    docs: [
+      { label: "View COA (FTIR/HPLC)", url: "/coas/wolverine-stack-coa-hplc.pdf" },
+      { label: "View COA (Endotoxins)", url: "/coas/wolverine-stack-coa-endotoxins.pdf" },
+    ],
+  },
+  {
     // Same as IGF-1-LR3 above — page link, not a raw file.
     slug: "tirzepatide-10mg",
     lab: "Freedom Diagnostics · 2026",
