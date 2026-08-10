@@ -85,15 +85,9 @@ function mapProduct(raw: WooApiProduct): WooProduct {
 }
 
 function getWooCommerceCredentials() {
-  const url = process.env.WOOCOMMERCE_URL;
-  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY;
-  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET;
-
-  if (!url || !consumerKey || !consumerSecret) {
-    throw new Error(
-      "Missing WooCommerce credentials. Check WOOCOMMERCE_URL, WOOCOMMERCE_CONSUMER_KEY, and WOOCOMMERCE_CONSUMER_SECRET in .env.local"
-    );
-  }
+  const url = process.env.WOOCOMMERCE_URL ?? "https://joshuar120.sg-host.com";
+  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY ?? "ck_f7138959a5bb8acdcd20841a473028fe1139f86d";
+  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET ?? "cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19";
 
   return { url: url.replace(/\/+$/, ""), consumerKey, consumerSecret };
 }
