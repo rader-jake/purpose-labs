@@ -46,7 +46,7 @@ export function HomeHero() {
                   lineHeight: 1.05
                 }}
               >
-                The Purest<br />Peptides.<br />Shipped Today.
+                🌞 Summer Special<br />Buy 2 Get 1 Free.<br />Same Item. Auto-Applied.
               </h1>
             </Reveal>
           </div>
