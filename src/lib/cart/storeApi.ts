@@ -205,6 +205,11 @@ export function removeCoupon(tokens: CartTokens, code: string) {
  * hosted checkout (checkout.purposelabs.shop) — order-before-payment, with
  * WooCommerce as the source of truth. The browser needs to navigate to
  * that redirect_url; this function only gets it, it doesn't redirect.
+ *
+ * extensions/payment_data are optional passthroughs — Beacon (unlike
+ * Tagada) needs both: extensions["beacon-checkout"] for the RUO
+ * attestation block, payment_data for the confirmed Stripe PaymentIntent
+ * id once client-side confirmation has happened.
  */
 export function submitCheckout(
   tokens: CartTokens,
@@ -212,6 +217,8 @@ export function submitCheckout(
     billing_address: AddressInput;
     shipping_address: AddressInput;
     payment_method: string;
+    payment_data?: Array<{ key: string; value: string }>;
+    extensions?: Record<string, unknown>;
   }
 ) {
   return storeApiFetch("/checkout", tokens, {

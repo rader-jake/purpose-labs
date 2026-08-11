@@ -5,11 +5,14 @@ import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
 
 export async function POST(request: NextRequest) {
   try {
-    const { billing_address, shipping_address, payment_method } = (await request.json()) as {
-      billing_address?: AddressInput;
-      shipping_address?: AddressInput;
-      payment_method?: string;
-    };
+    const { billing_address, shipping_address, payment_method, payment_data, extensions } =
+      (await request.json()) as {
+        billing_address?: AddressInput;
+        shipping_address?: AddressInput;
+        payment_method?: string;
+        payment_data?: Array<{ key: string; value: string }>;
+        extensions?: Record<string, unknown>;
+      };
     if (!billing_address || !payment_method) {
       return NextResponse.json(
         { message: "billing_address and payment_method are required" },
@@ -22,6 +25,8 @@ export async function POST(request: NextRequest) {
       billing_address,
       shipping_address: shipping_address ?? billing_address,
       payment_method,
+      payment_data,
+      extensions,
     });
     await writeTokens(nextTokens);
     return NextResponse.json(data);

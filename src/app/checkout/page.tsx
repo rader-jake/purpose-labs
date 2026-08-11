@@ -5,17 +5,20 @@ import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
 import { PaymentStepStub } from "@/components/checkout/PaymentStepStub";
-import { TagadaPaymentStep } from "@/components/checkout/TagadaPaymentStep";
+import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
 
-// Reversible, off-by-default gate — Tagada's WooCommerce gateway plugin has
-// a confirmed pricing bug (bac water shows full price on its hosted page
-// despite the underlying WooCommerce order being correct at $0), reported
-// to Tagada separately and not fixed here. Do not flip this on in any
-// environment that real customers can reach until that's resolved.
-const ENABLE_TAGADA = process.env.NEXT_PUBLIC_ENABLE_TAGADA === "true";
+// Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
+// that Purpose Labs has switched processors. Confirmed working live: nonce
+// mint, PaymentIntent creation, Stripe.js/CardElement init, and Stripe's
+// own client-side card validation. NOT yet confirmed: a real card actually
+// confirming and the resulting WooCommerce order landing in the right
+// status — only a pk_live_ key exists so far, and real/fake card entry is
+// off limits regardless of key type (see BeaconPaymentStep.tsx). Do not
+// flip this on for real customers until that final leg is verified.
+const ENABLE_BEACON = process.env.NEXT_PUBLIC_ENABLE_BEACON === "true";
 
 type CustomerInfo = { firstName: string; lastName: string; email: string };
 type ShippingAddress = {
@@ -374,10 +377,9 @@ export default function CheckoutPage() {
             </p>
           )}
 
-          {/* Last chance to catch an address mistake before we hand off to
-              Tagada's hosted page — once redirected there, we have no way to
-              fix it. No autocomplete/validation on the address fields yet
-              (future improvement), so this is a manual nudge instead. */}
+          {/* Last chance to catch an address mistake before payment is
+              submitted. No autocomplete/validation on the address fields
+              yet (future improvement), so this is a manual nudge instead. */}
           <p className="text-xs" style={{ color: "var(--pl-muted)" }}>
             Please double-check your shipping address before continuing — orders ship exactly as entered.
           </p>
@@ -389,8 +391,8 @@ export default function CheckoutPage() {
           )}
 
           {isValid ? (
-            ENABLE_TAGADA ? (
-              <TagadaPaymentStep
+            ENABLE_BEACON ? (
+              <BeaconPaymentStep
                 amountCents={Number(cart.totals.total_price)}
                 currencyCode={cart.totals.currency_symbol}
                 billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
