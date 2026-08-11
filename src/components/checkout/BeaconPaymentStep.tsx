@@ -54,7 +54,13 @@ export function BeaconPaymentStep(props: BeaconPaymentStepProps) {
   const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     if (!publishableKey) return null;
-    return loadStripe(publishableKey);
+    // Beacon confirmed payment-intent creates the PaymentIntent under their
+    // connected account, not the platform account the publishable key's own
+    // dashboard belongs to — Stripe scopes PaymentIntent lookups per
+    // account, so confirming one created on a connected account requires
+    // the matching stripeAccount here (Stripe Connect "direct charge"
+    // pattern), or the confirm call 404s with "No such payment_intent".
+    return loadStripe(publishableKey, { stripeAccount: "acct_1U2yBlPzodzW27XV" });
   }, []);
 
   if (!stripePromise) {
