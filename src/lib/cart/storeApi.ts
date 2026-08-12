@@ -40,7 +40,7 @@ const REALISTIC_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 
 function getStoreApiBase() {
-  const url = process.env.WOOCOMMERCE_URL ?? "https://joshuar120.sg-host.com";
+  const url = "https://joshuar120.sg-host.com"; // Hardcoded: env var may be set to wrong domain in Vercel
   return `${url.replace(/\/+$/, "")}/wp-json/wc/store/v1`;
 }
 
@@ -79,7 +79,7 @@ async function storeApiFetch(
   // Remove once root-caused. Never logs the consumer key/secret, only the
   // resolved store URL (public) and response metadata.
   console.log("[storeApiFetch] diagnostic", {
-    woocommerceUrl: process.env.WOOCOMMERCE_URL ?? "https://joshuar120.sg-host.com",
+    woocommerceUrl: "https://joshuar120.sg-host.com",
     targetUrl,
     status: response.status,
     contentType,
