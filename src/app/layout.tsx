@@ -54,6 +54,14 @@ export default function RootLayout({
       <head>
         <style>{`html.pl-age-ok #age-gate-root { display: none; }`}</style>
         <script dangerouslySetInnerHTML={{ __html: AGE_GATE_NO_FLASH_SCRIPT }} />
+        {/* Google Tag (gtag.js) — G-CEQNESY8XS */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CEQNESY8XS" />
+        <script dangerouslySetInnerHTML={{ __html: `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-CEQNESY8XS');
+        ` }} />
         {/* TikTok Pixel — D8VHSSJC77UBLFU420R0 */}
         <script dangerouslySetInnerHTML={{ __html: `
 !function (w, d, t) {
