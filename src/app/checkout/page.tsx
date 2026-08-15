@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
@@ -9,6 +9,7 @@ import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
+import { trackInitiateCheckout } from "@/lib/tiktok-pixel";
 
 // Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
 // that Purpose Labs has switched processors. Confirmed working live: nonce
@@ -41,6 +42,13 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress } = useCart();
+
+  useEffect(() => {
+    trackInitiateCheckout({
+      value: cart?.totals?.total_price ? parseFloat(cart.totals.total_price) / 100 : undefined,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     firstName: "",
     lastName: "",

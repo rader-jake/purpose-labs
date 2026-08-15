@@ -2,8 +2,9 @@
 
 // src/components/ProductBuyBox.tsx
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useCart } from "@/lib/cart/CartContext";
+import { trackViewContent, trackAddToCart } from "@/lib/tiktok-pixel";
 import { BulkDiscountTiers } from "./BulkDiscountTiers";
 import { PaymentIcons } from "./PaymentIcons";
 import { CoaButton } from "./CoaButton";
@@ -57,6 +58,16 @@ export function ProductBuyBox({
   const [addError, setAddError] = useState<string | null>(null);
   const { addItem } = useCart();
 
+  // Fire ViewContent on mount
+  useEffect(() => {
+    trackViewContent({
+      contentId: String(productId),
+      contentName: name,
+      value: parseFloat(price) || undefined,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Variable products add the selected variation's id, not the parent
   // product id — WooCommerce needs the variation id to know which
   // size/price to actually add.
@@ -78,6 +89,12 @@ export function ProductBuyBox({
     setAddError(null);
     try {
       await addItem(effectiveId, quantity);
+      trackAddToCart({
+        contentId: String(effectiveId),
+        contentName: name,
+        value: parseFloat(effectivePrice || price) || undefined,
+        quantity,
+      });
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
     } finally {
