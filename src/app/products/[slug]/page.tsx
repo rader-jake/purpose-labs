@@ -66,6 +66,8 @@ export default async function ProductPage({
             productSlug={product.slug}
             name={product.name}
             price={product.price}
+            regularPrice={product.regular_price}
+            salePrice={product.sale_price}
             outOfStock={product.stock_status === "outofstock"}
             variations={variations}
           />

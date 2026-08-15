@@ -87,16 +87,29 @@ export function ProductCard({ product }: ProductCardProps) {
           <Link href={`/products/${product.slug}`}>{product.name}</Link>
         </h3>
 
-        <p
-          className="text-sm font-medium"
-          style={{
-            color: "var(--pl-slate)",
-            fontFamily: "var(--pl-font-body)",
-          }}
-          // WooCommerce prices arrive as a plain numeric string, not HTML
+        <div
+          className="flex items-baseline gap-2"
+          style={{ fontFamily: "var(--pl-font-body)" }}
         >
-          ${product.price}
-        </p>
+          {product.sale_price && product.regular_price &&
+           parseFloat(product.regular_price) > parseFloat(product.sale_price) && (
+            <span className="text-xs line-through opacity-40" style={{ color: "var(--pl-slate)" }}>
+              ${product.regular_price}
+            </span>
+          )}
+          <p
+            className="text-sm font-medium"
+            style={{ color: "var(--pl-slate)" }}
+          >
+            ${product.sale_price || product.price}
+          </p>
+          {product.sale_price && product.regular_price &&
+           parseFloat(product.regular_price) > parseFloat(product.sale_price) && (
+            <span className="text-xs font-bold" style={{ color: "#16a34a" }}>
+              30% OFF
+            </span>
+          )}
+        </div>
 
         {product.short_description && (
           <div

@@ -14,6 +14,8 @@ type ProductBuyBoxProps = {
   productSlug: string;
   name: string;
   price: string;
+  regularPrice?: string;
+  salePrice?: string;
   outOfStock: boolean;
   /** Empty for simple products — only GHK-CU currently has real variations. */
   variations: WooProductVariation[];
@@ -32,6 +34,8 @@ export function ProductBuyBox({
   productSlug,
   name,
   price,
+  regularPrice,
+  salePrice,
   outOfStock,
   variations,
 }: ProductBuyBoxProps) {
@@ -58,6 +62,13 @@ export function ProductBuyBox({
   // size/price to actually add.
   const effectiveId = selectedVariation ? selectedVariation.id : productId;
   const effectivePrice = selectedVariation ? selectedVariation.price : price;
+  const effectiveRegularPrice = selectedVariation ? selectedVariation.regular_price : regularPrice;
+  const effectiveSalePrice = selectedVariation ? selectedVariation.sale_price : salePrice;
+  // Show strikethrough if there's a sale: regular > sale
+  const hasDiscount =
+    effectiveRegularPrice &&
+    effectiveSalePrice &&
+    parseFloat(effectiveRegularPrice) > parseFloat(effectiveSalePrice);
   const effectiveOutOfStock = selectedVariation
     ? selectedVariation.stock_status !== "instock"
     : outOfStock;
@@ -87,12 +98,30 @@ export function ProductBuyBox({
         {name}
       </h1>
 
-      <p
-        className="mb-3 text-xl font-semibold sm:mb-6 sm:text-2xl"
-        style={{ color: "var(--pl-ivory)" }}
-      >
-        ${effectivePrice}
-      </p>
+      <div className="mb-3 flex items-baseline gap-3 sm:mb-6">
+        {hasDiscount && (
+          <span
+            className="text-lg line-through opacity-50"
+            style={{ color: "var(--pl-ivory)" }}
+          >
+            ${effectiveRegularPrice}
+          </span>
+        )}
+        <p
+          className="text-xl font-semibold sm:text-2xl"
+          style={{ color: hasDiscount ? "#4ade80" : "var(--pl-ivory)" }}
+        >
+          ${effectiveSalePrice || effectivePrice}
+        </p>
+        {hasDiscount && (
+          <span
+            className="rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide"
+            style={{ backgroundColor: "#4ade80", color: "#0d1b3e" }}
+          >
+            30% OFF
+          </span>
+        )}
+      </div>
 
       {hasVariations && (
         <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
