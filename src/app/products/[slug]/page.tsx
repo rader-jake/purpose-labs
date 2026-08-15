@@ -13,6 +13,9 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { notFound } from "next/navigation";
 
+// Revalidate every 60s so price/sale changes from WooCommerce show up quickly
+export const revalidate = 60;
+
 export default async function ProductPage({
   params,
 }: {
