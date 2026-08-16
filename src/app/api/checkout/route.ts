@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
       userAgent: request.headers.get("user-agent") ?? undefined,
       pageUrl: request.headers.get("referer") ?? undefined,
       email: billing_address?.email,
-      value: typeof data?.totals?.total_price === "string"
-        ? parseFloat(data.totals.total_price) / 100
+      value: typeof (data as Record<string, unknown> | null)?.["totals"] === "object"
+        ? parseFloat(((data as Record<string, Record<string, string>>)?.totals?.total_price) ?? "0") / 100
         : undefined,
-      orderId: String(data?.order_id ?? ""),
+      orderId: String((data as Record<string, unknown> | null)?.["order_id"] ?? ""),
     }).catch((e) => console.error("[TikTok] event failed:", e));
 
     return NextResponse.json(data);

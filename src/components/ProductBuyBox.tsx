@@ -74,7 +74,7 @@ export function ProductBuyBox({
   const effectiveId = selectedVariation ? selectedVariation.id : productId;
   const effectivePrice = selectedVariation ? selectedVariation.price : price;
   const effectiveRegularPrice = selectedVariation ? selectedVariation.regular_price : regularPrice;
-  const effectiveSalePrice = selectedVariation ? selectedVariation.sale_price : salePrice;
+  const effectiveSalePrice = selectedVariation ? null : salePrice;
   // Show strikethrough if there's a sale: regular > sale
   const hasDiscount =
     effectiveRegularPrice &&
@@ -92,7 +92,7 @@ export function ProductBuyBox({
       trackAddToCart({
         contentId: String(effectiveId),
         contentName: name,
-        value: parseFloat(effectivePrice || price) || undefined,
+        value: parseFloat(effectivePrice) || undefined,
         quantity,
       });
     } catch (err) {
