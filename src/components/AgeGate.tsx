@@ -12,7 +12,6 @@
 // text, not a JS module), so it's duplicated there deliberately.
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { LogoMark } from "./Logo";
 
 const STORAGE_KEY = "pl_age_verified_until";
 const EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -22,21 +21,10 @@ function isVerified(): boolean {
     const until = window.localStorage.getItem(STORAGE_KEY);
     return until !== null && Number(until) > Date.now();
   } catch {
-    // Storage unavailable (private browsing, disabled, etc.) — treat as
-    // unverified. Safe default: show the gate rather than skip it.
     return false;
   }
 }
 
-// No cross-tab reactivity needed — the only thing that changes this
-// value is our own "Confirm" click, handled separately below — so the
-// subscription itself is a no-op. What useSyncExternalStore is
-// actually here for is getServerSnapshot: it's the React-sanctioned way
-// to render a value that's necessarily different between server and
-// client (the server has no localStorage to check) without a
-// hydration-mismatch warning, and without hand-rolling the
-// "setState-in-an-effect-on-mount" pattern eslint's
-// react-hooks/set-state-in-effect rule (rightly) flags.
 function subscribe() {
   return () => {};
 }
@@ -52,19 +40,49 @@ function getFocusable(container: HTMLElement): HTMLElement[] {
   ).filter((el) => !el.hasAttribute("disabled"));
 }
 
+// Floating vial positions — purely decorative
+const VIALS = [
+  { top: "8%",  left: "6%",  rotate: "-20deg", scale: 0.85 },
+  { top: "18%", left: "82%", rotate: "15deg",  scale: 0.75 },
+  { top: "55%", left: "4%",  rotate: "10deg",  scale: 0.9  },
+  { top: "70%", left: "88%", rotate: "-12deg", scale: 0.8  },
+  { top: "82%", left: "18%", rotate: "25deg",  scale: 0.7  },
+  { top: "40%", left: "90%", rotate: "-8deg",  scale: 0.65 },
+];
+
+function VialSVG({ style }: { style?: React.CSSProperties }) {
+  return (
+    <svg
+      width="48"
+      height="80"
+      viewBox="0 0 48 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={style}
+      aria-hidden="true"
+    >
+      <rect x="16" y="0" width="16" height="8" rx="3" fill="rgba(100,140,200,0.25)" />
+      <rect x="12" y="8" width="24" height="4" rx="2" fill="rgba(100,140,200,0.3)" />
+      <rect x="10" y="12" width="28" height="52" rx="14" fill="rgba(180,210,240,0.35)" stroke="rgba(150,190,230,0.5)" strokeWidth="1.5" />
+      <rect x="14" y="18" width="20" height="28" rx="10" fill="rgba(120,180,230,0.25)" />
+      <ellipse cx="24" cy="64" rx="8" ry="4" fill="rgba(150,200,240,0.2)" />
+    </svg>
+  );
+}
+
 export function AgeGate() {
   const storedVerified = useSyncExternalStore(subscribe, isVerified, getServerSnapshot);
-  // Optimistic local flag for the "just clicked Confirm this session"
-  // case — storedVerified won't reflect a same-render localStorage
-  // write without a subscribe event, so this covers it directly.
   const [justConfirmed, setJustConfirmed] = useState(false);
   const [declined, setDeclined] = useState(false);
+  const [ageChecked, setAgeChecked] = useState(false);
+  const [researcherChecked, setResearcherChecked] = useState(false);
   const verified = storedVerified || justConfirmed;
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
+  const enterButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Body scroll lock while the gate (in either sub-state) is showing.
+  const canEnter = ageChecked && researcherChecked;
+
   useEffect(() => {
     if (verified) return;
     const previousOverflow = document.body.style.overflow;
@@ -74,63 +92,40 @@ export function AgeGate() {
     };
   }, [verified]);
 
-  // Focus management: land on the primary action when the gate first
-  // appears, or on the container itself once declined (no buttons left
-  // to receive it).
   useEffect(() => {
     if (verified) return;
-    if (declined) {
-      containerRef.current?.focus();
+    if (!declined) {
+      enterButtonRef.current?.focus();
     } else {
-      confirmButtonRef.current?.focus();
+      containerRef.current?.focus();
     }
   }, [verified, declined]);
 
-  // Focus trap, attached at the document level (not just the
-  // container's own onKeyDown) so it still catches Tab even if focus
-  // has somehow ended up outside the gate entirely — e.g. right after
-  // the declined message replaces the buttons that held focus.
   useEffect(() => {
     if (verified) return;
-
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key !== "Tab") return;
       const container = containerRef.current;
       if (!container) return;
-
       const focusable = getFocusable(container);
       const targets = focusable.length > 0 ? focusable : [container];
       const first = targets[0];
       const last = targets[targets.length - 1];
       const active = document.activeElement;
       const activeIsInside = active instanceof Node && container.contains(active);
-
-      if (!activeIsInside) {
-        e.preventDefault();
-        first.focus();
-        return;
-      }
-
-      if (e.shiftKey && active === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (!activeIsInside) { e.preventDefault(); first.focus(); return; }
+      if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
     }
-
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [verified]);
 
   function handleConfirm() {
+    if (!canEnter) return;
     try {
       window.localStorage.setItem(STORAGE_KEY, String(Date.now() + EXPIRY_MS));
-    } catch {
-      // Storage unavailable — gate will just reappear next visit,
-      // which is an acceptable degradation, not a broken experience.
-    }
+    } catch { /* storage unavailable */ }
     setJustConfirmed(true);
   }
 
@@ -148,80 +143,140 @@ export function AgeGate() {
       aria-modal="true"
       aria-labelledby="age-gate-heading"
       tabIndex={-1}
-      className="fixed inset-0 z-[100] flex items-center justify-center px-6 py-12"
-      style={{
-        background:
-          "radial-gradient(ellipse 120% 100% at 50% 30%, var(--pl-navy) 0%, var(--pl-navy) 60%, #0f1d3b 100%)",
-      }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 py-12"
+      style={{ background: "linear-gradient(135deg, #c8d8f0 0%, #dce8f5 40%, #bdd0eb 100%)" }}
     >
-      <div className="w-full max-w-md text-center" style={{ fontFamily: "var(--pl-font-body)" }}>
+      {/* Floating vials */}
+      {VIALS.map((v, i) => (
         <div
-          className="mx-auto mb-8 flex h-14 w-14 items-center justify-center rounded-full"
-          style={{
-            backgroundColor: "rgba(241, 246, 249, 0.08)",
-            ["--pl-navy" as string]: "var(--pl-ivory)",
-          }}
+          key={i}
+          className="pointer-events-none absolute"
+          style={{ top: v.top, left: v.left, transform: `rotate(${v.rotate}) scale(${v.scale})`, opacity: 0.7 }}
         >
-          <LogoMark size={28} />
+          <VialSVG />
         </div>
+      ))}
 
+      {/* Brand name */}
+      <p
+        className="mb-6 text-sm font-semibold uppercase tracking-[0.3em]"
+        style={{ color: "rgba(30, 60, 110, 0.6)", fontFamily: "var(--pl-font-body)" }}
+      >
+        Purpose Labs
+      </p>
+
+      {/* Card */}
+      <div
+        className="relative w-full max-w-md rounded-2xl p-8 shadow-xl"
+        style={{ backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)" }}
+      >
         {!declined ? (
           <>
             <h1
               id="age-gate-heading"
-              className="mb-4 text-3xl sm:text-4xl"
-              style={{ color: "var(--pl-ivory)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}
+              className="mb-3 text-2xl font-bold"
+              style={{ color: "#1a2e50", fontFamily: "var(--pl-font-body)" }}
             >
-              Age Verification
+              Researcher{" "}
+              <span style={{ color: "#4a7fd4" }}>Verification</span>
             </h1>
-            <p className="mb-10 text-sm leading-relaxed" style={{ color: "rgba(241, 246, 249, 0.72)" }}>
-              Purpose Labs sells research compounds intended for laboratory use
-              by qualified professionals. You must be 21 years of age or older
-              to enter this site.
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: "#4a5568" }}>
+              Purpose Labs sells research peptides exclusively to qualified
+              researchers and laboratories for in vitro and laboratory use.
+              Please confirm before continuing.
             </p>
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
-              <button
-                onClick={handleDecline}
-                className="flex h-11 items-center justify-center rounded-full border px-8 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-300"
-                style={{
-                  borderColor: "rgba(241, 246, 249, 0.3)",
-                  color: "var(--pl-ivory)",
-                  backgroundColor: "transparent",
-                }}
-              >
-                I am under 21
-              </button>
-              <button
-                ref={confirmButtonRef}
-                onClick={handleConfirm}
-                className="flex h-11 items-center justify-center rounded-full px-8 text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-300 hover:opacity-90"
-                style={{ backgroundColor: "var(--pl-ivory)", color: "var(--pl-navy)" }}
-              >
-                I am 21 or older
-              </button>
-            </div>
-            <p
-              className="mt-8 text-[10px] uppercase tracking-[0.12em]"
-              style={{ color: "rgba(241, 246, 249, 0.4)" }}
+
+            {/* Checkbox 1 */}
+            <label
+              className="mb-3 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+              style={{
+                borderColor: ageChecked ? "#4a7fd4" : "#e2e8f0",
+                backgroundColor: ageChecked ? "rgba(74,127,212,0.06)" : "rgba(248,250,252,0.8)",
+              }}
             >
-              By entering, you agree to our Terms of Service and Privacy Policy.
+              <input
+                type="checkbox"
+                checked={ageChecked}
+                onChange={(e) => setAgeChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-blue-500"
+              />
+              <span className="text-sm" style={{ color: "#2d3748" }}>
+                I am at least <strong>21 years of age</strong>.
+              </span>
+            </label>
+
+            {/* Checkbox 2 */}
+            <label
+              className="mb-6 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
+              style={{
+                borderColor: researcherChecked ? "#4a7fd4" : "#e2e8f0",
+                backgroundColor: researcherChecked ? "rgba(74,127,212,0.06)" : "rgba(248,250,252,0.8)",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={researcherChecked}
+                onChange={(e) => setResearcherChecked(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-blue-500"
+              />
+              <span className="text-sm leading-relaxed" style={{ color: "#2d3748" }}>
+                I confirm I am a <strong>qualified researcher</strong> purchasing for{" "}
+                <strong>in vitro / laboratory research</strong> only — not for human or
+                veterinary use.
+              </span>
+            </label>
+
+            {/* Enter button */}
+            <button
+              ref={enterButtonRef}
+              onClick={handleConfirm}
+              disabled={!canEnter}
+              className="flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold transition-all duration-200"
+              style={{
+                backgroundColor: canEnter ? "#4a7fd4" : "#e2e8f0",
+                color: canEnter ? "#ffffff" : "#a0aec0",
+                cursor: canEnter ? "pointer" : "not-allowed",
+              }}
+            >
+              Enter Purpose Labs →
+            </button>
+
+            {/* Fine print */}
+            <p className="mt-5 text-center text-[11px] leading-relaxed" style={{ color: "#718096" }}>
+              By proceeding you affirm the statements above are true. Products are not for
+              human or veterinary use, not for use in diagnostic procedures, and have not
+              been evaluated by the U.S. Food and Drug Administration.
             </p>
           </>
         ) : (
           <>
             <h1
               id="age-gate-heading"
-              className="mb-4 text-3xl sm:text-4xl"
-              style={{ color: "var(--pl-ivory)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}
+              className="mb-4 text-2xl font-bold"
+              style={{ color: "#1a2e50", fontFamily: "var(--pl-font-body)" }}
             >
               Access Restricted
             </h1>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(241, 246, 249, 0.72)" }}>
-              You must be 21 or older to access this site.
+            <p className="text-sm leading-relaxed" style={{ color: "#4a5568" }}>
+              You must be 21 or older and a qualified researcher to access this site.
             </p>
           </>
         )}
       </div>
+
+      {/* Exit link */}
+      {!declined && (
+        <p className="mt-5 text-sm" style={{ color: "rgba(30,60,110,0.6)" }}>
+          Not a researcher?{" "}
+          <button
+            onClick={handleDecline}
+            className="underline transition-colors hover:opacity-80"
+            style={{ color: "#4a7fd4", background: "none", border: "none", cursor: "pointer" }}
+          >
+            Exit
+          </button>
+        </p>
+      )}
     </div>
   );
 }
