@@ -5,6 +5,8 @@ import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { AgeGate } from "@/components/AgeGate";
+import { DiscountAutoApply } from "@/components/DiscountAutoApply";
+import { Suspense } from "react";
 import "./globals.css";
 
 // Prevents a flash of the age gate for already-verified returning
@@ -77,6 +79,7 @@ gtag('config', 'G-CEQNESY8XS');
           {children}
           <Footer />
           <CartDrawer />
+          <Suspense fallback={null}><DiscountAutoApply /></Suspense>
         </CartProvider>
         {/* Layered on top, not wrapping — {children} above must still
             render normally (server-rendered, present in the DOM) for
