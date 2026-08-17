@@ -7,6 +7,7 @@ import { CartProvider } from "@/lib/cart/CartContext";
 import { AgeGate } from "@/components/AgeGate";
 import { DiscountAutoApply } from "@/components/DiscountAutoApply";
 import { Suspense } from "react";
+import Script from "next/script";
 import "./globals.css";
 
 // Prevents a flash of the age gate for already-verified returning
@@ -56,13 +57,14 @@ export default function RootLayout({
       <head>
         <style>{`html.pl-age-ok #age-gate-root { display: none; }`}</style>
         <script dangerouslySetInnerHTML={{ __html: AGE_GATE_NO_FLASH_SCRIPT }} />
-        {/* Google Tag (gtag.js) — G-CEQNESY8XS */}
+        {/* Google Tag (gtag.js) — GA4 + Google Ads */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CEQNESY8XS" />
         <script dangerouslySetInnerHTML={{ __html: `
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CEQNESY8XS');
+gtag('config', 'AW-18395672517');
         ` }} />
         {/* TikTok Pixel — D8VHSSJC77UBLFU420R0 */}
         <script dangerouslySetInnerHTML={{ __html: `
