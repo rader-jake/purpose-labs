@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { removeCartItem, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
+import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
+import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,8 +13,15 @@ export async function POST(request: NextRequest) {
 
     const tokens = await ensureTokens(await readTokens());
     const { data, tokens: nextTokens } = await removeCartItem(tokens, key);
-    await writeTokens(nextTokens);
-    return NextResponse.json(data);
+
+    // Auto-remove free bac water promo if no qualifying items remain
+    const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
+      data as Cart,
+      nextTokens
+    );
+
+    await writeTokens(finalTokens);
+    return NextResponse.json(finalCart);
   } catch (error) {
     if (error instanceof StoreApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
