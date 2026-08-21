@@ -44,7 +44,7 @@ function VialModel() {
   }, [scene]);
 
   return (
-    <group ref={group} position={[0, -0.5, 0]}>
+    <group ref={group} position={[0, -1.2, 0]}>
       <primitive object={cloned} />
     </group>
   );
