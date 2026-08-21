@@ -5,6 +5,27 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Environment, useGLTF, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 
+function Stars() {
+  const ref = useRef<THREE.Points>(null);
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(300 * 3);
+    for (let i = 0; i < 300; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 30;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 5;
+    }
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, []);
+
+  return (
+    <points ref={ref} geometry={geometry}>
+      <pointsMaterial color="#ffffff" size={0.06} sizeAttenuation transparent opacity={0.6} />
+    </points>
+  );
+}
+
 function VialModel() {
   const group = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/3d/vial_new.glb");
@@ -59,6 +80,7 @@ export function VialViewer() {
       style={{ width: "100%", height: "100%" }}
     >
       <Environment preset="warehouse" background={false} />
+      <Stars />
       <ambientLight intensity={0.5} />
       <directionalLight position={[-4, 6, 3]} intensity={2} />
       <directionalLight position={[4, 3, 2]} intensity={1} color="#dde8ff" />
