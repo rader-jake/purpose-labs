@@ -31,7 +31,7 @@ function VialModel() {
   const { scene } = useGLTF("/3d/vial_new.glb");
 
   useFrame((_, dt) => {
-    if (group.current) group.current.rotation.y += dt * 0.6;
+    if (group.current) group.current.rotation.y += dt * 1.2;
   });
 
   const cloned = useMemo(() => {
