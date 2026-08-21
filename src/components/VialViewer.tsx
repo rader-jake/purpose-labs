@@ -53,7 +53,7 @@ function VialModel() {
 export function VialViewer() {
   return (
     <Canvas
-      camera={{ position: [0, 1.2, 8], fov: 32 }}
+      camera={{ position: [0, 0, 8], fov: 32 }}
       gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.0 }}
       dpr={[1, 2]}
       style={{ width: "100%", height: "100%" }}
