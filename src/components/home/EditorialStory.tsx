@@ -1,8 +1,7 @@
 "use client";
 
 import { Reveal } from "./Reveal";
-import dynamic from "next/dynamic";
-const VialViewer = dynamic(() => import("@/components/VialViewer").then(m => m.VialViewer), { ssr: false });
+import { VialViewer } from "@/components/VialViewer";
 
 export function EditorialStory() {
 
