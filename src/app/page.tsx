@@ -9,7 +9,8 @@ import { ResearchAccessCTA } from "@/components/home/ResearchAccessCTA";
 
 export default async function HomePage() {
   // Fetch best seller products from WooCommerce server-side
-  const products = await getBestSellers(4);
+  // Fall back to empty array if the API is unreachable — never crash the page
+  const products = await getBestSellers(4).catch(() => []);
 
   return (
     <main className="flex-1 bg-[#F1F6F9]">

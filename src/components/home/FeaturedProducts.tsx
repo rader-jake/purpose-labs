@@ -9,7 +9,7 @@ type FeaturedProductsProps = {
 };
 
 export function FeaturedProducts({ products }: FeaturedProductsProps) {
-  const featuredList = products.slice(0, 4);
+  const featuredList = (products ?? []).slice(0, 4);
 
   return (
     <section 
