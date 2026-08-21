@@ -1,14 +1,14 @@
 'use client'
 
 import { Suspense, useRef, useMemo } from 'react'
-import { Canvas, useFrame, useLoader } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Environment, useGLTF, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 
 function Vial() {
   const group = useRef<THREE.Group>(null)
   const { scene } = useGLTF('/3d/vial_new.glb')
-  const labelTexture = useLoader(THREE.TextureLoader, '/3d/label-glp3rt.png')
+  // Label texture is baked into the GLB — no need to load separately
 
   useFrame((_, dt) => {
     if (group.current) group.current.rotation.y += dt * 0.25
@@ -16,14 +16,6 @@ function Vial() {
 
   const cloned = useMemo(() => {
     const c = scene.clone(true)
-
-    labelTexture.flipY = false
-    labelTexture.colorSpace = THREE.SRGBColorSpace
-    // UV covers 0-0.329 in U — scale texture to fill that strip
-    labelTexture.wrapS = THREE.RepeatWrapping
-    labelTexture.wrapT = THREE.RepeatWrapping
-    labelTexture.repeat.set(1 / 0.329, 1)
-    labelTexture.offset.set(0, 0)
 
     const glassMat = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color(0.95, 0.98, 1.0),
@@ -56,14 +48,8 @@ function Vial() {
       metalness: 0.0,
     })
 
-    const labelMat = new THREE.MeshStandardMaterial({
-      map: labelTexture,
-      transparent: true,
-      alphaTest: 0.05,
-      roughness: 0.4,
-      metalness: 0.0,
-      side: THREE.FrontSide,
-    })
+    // Label material uses texture from GLB — keep as-is, just set blend mode
+    const labelMat = null // will use GLB's own material
 
     c.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) return
@@ -76,13 +62,19 @@ function Vial() {
       else if (nodeName === 'cap') child.material = capMat
       else if (nodeName === 'robber') child.material = rubberMat
       else if (nodeName === 'label') {
-        child.material = labelMat
+        // Keep GLB's baked material — just ensure transparency works
+        const mat = child.material as THREE.MeshStandardMaterial
+        if (mat) {
+          mat.transparent = true
+          mat.alphaTest = 0.05
+          mat.needsUpdate = true
+        }
         child.renderOrder = 1
       }
     })
 
     return c
-  }, [scene, labelTexture])
+  }, [scene])
 
   return (
     <group ref={group} position={[0, -0.5, 0]}>
