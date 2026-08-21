@@ -66,7 +66,7 @@ export function VialViewer() {
       <Suspense fallback={null}>
         <VialModel />
       </Suspense>
-      <OrbitControls enablePan={false} minDistance={3} maxDistance={12} minPolarAngle={Math.PI * 0.05} maxPolarAngle={Math.PI * 0.85} />
+      <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={Math.PI * 0.05} maxPolarAngle={Math.PI * 0.85} />
     </Canvas>
   );
 }
