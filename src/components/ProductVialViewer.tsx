@@ -80,7 +80,7 @@ export function ProductVialViewer() {
   return (
     <div
       ref={containerRef}
-      style={{ width: "100%", height: 480, position: "relative", overflow: "hidden", borderRadius: 16 }}
+      style={{ width: "100%", height: "min(480px, 55vw)", minHeight: 300, position: "relative", overflow: "hidden", borderRadius: 16 }}
     >
       <style>{`
         .pv-star {
