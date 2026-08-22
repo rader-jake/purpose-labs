@@ -88,12 +88,12 @@ export default async function ProductPage({
                 <ProductVialViewer labelSrc={labelSrc} />
               ) : null;
             })()}
-            {!Object.entries({
+            {(!Object.entries({
               "glp-3-10mg": 1, "glp-3rt": 1, "bpc-157": 1, "bpc157": 1,
               "tb-500": 1, "tb500": 1, "cjc-1295": 1, "cjc1295": 1,
               "mt-2": 1, "melanotan": 1, "semax": 1, "selank": 1,
               "tirzepatide": 1, "igf-1": 1, "igf1": 1, "tesamorelin": 1, "tesa": 1, "klow": 1, "mots-c": 1, "motsc": 1, "wolverine": 1, "gluta": 1,
-            }).some(([key]) => slug.includes(key)) && image ? (
+            }).some(([key]) => slug.includes(key)) || slug.includes("spray")) && image ? (
               <ProductTilt
                 imageSrc={image.src}
                 imageAlt={image.alt || product.name}
