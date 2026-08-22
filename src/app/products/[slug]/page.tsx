@@ -8,6 +8,7 @@
 import { getProduct, getProductVariations, getRelatedProducts } from "@/lib/woocommerce";
 import { ParticleBackground } from "@/components/ParticleBackground";
 import { ProductTilt } from "@/components/ProductTilt";
+import { ProductVialViewer } from "@/components/ProductVialViewer";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
@@ -56,12 +57,14 @@ export default async function ProductPage({
 
         <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
           <div>
-            {image && (
+            {slug === "glp-3-10mg" ? (
+              <ProductVialViewer />
+            ) : image ? (
               <ProductTilt
                 imageSrc={image.src}
                 imageAlt={image.alt || product.name}
               />
-            )}
+            ) : null}
           </div>
 
           <ProductBuyBox
