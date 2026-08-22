@@ -13,7 +13,11 @@ const STARS = Array.from({ length: 40 }, (_, i) => ({
   depth: Math.random() * 0.04 + 0.01,
 }));
 
-export function ProductVialViewer() {
+interface ProductVialViewerProps {
+  labelSrc?: string;
+}
+
+export function ProductVialViewer({ labelSrc = "/3d/label-glp3rt.png" }: ProductVialViewerProps) {
   const starsRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -23,6 +27,23 @@ export function ProductVialViewer() {
     script.src = "https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js";
     document.head.appendChild(script);
   }, []);
+
+  useEffect(() => {
+    const mv = document.getElementById("product-vial-mv") as any;
+    if (!mv) return;
+    const apply = async () => {
+      const material = mv.model?.materials?.find((m: any) => m.name === "Label");
+      if (material) {
+        const texture = await mv.createTexture(labelSrc);
+        material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      }
+    };
+    if (mv.model) {
+      apply();
+    } else {
+      mv.addEventListener("load", apply, { once: true });
+    }
+  }, [labelSrc]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -119,6 +140,7 @@ export function ProductVialViewer() {
       <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
         {/* @ts-ignore */}
         <model-viewer
+          id="product-vial-mv"
           src="/3d/vial_new.glb"
           camera-controls
           disable-zoom

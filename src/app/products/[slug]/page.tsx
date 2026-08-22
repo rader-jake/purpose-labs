@@ -57,9 +57,31 @@ export default async function ProductPage({
 
         <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
           <div>
-            {slug === "glp-3-10mg" ? (
-              <ProductVialViewer />
-            ) : image ? (
+            {(() => {
+              const labelMap: Record<string, string> = {
+                "glp-3-10mg": "/3d/label-glp3rt.png",
+                "glp-3rt": "/3d/label-glp3rt.png",
+                "bpc-157": "/3d/label-bpc157.png",
+                "bpc157": "/3d/label-bpc157.png",
+                "tb-500": "/3d/label-tb500.png",
+                "tb500": "/3d/label-tb500.png",
+                "cjc-1295": "/3d/label-cjc1295.png",
+                "cjc1295": "/3d/label-cjc1295.png",
+                "mt-2": "/3d/label-mt2.png",
+                "melanotan": "/3d/label-mt2.png",
+                "semax": "/3d/label-semax.png",
+                "selank": "/3d/label-selank.png",
+              };
+              const labelSrc = Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
+              return labelSrc ? (
+                <ProductVialViewer labelSrc={labelSrc} />
+              ) : null;
+            })()}
+            {!Object.entries({
+              "glp-3-10mg": 1, "glp-3rt": 1, "bpc-157": 1, "bpc157": 1,
+              "tb-500": 1, "tb500": 1, "cjc-1295": 1, "cjc1295": 1,
+              "mt-2": 1, "melanotan": 1, "semax": 1, "selank": 1,
+            }).some(([key]) => slug.includes(key)) && image ? (
               <ProductTilt
                 imageSrc={image.src}
                 imageAlt={image.alt || product.name}
