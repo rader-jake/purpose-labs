@@ -129,7 +129,7 @@ export function VialViewer() {
           rotation-per-second="80deg"
           camera-controls
           disable-zoom
-          camera-orbit="0deg 80deg 12m"
+          camera-orbit="0deg 80deg 18m"
           style={{ width: "100%", height: "100%", minHeight: "480px", background: "transparent" }}
         />
       </div>
