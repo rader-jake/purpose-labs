@@ -101,7 +101,7 @@ export default async function ProductPage({
                     "mots-c": "/3d/label-motsc.png",
                     "motsc": "/3d/label-motsc.png",
                   };
-                  const isSingleVial = !slug.includes("spray") && !slug.includes("stack") && !slug.includes("bundle") && !slug.includes("glow");
+                  const isSingleVial = !slug.includes("spray") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
                   const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
                   if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} />;
                   if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
