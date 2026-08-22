@@ -5,116 +5,96 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../public/3d")
-
-# Canvas dimensions
 W, H = 3600, 1200
 NAVY = (27, 42, 74, 255)
 TRANSPARENT = (0, 0, 0, 0)
 
-# Font paths (macOS)
-SERIF_PATHS = [
-    "/System/Library/Fonts/Supplemental/Georgia.ttf",
-    "/Library/Fonts/Georgia.ttf",
-]
-SANS_PATHS = [
-    "/System/Library/Fonts/Helvetica.ttc",
-    "/Library/Fonts/Arial.ttf",
-    "/System/Library/Fonts/Supplemental/Arial.ttf",
-]
+SERIF_PATHS = ["/System/Library/Fonts/Supplemental/Georgia.ttf"]
+SANS_PATHS  = ["/System/Library/Fonts/Helvetica.ttc"]
 
 def load_font(paths, size):
     for p in paths:
         if os.path.exists(p):
-            try:
-                return ImageFont.truetype(p, size)
-            except Exception:
-                pass
+            return ImageFont.truetype(p, size)
     return ImageFont.load_default()
 
 def draw_label(filename, product_name, dosage):
-    img = Image.new("RGBA", (W, H), TRANSPARENT)
+    img  = Image.new("RGBA", (W, H), TRANSPARENT)
     draw = ImageDraw.Draw(img)
 
-    # Fonts
-    font_logo = load_font(SERIF_PATHS, 140)
-    font_name = load_font(SERIF_PATHS, 160)
-    font_name_small = load_font(SERIF_PATHS, 120)
+    font_logo   = load_font(SERIF_PATHS, 140)
+    font_name   = load_font(SERIF_PATHS, 160) if len(product_name) <= 12 else load_font(SERIF_PATHS, 120)
     font_dosage = load_font(SERIF_PATHS, 90)
-    font_tag = load_font(SANS_PATHS, 72)
+    font_tag    = load_font(SANS_PATHS,  72)
 
-    cy = H // 2  # vertical center
-
-    # Layout: estimate heights
-    # PL logo
-    logo_text = "PL"
-    logo_bbox = draw.textbbox((0, 0), logo_text, font=font_logo)
-    logo_h = logo_bbox[3] - logo_bbox[1]
-
-    # Product name (may need smaller font if long)
-    fn = font_name if len(product_name) <= 12 else font_name_small
-    name_bbox = draw.textbbox((0, 0), product_name, font=fn)
-    name_h = name_bbox[3] - name_bbox[1]
-
-    # Dosage pill
-    dosage_bbox = draw.textbbox((0, 0), dosage, font=font_dosage)
-    dosage_h = dosage_bbox[3] - dosage_bbox[1]
-
-    # Tag line
-    tag_text = "RESEARCH USE ONLY"
-    tag_bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
-    tag_h = tag_bbox[3] - tag_bbox[1]
-
-    gap = 220
     pill_pad_x = 60
     pill_pad_y = 28
 
-    total_h = logo_h + gap + name_h + gap + (dosage_h + pill_pad_y * 2) + gap + tag_h
-    y = cy - total_h // 2
+    # Measure each element
+    logo_bb  = draw.textbbox((0,0), "PL",               font=font_logo)
+    name_bb  = draw.textbbox((0,0), product_name,        font=font_name)
+    dose_bb  = draw.textbbox((0,0), dosage,              font=font_dosage)
+    tag_bb   = draw.textbbox((0,0), "RESEARCH USE ONLY", font=font_tag)
 
-    def draw_centered(text, font, y_pos):
-        bbox = draw.textbbox((0, 0), text, font=font)
-        tw = bbox[2] - bbox[0]
+    logo_h = logo_bb[3] - logo_bb[1]
+    name_h = name_bb[3] - name_bb[1]
+    dose_h = dose_bb[3] - dose_bb[1]
+    tag_h  = tag_bb[3]  - tag_bb[1]
+    pill_h = dose_h + pill_pad_y * 2
+
+    # Match original GLP-3RT proportions:
+    # content starts at y=187, ends at y=1047  =>  span=860, start=187
+    CONTENT_START = 187
+    CONTENT_END   = 1047
+    CONTENT_SPAN  = CONTENT_END - CONTENT_START  # 860
+
+    # Four elements with three gaps between them
+    total_elements_h = logo_h + name_h + pill_h + tag_h
+    total_gap = CONTENT_SPAN - total_elements_h
+    gap = total_gap // 3  # equal gaps between 4 elements
+
+    y = CONTENT_START
+
+    def draw_centered_text(text, font, y_pos):
+        bb = draw.textbbox((0,0), text, font=font)
+        tw = bb[2] - bb[0]
         draw.text(((W - tw) // 2, y_pos), text, fill=NAVY, font=font)
-        return bbox[3] - bbox[1]
+        return bb[3] - bb[1]
 
     # 1. PL logo
-    h = draw_centered(logo_text, font_logo, y)
+    h = draw_centered_text("PL", font_logo, y)
     y += h + gap
 
     # 2. Product name
-    h = draw_centered(product_name, fn, y)
+    h = draw_centered_text(product_name, font_name, y)
     y += h + gap
 
     # 3. Dosage pill
-    d_bbox = draw.textbbox((0, 0), dosage, font=font_dosage)
-    dw = d_bbox[2] - d_bbox[0]
-    dh = d_bbox[3] - d_bbox[1]
+    dw = dose_bb[2] - dose_bb[0]
     pill_x0 = (W - dw) // 2 - pill_pad_x
     pill_y0 = y
     pill_x1 = (W + dw) // 2 + pill_pad_x
-    pill_y1 = y + dh + pill_pad_y * 2
-    radius = (pill_y1 - pill_y0) // 2
+    pill_y1 = y + pill_h
+    radius  = pill_h // 2
     draw.rounded_rectangle([pill_x0, pill_y0, pill_x1, pill_y1], radius=radius, outline=NAVY, width=6)
-    # True center of pill, draw text anchored at its midpoint
-    pill_center_x = W // 2
-    pill_center_y = (pill_y0 + pill_y1) // 2
-    draw.text((pill_center_x, pill_center_y), dosage, fill=NAVY, font=font_dosage, anchor="mm")
+    draw.text((W // 2, (pill_y0 + pill_y1) // 2), dosage, fill=NAVY, font=font_dosage, anchor="mm")
     y = pill_y1 + gap
 
     # 4. Research use only
-    draw_centered(tag_text, font_tag, y)
+    draw_centered_text("RESEARCH USE ONLY", font_tag, y)
 
-    out_path = os.path.join(OUTPUT_DIR, filename)
-    img.save(out_path, "PNG")
-    print(f"Saved: {out_path}")
+    out = os.path.join(OUTPUT_DIR, filename)
+    img.save(out, "PNG")
+    print(f"Saved: {out}")
 
 PRODUCTS = [
-    ("label-bpc157.png",  "BPC-157",              "10 MG"),
-    ("label-tb500.png",   "TB-500",               "10 MG"),
-    ("label-cjc1295.png", "CJC-1295 + IPAMORELIN","5MG / 5MG"),
-    ("label-mt2.png",     "MT-2",                 "10 MG"),
-    ("label-semax.png",   "SEMAX",                "10 MG"),
-    ("label-selank.png",  "SELANK",               "10 MG"),
+    ("label-glp3rt.png",  "GLP-3RT",               "10 MG"),
+    ("label-bpc157.png",  "BPC-157",               "10 MG"),
+    ("label-tb500.png",   "TB-500",                "10 MG"),
+    ("label-cjc1295.png", "CJC-1295 + IPAMORELIN", "5MG / 5MG"),
+    ("label-mt2.png",     "MT-2",                  "10 MG"),
+    ("label-semax.png",   "SEMAX",                 "10 MG"),
+    ("label-selank.png",  "SELANK",                "10 MG"),
 ]
 
 if __name__ == "__main__":
