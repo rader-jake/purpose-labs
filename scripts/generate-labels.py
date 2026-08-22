@@ -109,6 +109,7 @@ PRODUCTS = [
     ("label-wolverine.png",    "BPC-157 / TB-500",      "10 MG / 10 MG"),
     ("label-glutathione.png",  "GLUTATHIONE",           "1200 MG"),
     ("label-lcarnitine.png",   "L-CARNITINE",           "600 MG/ML"),
+    ("label-nad.png",          "NAD+",                  "600 MG"),
 ]
 
 if __name__ == "__main__":
