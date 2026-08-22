@@ -48,7 +48,7 @@ def draw_label(filename, product_name, dosage):
     pill_h = dose_h + pill_pad_y * 2
 
     # Fit all 4 elements evenly within content band
-    CONTENT_START = 187
+    CONTENT_START = 70
     CONTENT_END   = 1047
     CONTENT_SPAN  = CONTENT_END - CONTENT_START
 
