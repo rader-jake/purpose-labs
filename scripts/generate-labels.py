@@ -38,11 +38,13 @@ def draw_label(filename, product_name, dosage):
     logo_img = logo_img.resize((logo_w, logo_target_h), Image.LANCZOS)
 
     # Measure text elements
-    name_bb = draw.textbbox((0,0), product_name,        font=font_name)
+    name_lines = product_name.split("\n")
+    name_line_bbs = [draw.textbbox((0,0), l, font=font_name) for l in name_lines]
+    single_line_h = name_line_bbs[0][3] - name_line_bbs[0][1]
+    name_h = sum(bb[3]-bb[1] for bb in name_line_bbs) + int(single_line_h * 0.15) * (len(name_lines)-1)
+
     dose_bb = draw.textbbox((0,0), dosage,              font=font_dosage)
     tag_bb  = draw.textbbox((0,0), "RESEARCH USE ONLY", font=font_tag)
-
-    name_h = name_bb[3] - name_bb[1]
     dose_h = dose_bb[3] - dose_bb[1]
     tag_h  = tag_bb[3]  - tag_bb[1]
     pill_h = dose_h + pill_pad_y * 2
@@ -60,10 +62,24 @@ def draw_label(filename, product_name, dosage):
     name_y = CONTENT_START + logo_target_h + gap
 
     def draw_centered_text(text, font, y_pos):
-        bb = draw.textbbox((0,0), text, font=font)
-        tw = bb[2] - bb[0]
-        draw.text(((W - tw) // 2, y_pos), text, fill=NAVY, font=font)
-        return bb[3] - bb[1]
+        lines = text.split("\n")
+        line_height = None
+        total_h = 0
+        for line in lines:
+            bb = draw.textbbox((0,0), line, font=font)
+            lh = bb[3] - bb[1]
+            if line_height is None:
+                line_height = lh
+            total_h += lh
+        total_h += int(line_height * 0.15) * (len(lines) - 1)  # small gap between lines
+        y = y_pos
+        for line in lines:
+            bb = draw.textbbox((0,0), line, font=font)
+            tw = bb[2] - bb[0]
+            lh = bb[3] - bb[1]
+            draw.text(((W - tw) // 2, y), line, fill=NAVY, font=font)
+            y += lh + int(line_height * 0.15)
+        return total_h
 
     # 1. PL logo — lowered independently so it's not cut off
     logo_x = (W - logo_w) // 2
@@ -110,7 +126,7 @@ PRODUCTS = [
     ("label-glutathione.png",  "GLUTATHIONE",           "1200 MG"),
     ("label-lcarnitine.png",   "L-CARNITINE",           "600 MG/ML"),
     ("label-nad.png",          "NAD+",                  "600 MG"),
-    ("label-bacwater.png",     "BAC WATER",             "10 ML"),
+    ("label-bacwater.png",     "RECONSTITUTION\nSOLUTION", "10 ML"),
     ("label-ghkcu-50.png",     "GHK-CU",                "50 MG"),
     ("label-ghkcu-100.png",    "GHK-CU",                "100 MG"),
 ]
