@@ -94,13 +94,18 @@ def draw_label(filename, product_name, dosage):
     print(f"Saved: {out}")
 
 PRODUCTS = [
-    ("label-glp3rt.png",  "GLP-3RT",               "10 MG"),
-    ("label-bpc157.png",  "BPC-157",               "10 MG"),
-    ("label-tb500.png",   "TB-500",                "10 MG"),
-    ("label-cjc1295.png", "CJC-1295 + IPAMORELIN", "5MG / 5MG"),
-    ("label-mt2.png",     "MT-2",                  "10 MG"),
-    ("label-semax.png",   "SEMAX",                 "10 MG"),
-    ("label-selank.png",  "SELANK",                "10 MG"),
+    ("label-glp3rt.png",      "GLP-3RT",               "10 MG"),
+    ("label-bpc157.png",      "BPC-157",               "10 MG"),
+    ("label-tb500.png",       "TB-500",                "10 MG"),
+    ("label-cjc1295.png",     "CJC-1295 + IPAMORELIN", "5MG / 5MG"),
+    ("label-mt2.png",         "MT-2",                  "10 MG"),
+    ("label-semax.png",       "SEMAX",                 "10 MG"),
+    ("label-selank.png",      "SELANK",                "10 MG"),
+    ("label-tirzepatide.png", "TIRZEPATIDE",           "10 MG"),
+    ("label-igf1lr3.png",     "IGF-1-LR3",             "1 MG"),
+    ("label-tesamorelin.png", "TESAMORELIN",           "5 MG"),
+    ("label-klow.png",        "KLOW",                  "80 MG"),
+    ("label-motsc.png",       "MOTS-C",                "10 MG"),
 ]
 
 if __name__ == "__main__":

@@ -71,6 +71,13 @@ export default async function ProductPage({
                 "melanotan": "/3d/label-mt2.png",
                 "semax": "/3d/label-semax.png",
                 "selank": "/3d/label-selank.png",
+                "tirzepatide": "/3d/label-tirzepatide.png",
+                "igf-1": "/3d/label-igf1lr3.png",
+                "igf1": "/3d/label-igf1lr3.png",
+                "tesamorelin": "/3d/label-tesamorelin.png",
+                "klow": "/3d/label-klow.png",
+                "mots-c": "/3d/label-motsc.png",
+                "motsc": "/3d/label-motsc.png",
               };
               const labelSrc = Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
               return labelSrc ? (
@@ -81,6 +88,7 @@ export default async function ProductPage({
               "glp-3-10mg": 1, "glp-3rt": 1, "bpc-157": 1, "bpc157": 1,
               "tb-500": 1, "tb500": 1, "cjc-1295": 1, "cjc1295": 1,
               "mt-2": 1, "melanotan": 1, "semax": 1, "selank": 1,
+              "tirzepatide": 1, "igf-1": 1, "igf1": 1, "tesamorelin": 1, "klow": 1, "mots-c": 1, "motsc": 1,
             }).some(([key]) => slug.includes(key)) && image ? (
               <ProductTilt
                 imageSrc={image.src}
