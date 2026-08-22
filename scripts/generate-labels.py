@@ -64,7 +64,7 @@ def draw_label(filename, product_name, dosage):
     tag_bbox = draw.textbbox((0, 0), tag_text, font=font_tag)
     tag_h = tag_bbox[3] - tag_bbox[1]
 
-    gap = 40
+    gap = 220
     pill_pad_x = 60
     pill_pad_y = 28
 
@@ -95,7 +95,10 @@ def draw_label(filename, product_name, dosage):
     pill_y1 = y + dh + pill_pad_y * 2
     radius = (pill_y1 - pill_y0) // 2
     draw.rounded_rectangle([pill_x0, pill_y0, pill_x1, pill_y1], radius=radius, outline=NAVY, width=6)
-    draw.text(((W - dw) // 2, y + pill_pad_y), dosage, fill=NAVY, font=font_dosage)
+    # True center of pill, draw text anchored at its midpoint
+    pill_center_x = W // 2
+    pill_center_y = (pill_y0 + pill_y1) // 2
+    draw.text((pill_center_x, pill_center_y), dosage, fill=NAVY, font=font_dosage, anchor="mm")
     y = pill_y1 + gap
 
     # 4. Research use only
