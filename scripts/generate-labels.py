@@ -24,7 +24,7 @@ def draw_label(filename, product_name, dosage):
     draw = ImageDraw.Draw(img)
 
     font_name   = load_font(*HN_REGULAR, 160) if len(product_name) <= 12 else load_font(*HN_REGULAR, 120)
-    font_dosage = load_font(*HN_REGULAR, 90)
+    font_dosage = load_font(*HN_REGULAR, 72)
     font_tag    = load_font(*HN_LIGHT,   72)
 
     pill_pad_x = 60
@@ -32,7 +32,7 @@ def draw_label(filename, product_name, dosage):
 
     # Load and scale the PL logo
     logo_img = Image.open(LOGO_PATH).convert("RGBA")
-    logo_target_h = 250
+    logo_target_h = 320
     logo_scale = logo_target_h / logo_img.height
     logo_w = int(logo_img.width * logo_scale)
     logo_img = logo_img.resize((logo_w, logo_target_h), Image.LANCZOS)
