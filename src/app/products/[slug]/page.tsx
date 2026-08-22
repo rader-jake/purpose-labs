@@ -59,6 +59,8 @@ export default async function ProductPage({
           <div>
             {(() => {
               const labelMap: Record<string, string> = {
+                "wolverine-stack": "/3d/label-wolverine.png",
+                "wolverine": "/3d/label-wolverine.png",
                 "glp-3-10mg": "/3d/label-glp3rt.png",
                 "glp-3rt": "/3d/label-glp3rt.png",
                 "bpc-157": "/3d/label-bpc157.png",
@@ -79,7 +81,6 @@ export default async function ProductPage({
                 "klow": "/3d/label-klow.png",
                 "mots-c": "/3d/label-motsc.png",
                 "motsc": "/3d/label-motsc.png",
-                "wolverine": "/3d/label-wolverine.png",
               };
               const labelSrc = Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
               return labelSrc ? (
