@@ -61,6 +61,9 @@ export default async function ProductPage({
               const labelMap: Record<string, string> = {
                 "wolverine-stack": "/3d/label-wolverine.png",
                 "wolverine": "/3d/label-wolverine.png",
+                "ghk-cu-100": "/3d/label-ghkcu-100.png",
+                "ghk-cu-50": "/3d/label-ghkcu-50.png",
+                "ghk-cu": "/3d/label-ghkcu-50.png",
                 "gluta": "/3d/label-glutathione.png",
                 "l-carnitine": "/3d/label-lcarnitine.png",
                 "nad": "/3d/label-nad.png",
