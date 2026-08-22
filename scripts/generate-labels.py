@@ -23,7 +23,12 @@ def draw_label(filename, product_name, dosage):
     img  = Image.new("RGBA", (W, H), TRANSPARENT)
     draw = ImageDraw.Draw(img)
 
-    font_name   = load_font(*HN_REGULAR, 160) if len(product_name) <= 12 else load_font(*HN_REGULAR, 120)
+    if len(product_name) <= 10:
+        font_name = load_font(*HN_REGULAR, 160)
+    elif len(product_name) <= 18:
+        font_name = load_font(*HN_REGULAR, 130)
+    else:
+        font_name = load_font(*HN_REGULAR, 100)
     font_dosage = load_font(*HN_REGULAR, 72)
     font_tag    = load_font(*HN_LIGHT,   72)
 
@@ -110,7 +115,7 @@ PRODUCTS = [
     ("label-glutathione.png",  "GLUTATHIONE",           "1200 MG"),
     ("label-lcarnitine.png",   "L-CARNITINE",           "600 MG/ML"),
     ("label-nad.png",          "NAD+",                  "600 MG"),
-    ("label-bacwater.png",     "BAC WATER",             "10 ML"),
+    ("label-bacwater.png",     "RECONSTITUTION SOLUTION", "10 ML"),
     ("label-ghkcu-50.png",     "GHK-CU",                "50 MG"),
     ("label-ghkcu-100.png",    "GHK-CU",                "100 MG"),
 ]
