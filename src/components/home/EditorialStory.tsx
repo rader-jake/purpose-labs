@@ -1,12 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ParticleBackground } from "@/components/ParticleBackground";
-import { ProductTilt } from "@/components/ProductTilt";
 import { Reveal } from "./Reveal";
 
-export function EditorialStory() {
-  const storyImage = `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-05_57_26-PM.png`;
+const VialViewer = dynamic(
+  () => import("@/components/VialViewer").then((m) => m.VialViewer),
+  { ssr: false, loading: () => null }
+);
 
+export function EditorialStory() {
   return (
     <section 
       className="bg-[#F1F6F9] py-16 md:py-24 border-t"
@@ -18,12 +21,12 @@ export function EditorialStory() {
       <div className="mx-auto max-w-7xl px-6 sm:px-10">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
           
-          <div className="relative overflow-hidden rounded-xl bg-[#14274E] h-[400px] sm:h-[480px] lg:col-span-6 flex items-center justify-center">
+          <div className="relative overflow-hidden rounded-xl bg-[#14274E] lg:col-span-6" style={{ height: 480 }}>
             <ParticleBackground count={40} />
-            <div className="relative z-10 w-full flex items-center justify-center p-6">
-              <ProductTilt imageSrc={storyImage} imageAlt="Purpose Labs Analytical Standards" />
+            <div style={{ position: "absolute", inset: 0, zIndex: 10, width: "100%", height: "100%" }}>
+              <VialViewer />
             </div>
-            <div className="absolute inset-0 border border-white/10 rounded-xl pointer-events-none" />
+            <div className="absolute inset-0 border border-white/10 rounded-xl pointer-events-none" style={{ zIndex: 20 }} />
           </div>
 
           <div className="flex flex-col items-start lg:col-span-6">
