@@ -11,28 +11,21 @@ W, H = 3600, 1200
 NAVY = (27, 42, 74, 255)
 TRANSPARENT = (0, 0, 0, 0)
 
-SERIF_PATHS = [
-    "/System/Library/Fonts/Supplemental/Didot.ttc",
-    "/System/Library/Fonts/Supplemental/Georgia.ttf",
-]
-SANS_PATHS = ["/System/Library/Fonts/Helvetica.ttc"]
+HN = "/System/Library/Fonts/HelveticaNeue.ttc"
+# Helvetica Neue indices: 0=Regular, 1=Bold, 7=Light
+HN_REGULAR = (HN, 0)
+HN_LIGHT   = (HN, 7)
 
-def load_font(paths, size, index=0):
-    for p in paths:
-        if os.path.exists(p):
-            try:
-                return ImageFont.truetype(p, size, index=index)
-            except Exception:
-                pass
-    return ImageFont.load_default()
+def load_font(path, index, size):
+    return ImageFont.truetype(path, size, index=index)
 
 def draw_label(filename, product_name, dosage):
     img  = Image.new("RGBA", (W, H), TRANSPARENT)
     draw = ImageDraw.Draw(img)
 
-    font_name   = load_font(SERIF_PATHS, 160) if len(product_name) <= 12 else load_font(SERIF_PATHS, 120)
-    font_dosage = load_font(SERIF_PATHS, 90)
-    font_tag    = load_font(SANS_PATHS, 72)
+    font_name   = load_font(*HN_REGULAR, 160) if len(product_name) <= 12 else load_font(*HN_REGULAR, 120)
+    font_dosage = load_font(*HN_REGULAR, 90)
+    font_tag    = load_font(*HN_LIGHT,   72)
 
     pill_pad_x = 60
     pill_pad_y = 28
@@ -54,7 +47,7 @@ def draw_label(filename, product_name, dosage):
     tag_h  = tag_bb[3]  - tag_bb[1]
     pill_h = dose_h + pill_pad_y * 2
 
-    # Fit all 4 elements evenly within content band (matching original GLP-3RT proportions)
+    # Fit all 4 elements evenly within content band
     CONTENT_START = 187
     CONTENT_END   = 1047
     CONTENT_SPAN  = CONTENT_END - CONTENT_START
@@ -70,7 +63,7 @@ def draw_label(filename, product_name, dosage):
         draw.text(((W - tw) // 2, y_pos), text, fill=NAVY, font=font)
         return bb[3] - bb[1]
 
-    # 1. PL logo (composite)
+    # 1. PL logo
     logo_x = (W - logo_w) // 2
     img.paste(logo_img, (logo_x, y), logo_img)
     y += logo_target_h + gap
