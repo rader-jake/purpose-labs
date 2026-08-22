@@ -83,7 +83,7 @@ export default async function ProductPage({
                 "mots-c": "/3d/label-motsc.png",
                 "motsc": "/3d/label-motsc.png",
               };
-              const labelSrc = Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
+              const labelSrc = slug.includes("spray") ? undefined : Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
               return labelSrc ? (
                 <ProductVialViewer labelSrc={labelSrc} />
               ) : null;
