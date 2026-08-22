@@ -83,22 +83,18 @@ export default async function ProductPage({
                 "mots-c": "/3d/label-motsc.png",
                 "motsc": "/3d/label-motsc.png",
               };
-              const labelSrc = slug.includes("spray") ? undefined : Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1];
-              return labelSrc ? (
-                <ProductVialViewer labelSrc={labelSrc} />
-              ) : null;
+              // Only show the 3D vial viewer for single-vial products (not sprays, not bundles/stacks)
+              const isSingleVial = !slug.includes("spray") && !slug.includes("stack") && !slug.includes("bundle") && !slug.includes("glow");
+              const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
+              if (labelSrc) {
+                return <ProductVialViewer labelSrc={labelSrc} />;
+              }
+              // Fallback: use the WooCommerce product image for sprays, bundles, stacks, etc.
+              if (image) {
+                return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
+              }
+              return null;
             })()}
-            {(!Object.entries({
-              "glp-3-10mg": 1, "glp-3rt": 1, "bpc-157": 1, "bpc157": 1,
-              "tb-500": 1, "tb500": 1, "cjc-1295": 1, "cjc1295": 1,
-              "mt-2": 1, "melanotan": 1, "semax": 1, "selank": 1,
-              "tirzepatide": 1, "igf-1": 1, "igf1": 1, "tesamorelin": 1, "tesa": 1, "klow": 1, "mots-c": 1, "motsc": 1, "wolverine": 1, "gluta": 1,
-            }).some(([key]) => slug.includes(key)) || slug.includes("spray")) && image ? (
-              <ProductTilt
-                imageSrc={image.src}
-                imageAlt={image.alt || product.name}
-              />
-            ) : null}
           </div>
 
           <ProductBuyBox
