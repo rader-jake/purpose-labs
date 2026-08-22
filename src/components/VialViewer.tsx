@@ -130,10 +130,11 @@ export function VialViewer() {
           camera-controls
           disable-zoom
           camera-orbit="0deg 80deg 18m"
-          field-of-view="22deg"
+          field-of-view="16deg"
           style={{ width: "100%", height: "100%", minHeight: "480px", background: "transparent" }}
         />
       </div>
     </div>
   );
 }
+// cache-bust: 1787361485
