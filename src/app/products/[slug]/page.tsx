@@ -10,6 +10,7 @@ import { ParticleBackground } from "@/components/ParticleBackground";
 import { ProductTilt } from "@/components/ProductTilt";
 import { ProductVialViewer } from "@/components/ProductVialViewer";
 import { ProductBuyBox } from "@/components/ProductBuyBox";
+import { GhkCuVialViewer } from "@/components/GhkCuVialViewer";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { notFound } from "next/navigation";
@@ -56,64 +57,69 @@ export default async function ProductPage({
         <ParticleBackground count={70} />
 
         <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
-          <div>
-            {(() => {
-              const labelMap: Record<string, string> = {
-                "wolverine-stack": "/3d/label-wolverine.png",
-                "wolverine": "/3d/label-wolverine.png",
-                "ghk-cu-100": "/3d/label-ghkcu-100.png",
-                "ghk-cu-50": "/3d/label-ghkcu-50.png",
-                "ghk-cu": "/3d/label-ghkcu-50.png",
-                "gluta": "/3d/label-glutathione.png",
-                "l-carnitine": "/3d/label-lcarnitine.png",
-                "nad": "/3d/label-nad.png",
-                "reconstitution": "/3d/label-bacwater.png",
-                "bac-water": "/3d/label-bacwater.png",
-                "glp-3-10mg": "/3d/label-glp3rt.png",
-                "glp-3rt": "/3d/label-glp3rt.png",
-                "bpc-157": "/3d/label-bpc157.png",
-                "bpc157": "/3d/label-bpc157.png",
-                "tb-500": "/3d/label-tb500.png",
-                "tb500": "/3d/label-tb500.png",
-                "cjc-1295": "/3d/label-cjc1295.png",
-                "cjc1295": "/3d/label-cjc1295.png",
-                "mt-2": "/3d/label-mt2.png",
-                "melanotan": "/3d/label-mt2.png",
-                "semax": "/3d/label-semax.png",
-                "selank": "/3d/label-selank.png",
-                "tirzepatide": "/3d/label-tirzepatide.png",
-                "igf-1": "/3d/label-igf1lr3.png",
-                "igf1": "/3d/label-igf1lr3.png",
-                "tesamorelin": "/3d/label-tesamorelin.png",
-                "tesa": "/3d/label-tesamorelin.png",
-                "klow": "/3d/label-klow.png",
-                "mots-c": "/3d/label-motsc.png",
-                "motsc": "/3d/label-motsc.png",
-              };
-              // Only show the 3D vial viewer for single-vial products (not sprays, not bundles/stacks)
-              const isSingleVial = !slug.includes("spray") && !slug.includes("stack") && !slug.includes("bundle") && !slug.includes("glow");
-              const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
-              if (labelSrc) {
-                return <ProductVialViewer labelSrc={labelSrc} />;
-              }
-              // Fallback: use the WooCommerce product image for sprays, bundles, stacks, etc.
-              if (image) {
-                return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
-              }
-              return null;
-            })()}
-          </div>
-
-          <ProductBuyBox
-            productId={product.id}
-            productSlug={product.slug}
-            name={product.name}
-            price={product.price}
-            regularPrice={product.regular_price}
-            salePrice={product.sale_price}
-            outOfStock={product.stock_status === "outofstock"}
-            variations={variations}
-          />
+          {slug.includes("ghk-cu") ? (
+            <GhkCuVialViewer
+              productId={product.id}
+              productSlug={product.slug}
+              name={product.name}
+              price={product.price}
+              regularPrice={product.regular_price}
+              salePrice={product.sale_price}
+              outOfStock={product.stock_status === "outofstock"}
+              variations={variations}
+            />
+          ) : (
+            <>
+              <div>
+                {(() => {
+                  const labelMap: Record<string, string> = {
+                    "wolverine-stack": "/3d/label-wolverine.png",
+                    "wolverine": "/3d/label-wolverine.png",
+                    "gluta": "/3d/label-glutathione.png",
+                    "l-carnitine": "/3d/label-lcarnitine.png",
+                    "nad": "/3d/label-nad.png",
+                    "reconstitution": "/3d/label-bacwater.png",
+                    "bac-water": "/3d/label-bacwater.png",
+                    "glp-3-10mg": "/3d/label-glp3rt.png",
+                    "glp-3rt": "/3d/label-glp3rt.png",
+                    "bpc-157": "/3d/label-bpc157.png",
+                    "bpc157": "/3d/label-bpc157.png",
+                    "tb-500": "/3d/label-tb500.png",
+                    "tb500": "/3d/label-tb500.png",
+                    "cjc-1295": "/3d/label-cjc1295.png",
+                    "cjc1295": "/3d/label-cjc1295.png",
+                    "mt-2": "/3d/label-mt2.png",
+                    "melanotan": "/3d/label-mt2.png",
+                    "semax": "/3d/label-semax.png",
+                    "selank": "/3d/label-selank.png",
+                    "tirzepatide": "/3d/label-tirzepatide.png",
+                    "igf-1": "/3d/label-igf1lr3.png",
+                    "igf1": "/3d/label-igf1lr3.png",
+                    "tesamorelin": "/3d/label-tesamorelin.png",
+                    "tesa": "/3d/label-tesamorelin.png",
+                    "klow": "/3d/label-klow.png",
+                    "mots-c": "/3d/label-motsc.png",
+                    "motsc": "/3d/label-motsc.png",
+                  };
+                  const isSingleVial = !slug.includes("spray") && !slug.includes("stack") && !slug.includes("bundle") && !slug.includes("glow");
+                  const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
+                  if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} />;
+                  if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
+                  return null;
+                })()}
+              </div>
+              <ProductBuyBox
+                productId={product.id}
+                productSlug={product.slug}
+                name={product.name}
+                price={product.price}
+                regularPrice={product.regular_price}
+                salePrice={product.sale_price}
+                outOfStock={product.stock_status === "outofstock"}
+                variations={variations}
+              />
+            </>
+          )}
         </div>
       </section>
 

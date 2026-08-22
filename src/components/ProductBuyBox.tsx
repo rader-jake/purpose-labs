@@ -20,6 +20,7 @@ type ProductBuyBoxProps = {
   outOfStock: boolean;
   /** Empty for simple products — only GHK-CU currently has real variations. */
   variations: WooProductVariation[];
+  onVariantChange?: (variationId: number) => void;
 };
 
 /** Leading number in the option label (e.g. "100mg" -> 100), for sorting
@@ -39,6 +40,7 @@ export function ProductBuyBox({
   salePrice,
   outOfStock,
   variations,
+  onVariantChange,
 }: ProductBuyBoxProps) {
   const sortedVariations = useMemo(
     () =>
@@ -148,7 +150,7 @@ export function ProductBuyBox({
             return (
               <button
                 key={variation.id}
-                onClick={() => setSelectedVariationId(variation.id)}
+                onClick={() => { setSelectedVariationId(variation.id); onVariantChange?.(variation.id); }}
                 aria-pressed={selected}
                 className="rounded-lg border px-3 py-3 text-center text-xs font-medium transition-colors duration-200 hover:border-current"
                 style={{
