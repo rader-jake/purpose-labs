@@ -48,14 +48,16 @@ def draw_label(filename, product_name, dosage):
     pill_h = dose_h + pill_pad_y * 2
 
     # Fit all 4 elements evenly within content band
-    CONTENT_START = 70
+    LOGO_TOP      = 120   # logo starts here (raised enough to show, not cut off)
+    CONTENT_START = 70    # GLP-3RT and below anchor
     CONTENT_END   = 1047
     CONTENT_SPAN  = CONTENT_END - CONTENT_START
 
     total_elements_h = logo_target_h + name_h + pill_h + tag_h
     gap = (CONTENT_SPAN - total_elements_h) // 3
 
-    y = CONTENT_START
+    # GLP-3RT starts at same position as before (CONTENT_START + logo_h + gap)
+    name_y = CONTENT_START + logo_target_h + gap
 
     def draw_centered_text(text, font, y_pos):
         bb = draw.textbbox((0,0), text, font=font)
@@ -63,10 +65,11 @@ def draw_label(filename, product_name, dosage):
         draw.text(((W - tw) // 2, y_pos), text, fill=NAVY, font=font)
         return bb[3] - bb[1]
 
-    # 1. PL logo
+    # 1. PL logo — lowered independently so it's not cut off
     logo_x = (W - logo_w) // 2
-    img.paste(logo_img, (logo_x, y), logo_img)
-    y += logo_target_h + gap
+    img.paste(logo_img, (logo_x, LOGO_TOP), logo_img)
+
+    y = name_y
 
     # 2. Product name
     h = draw_centered_text(product_name, font_name, y)
