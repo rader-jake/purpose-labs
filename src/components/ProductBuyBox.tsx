@@ -39,7 +39,7 @@ export function ProductBuyBox({
   regularPrice,
   salePrice,
   outOfStock,
-  variations,
+  variations = [],
   onVariantChange,
 }: ProductBuyBoxProps) {
   const sortedVariations = useMemo(
