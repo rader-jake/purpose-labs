@@ -122,7 +122,7 @@ export function ProductVialViewer() {
           src="/3d/vial_new.glb"
           camera-controls
           disable-zoom
-          camera-orbit="0deg 80deg 18m"
+          camera-orbit="180deg 80deg 18m"
           field-of-view="16deg"
           style={{ width: "100%", height: "100%", background: "transparent" }}
         />
