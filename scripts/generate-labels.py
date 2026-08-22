@@ -5,6 +5,8 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../public/3d")
+LOGO_PATH  = os.path.join(os.path.dirname(__file__), "../public/3d/pl-logo.png")
+
 W, H = 3600, 1200
 NAVY = (27, 42, 74, 255)
 TRANSPARENT = (0, 0, 0, 0)
@@ -13,7 +15,7 @@ SERIF_PATHS = [
     "/System/Library/Fonts/Supplemental/Didot.ttc",
     "/System/Library/Fonts/Supplemental/Georgia.ttf",
 ]
-SANS_PATHS  = ["/System/Library/Fonts/Helvetica.ttc"]
+SANS_PATHS = ["/System/Library/Fonts/Helvetica.ttc"]
 
 def load_font(paths, size, index=0):
     for p in paths:
@@ -24,66 +26,41 @@ def load_font(paths, size, index=0):
                 pass
     return ImageFont.load_default()
 
-def draw_pl_monogram(draw, cx, cy, font_size):
-    """Draw interlocked PL monogram centered at (cx, cy)."""
-    f = load_font(SERIF_PATHS, font_size)
-    # P positioned upper-left, L overlapping lower-right
-    p_bb = draw.textbbox((0, 0), "P", font=f)
-    l_bb = draw.textbbox((0, 0), "L", font=f)
-    p_w = p_bb[2] - p_bb[0]
-    p_h = p_bb[3] - p_bb[1]
-    l_w = l_bb[2] - l_bb[0]
-    l_h = l_bb[3] - l_bb[1]
-
-    # Overlap: L starts at ~half P width, drops ~20% of height
-    overlap_x = int(p_w * 0.50)
-    overlap_y = int(p_h * 0.20)
-    total_w = p_w + l_w - overlap_x
-    total_h = p_h + overlap_y
-
-    # Center the whole monogram block
-    start_x = cx - total_w // 2
-    start_y = cy - total_h // 2
-
-    p_x = start_x - p_bb[0]
-    p_y = start_y - p_bb[1]
-    l_x = start_x + p_w - overlap_x - l_bb[0]
-    l_y = start_y + overlap_y - l_bb[1]
-
-    draw.text((p_x, p_y), "P", fill=NAVY, font=f)
-    draw.text((l_x, l_y), "L", fill=NAVY, font=f)
-
 def draw_label(filename, product_name, dosage):
     img  = Image.new("RGBA", (W, H), TRANSPARENT)
     draw = ImageDraw.Draw(img)
 
     font_name   = load_font(SERIF_PATHS, 160) if len(product_name) <= 12 else load_font(SERIF_PATHS, 120)
     font_dosage = load_font(SERIF_PATHS, 90)
-    font_tag    = load_font(SANS_PATHS,  72)
+    font_tag    = load_font(SANS_PATHS, 72)
 
     pill_pad_x = 60
     pill_pad_y = 28
 
-    # Monogram size
-    MONO_SIZE = 140
-    MONO_H    = int(MONO_SIZE * 1.35)  # approx rendered height with overlap
+    # Load and scale the PL logo
+    logo_img = Image.open(LOGO_PATH).convert("RGBA")
+    logo_target_h = 250
+    logo_scale = logo_target_h / logo_img.height
+    logo_w = int(logo_img.width * logo_scale)
+    logo_img = logo_img.resize((logo_w, logo_target_h), Image.LANCZOS)
 
-    name_bb  = draw.textbbox((0,0), product_name,        font=font_name)
-    dose_bb  = draw.textbbox((0,0), dosage,              font=font_dosage)
-    tag_bb   = draw.textbbox((0,0), "RESEARCH USE ONLY", font=font_tag)
+    # Measure text elements
+    name_bb = draw.textbbox((0,0), product_name,        font=font_name)
+    dose_bb = draw.textbbox((0,0), dosage,              font=font_dosage)
+    tag_bb  = draw.textbbox((0,0), "RESEARCH USE ONLY", font=font_tag)
 
     name_h = name_bb[3] - name_bb[1]
     dose_h = dose_bb[3] - dose_bb[1]
     tag_h  = tag_bb[3]  - tag_bb[1]
     pill_h = dose_h + pill_pad_y * 2
 
+    # Fit all 4 elements evenly within content band (matching original GLP-3RT proportions)
     CONTENT_START = 187
     CONTENT_END   = 1047
     CONTENT_SPAN  = CONTENT_END - CONTENT_START
 
-    total_elements_h = MONO_H + name_h + pill_h + tag_h
-    total_gap = CONTENT_SPAN - total_elements_h
-    gap = total_gap // 3
+    total_elements_h = logo_target_h + name_h + pill_h + tag_h
+    gap = (CONTENT_SPAN - total_elements_h) // 3
 
     y = CONTENT_START
 
@@ -93,11 +70,10 @@ def draw_label(filename, product_name, dosage):
         draw.text(((W - tw) // 2, y_pos), text, fill=NAVY, font=font)
         return bb[3] - bb[1]
 
-    # 1. PL monogram
-    mono_cx = W // 2
-    mono_cy = y + MONO_H // 2
-    draw_pl_monogram(draw, mono_cx, mono_cy, MONO_SIZE)
-    y += MONO_H + gap
+    # 1. PL logo (composite)
+    logo_x = (W - logo_w) // 2
+    img.paste(logo_img, (logo_x, y), logo_img)
+    y += logo_target_h + gap
 
     # 2. Product name
     h = draw_centered_text(product_name, font_name, y)
