@@ -32,10 +32,17 @@ export function ProductVialViewer({ labelSrc = "/3d/label-glp3rt.png" }: Product
     const mv = document.getElementById("product-vial-mv") as any;
     if (!mv) return;
     const apply = async () => {
-      const material = mv.model?.materials?.find((m: any) => m.name === "Label");
-      if (material) {
-        const texture = await mv.createTexture(labelSrc);
-        material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+      try {
+        const material = mv.model?.materials?.find((m: any) => m.name === "Label");
+        if (material && labelSrc) {
+          const texture = await mv.createTexture(labelSrc);
+          const pbr = material.pbrMetallicRoughness;
+          if (pbr?.baseColorTexture) {
+            pbr.baseColorTexture.setTexture(texture);
+          }
+        }
+      } catch (e) {
+        // texture swap failed silently — vial still renders
       }
     };
     if (mv.model) {
