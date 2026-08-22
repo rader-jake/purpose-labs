@@ -18,7 +18,7 @@ export function VialViewer() {
         src="/3d/vial_new.glb"
         auto-rotate
         auto-rotate-delay="0"
-        rotation-per-second="40deg"
+        rotation-per-second="80deg"
         camera-controls
         disable-zoom
         camera-orbit="0deg 80deg 8m"
