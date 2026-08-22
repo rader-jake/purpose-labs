@@ -64,6 +64,8 @@ export default async function ProductPage({
                 "gluta": "/3d/label-glutathione.png",
                 "l-carnitine": "/3d/label-lcarnitine.png",
                 "nad": "/3d/label-nad.png",
+                "reconstitution": "/3d/label-bacwater.png",
+                "bac-water": "/3d/label-bacwater.png",
                 "glp-3-10mg": "/3d/label-glp3rt.png",
                 "glp-3rt": "/3d/label-glp3rt.png",
                 "bpc-157": "/3d/label-bpc157.png",
