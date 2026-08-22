@@ -57,7 +57,7 @@ export default async function ProductPage({
         <ParticleBackground count={70} />
 
         <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
-          {slug.includes("ghk-cu") ? (
+          {slug.includes("ghk-cu") && !slug.includes("stack") && !slug.includes("glow") && !slug.includes("bundle") ? (
             <GhkCuVialViewer
               productId={product.id}
               productSlug={product.slug}
