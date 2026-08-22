@@ -61,6 +61,7 @@ export default async function ProductPage({
               const labelMap: Record<string, string> = {
                 "wolverine-stack": "/3d/label-wolverine.png",
                 "wolverine": "/3d/label-wolverine.png",
+                "gluta": "/3d/label-glutathione.png",
                 "glp-3-10mg": "/3d/label-glp3rt.png",
                 "glp-3rt": "/3d/label-glp3rt.png",
                 "bpc-157": "/3d/label-bpc157.png",
@@ -91,7 +92,7 @@ export default async function ProductPage({
               "glp-3-10mg": 1, "glp-3rt": 1, "bpc-157": 1, "bpc157": 1,
               "tb-500": 1, "tb500": 1, "cjc-1295": 1, "cjc1295": 1,
               "mt-2": 1, "melanotan": 1, "semax": 1, "selank": 1,
-              "tirzepatide": 1, "igf-1": 1, "igf1": 1, "tesamorelin": 1, "tesa": 1, "klow": 1, "mots-c": 1, "motsc": 1, "wolverine": 1,
+              "tirzepatide": 1, "igf-1": 1, "igf1": 1, "tesamorelin": 1, "tesa": 1, "klow": 1, "mots-c": 1, "motsc": 1, "wolverine": 1, "gluta": 1,
             }).some(([key]) => slug.includes(key)) && image ? (
               <ProductTilt
                 imageSrc={image.src}
