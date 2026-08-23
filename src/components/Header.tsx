@@ -118,32 +118,36 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Mobile hamburger */}
-          <button
-            className="flex h-10 w-10 items-center justify-center lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-          >
+          {/* Mobile: hamburger + PL logo on left */}
+          <div className="flex items-center gap-2 sm:hidden">
+            <button className="flex h-10 w-10 items-center justify-center" onClick={() => setMobileOpen((v) => !v)} aria-label="Toggle menu" aria-expanded={mobileOpen}>
+              <div className="flex flex-col gap-1.5">
+                <span className="block h-px w-5 transition-transform duration-200" style={{ backgroundColor: "var(--pl-navy)", transform: mobileOpen ? "translateY(3.5px) rotate(45deg)" : "none" }} />
+                <span className="block h-px w-5 transition-transform duration-200" style={{ backgroundColor: "var(--pl-navy)", transform: mobileOpen ? "translateY(-3.5px) rotate(-45deg)" : "none" }} />
+              </div>
+            </button>
+            <Link href="/"><img src="/pl-logo-mobile.svg" alt="Purpose Labs" width={36} height={36} /></Link>
+          </div>
+
+          {/* Desktop: hamburger only */}
+          <button className="hidden sm:flex h-10 w-10 items-center justify-center lg:hidden" onClick={() => setMobileOpen((v) => !v)} aria-label="Toggle menu" aria-expanded={mobileOpen}>
             <div className="flex flex-col gap-1.5">
               <span className="block h-px w-5 transition-transform duration-200" style={{ backgroundColor: "var(--pl-navy)", transform: mobileOpen ? "translateY(3.5px) rotate(45deg)" : "none" }} />
               <span className="block h-px w-5 transition-transform duration-200" style={{ backgroundColor: "var(--pl-navy)", transform: mobileOpen ? "translateY(-3.5px) rotate(-45deg)" : "none" }} />
             </div>
           </button>
 
-          {/* Center: logo */}
-          <Link href="/" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3">
-            {/* Mobile: PL monogram SVG only */}
-            <img src="/pl-logo-mobile.svg" alt="Purpose Labs" width={36} height={36} className="block sm:hidden" />
-            {/* Desktop: original logo + text */}
-            <Image src="/purposeLabsLogo.png" alt="Purpose Labs" width={28} height={28} className="hidden sm:block" />
-            <span className="hidden sm:inline text-2xl sm:text-3xl" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}>
-              Purpose Labs
-            </span>
+          {/* Center: logo — desktop only */}
+          <Link href="/" className="absolute left-1/2 hidden sm:flex -translate-x-1/2 items-center gap-3">
+            <Image src="/purposeLabsLogo.png" alt="Purpose Labs" width={28} height={28} />
+            <span className="text-2xl sm:text-3xl" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}>Purpose Labs</span>
           </Link>
 
-          {/* Right: auth + cart */}
+          {/* Right: search + auth + cart */}
           <div className="flex items-center gap-3">
+            <button className="flex sm:hidden h-10 w-10 items-center justify-center" aria-label="Search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--pl-navy)" }}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+            </button>
             {authName ? (
               <Link href="/account" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-navy)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
                 <span className="hidden sm:inline">Hi, {authName}</span>
@@ -152,7 +156,7 @@ export function Header() {
             ) : (
               <Link href="/account/login" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-slate)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
                 <span className="hidden sm:inline">Login / Register</span>
-                <span className="sm:hidden">Login</span>
+                <span className="sm:hidden"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
               </Link>
             )}
             <button
