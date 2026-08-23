@@ -136,6 +136,51 @@ export default async function ProductPage({
             dangerouslySetInnerHTML={{ __html: product.short_description }}
           />
         )}
+
+        {/* Compliance Sections */}
+        <div style={{ marginTop: 48 }}>
+          {/* Storage & Stability */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Storage &amp; Stability</h2>
+            <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 8 }}>Lyophilized Compound</p>
+            <ul style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 2, listStyle: "none", padding: 0 }}>
+              <li>Store at <strong>-20°C or below</strong></li>
+              <li>Protect from heat, moisture, and direct light</li>
+              <li>Keep vial tightly sealed until use</li>
+              <li>Avoid repeated freeze-thaw cycles</li>
+            </ul>
+          </div>
+
+          {/* Laboratory Applications */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Laboratory Applications</h2>
+            <p style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 1.8 }}>
+              Suitable for <em>in vitro</em> laboratory applications, including biochemical, analytical, cell culture, and other controlled experimental studies conducted in accordance with institutional research protocols.
+            </p>
+          </div>
+
+          {/* Research Use Only Disclaimer */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Research Use Only Disclaimer</h2>
+            <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", fontSize: 13, letterSpacing: "0.05em", marginBottom: 12 }}>
+              FOR RESEARCH USE ONLY (RUO). NOT FOR HUMAN OR VETERINARY USE.
+            </p>
+            <p style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 1.8, marginBottom: 12 }}>
+              This product is intended solely for laboratory research by qualified professionals. It is not intended for human or veterinary use, clinical applications, food production, cosmetics, or dietary supplements.
+            </p>
+            <p style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 1.8 }}>
+              This product has not been evaluated by the U.S. Food and Drug Administration. No claims are made regarding the diagnosis, treatment, cure, or prevention of any disease.
+            </p>
+          </div>
+
+          {/* Purchaser Acknowledgement */}
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Purchaser Acknowledgement</h2>
+            <p style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 1.8 }}>
+              By purchasing this product, the buyer certifies that they are a qualified researcher or authorized institution and assume full responsibility for its handling, storage, transportation, and lawful use of this material.
+            </p>
+          </div>
+        </div>
       </section>
 
       {relatedProducts.length > 0 && (
