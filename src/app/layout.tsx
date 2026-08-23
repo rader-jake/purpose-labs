@@ -8,6 +8,7 @@ import { AgeGate } from "@/components/AgeGate";
 import { DiscountAutoApply } from "@/components/DiscountAutoApply";
 import { Suspense } from "react";
 import Script from "next/script";
+import { AuthProvider } from "@/components/AuthProvider";
 import "./globals.css";
 
 // Prevents a flash of the age gate for already-verified returning
@@ -76,6 +77,7 @@ gtag('config', 'AW-18395672517');
         ` }} />
       </head>
       <body className="min-h-full flex flex-col">
+        <AuthProvider>
         <CartProvider>
           <Header />
           {children}
@@ -83,6 +85,7 @@ gtag('config', 'AW-18395672517');
           <CartDrawer />
           <Suspense fallback={null}><DiscountAutoApply /></Suspense>
         </CartProvider>
+        </AuthProvider>
         {/* Layered on top, not wrapping — {children} above must still
             render normally (server-rendered, present in the DOM) for
             SEO. The gate is purely a visual/interactive overlay. */}
