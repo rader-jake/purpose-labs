@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import Image from "next/image";
-import { getAuthToken, getCurrentUser } from "@/lib/auth";
+import { getAuthToken } from "@/lib/auth";
 
 const NAV_LINKS = [
   { label: "Compounds", href: "/products" },
@@ -39,7 +39,10 @@ export function Header() {
   useEffect(() => {
     const token = getAuthToken();
     if (!token) return;
-    getCurrentUser(token).then(u => { if (u) setAuthName(u.firstName || u.email); }).catch(() => {});
+    fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.user) setAuthName(data.user.firstName || data.user.email); })
+      .catch(() => {});
   }, []);
 
   // Duplicate items for seamless loop
