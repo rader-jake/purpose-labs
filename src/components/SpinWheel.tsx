@@ -215,10 +215,10 @@ export function SpinWheel() {
     setSpinMsg(null); setRealCoupon(null);
 
     const token = getAuthToken();
-    if (!token) { router.push("/account/login?redirect=spin"); return; }
+    const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
     // Check status first
-    const statusRes = await fetch("/api/spin", { headers: { Authorization: `Bearer ${token}` } });
+    const statusRes = await fetch("/api/spin", { credentials: "include", headers: authHeaders });
     const status = await statusRes.json();
     if (!status.isLoggedIn) { router.push("/account/login?redirect=spin"); return; }
     if (status.hasSpun) {
@@ -229,7 +229,7 @@ export function SpinWheel() {
     }
 
     // POST to spin
-    const spinRes = await fetch("/api/spin", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+    const spinRes = await fetch("/api/spin", { method: "POST", credentials: "include", headers: authHeaders });
     if (!spinRes.ok) {
       const err = await spinRes.json();
       if (err.code === "already_spun" && err.nextSpin) {

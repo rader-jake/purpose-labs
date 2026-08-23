@@ -74,14 +74,11 @@ export const authOptions: NextAuthOptions = {
         (user as any).wcCustomerId = customer.id;
         (user as any).wcFirstName = customer.first_name || firstName;
 
-        // Get JWT - for new users use their generated password, for existing use WP app password
+        // Get JWT only for newly created users (we have their password)
+        // For existing users, the spin API uses NextAuth session directly — no JWT needed
         let jwtToken: string | null = null;
         if (password) {
           jwtToken = await getJWTToken(email, password);
-        }
-        // Fallback: try WP app password (works for wp users registered via WC)
-        if (!jwtToken) {
-          jwtToken = await getJWTToken(email, "KH5x vzQv rq6Y 9ccl peq7 NbCs");
         }
         (user as any).jwtToken = jwtToken;
       } catch (err) {

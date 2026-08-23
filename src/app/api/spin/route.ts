@@ -78,10 +78,13 @@ async function validateTokenAndGetCustomer(token: string) {
 
 // GET — status check
 export async function GET(req: NextRequest) {
-  const token = getTokenFromRequest(req);
-  if (!token) return NextResponse.json({ isLoggedIn: false, hasSpun: false, nextSpin: null, prize: null, coupon: null });
-
-  const customer = await validateTokenAndGetCustomer(token).catch(() => null);
+  // Try NextAuth session first (Google OAuth users), then fall back to JWT cookie
+  let customer = await getCustomerFromNextAuth(req).catch(() => null);
+  if (!customer) {
+    const token = getTokenFromRequest(req);
+    if (!token) return NextResponse.json({ isLoggedIn: false, hasSpun: false, nextSpin: null, prize: null, coupon: null });
+    customer = await validateTokenAndGetCustomer(token).catch(() => null);
+  }
   if (!customer) return NextResponse.json({ isLoggedIn: false, hasSpun: false, nextSpin: null, prize: null, coupon: null });
 
   const meta: { key: string; value: string }[] = customer.meta_data ?? [];
@@ -100,10 +103,13 @@ export async function GET(req: NextRequest) {
 
 // POST — spin
 export async function POST(req: NextRequest) {
-  const token = getTokenFromRequest(req);
-  if (!token) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-
-  const customer = await validateTokenAndGetCustomer(token).catch(() => null);
+  // Try NextAuth session first (Google OAuth users), then fall back to JWT cookie
+  let customer = await getCustomerFromNextAuth(req).catch(() => null);
+  if (!customer) {
+    const token = getTokenFromRequest(req);
+    if (!token) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    customer = await validateTokenAndGetCustomer(token).catch(() => null);
+  }
   if (!customer) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
   const meta: { key: string; value: string }[] = customer.meta_data ?? [];
