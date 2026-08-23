@@ -105,16 +105,17 @@ export async function POST(req: NextRequest) {
   const prize = pickPrize();
   const now = new Date().toISOString();
 
-  // Save spin time immediately regardless of prize
+  // TRY_AGAIN = free retry, don't set cooldown
+  if (prize.id === "TRY_AGAIN") {
+    return NextResponse.json({ prize: "TRY_AGAIN" });
+  }
+
+  // Save spin time only on real prizes
   await fetch(`${WC_BASE}/customers/${customer.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: wcAuth() },
     body: JSON.stringify({ meta_data: [{ key: "pl_last_spin", value: now }, { key: "pl_last_spin_prize", value: prize.id }] }),
   });
-
-  if (prize.id === "TRY_AGAIN") {
-    return NextResponse.json({ prize: "TRY_AGAIN" });
-  }
 
   // Build coupon
   const code = `PL-${randomCode(8)}-${prize.id.replace("_", "")}`;

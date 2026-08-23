@@ -5,15 +5,18 @@ import { useRouter } from "next/navigation";
 import { getAuthToken } from "@/lib/auth";
 
 const PRIZES = [
-  { label: ["10%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
+  { label: ["FREE", "VIAL"],    color: "#2000FF", text: "#FFFFFF", icon: "gift", gold: true },
   { label: ["FREE", "SHIPPING"], color: "#8A9BB0", text: "#1B2A4A", icon: "truck" },
+  { label: ["10%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
+  { label: ["25%", "OFF"],      color: "#7BAFD4", text: "#1B2A4A", icon: "tag" },
   { label: ["15%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
-  { label: ["FREE", "ITEM"],    color: "#8A9BB0", text: "#1B2A4A", icon: "gift" },
+  { label: ["SPIN", "AGAIN"],    color: "#8A9BB0", text: "#1B2A4A", icon: "refresh" },
   { label: ["20%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
-  { label: ["TRY", "AGAIN"],    color: "#8A9BB0", text: "#1B2A4A", icon: "refresh" },
+  { label: ["FREE", "SHIPPING"], color: "#8A9BB0", text: "#1B2A4A", icon: "truck" },
 ];
 
-const WEIGHTS = [30, 25, 20, 10, 10, 5];
+// 8 segments — FREE VIAL:3% | SHIP:2×10% | 10%:25% | 25%:5% | 15%:14% | TRY AGAIN:15% | 20%:8%
+const WEIGHTS = [3, 10, 25, 5, 14, 15, 8, 20];
 const NUM = PRIZES.length;
 const SLICE = (2 * Math.PI) / NUM;
 
@@ -127,8 +130,8 @@ function drawWheel(canvas: HTMLCanvasElement, rotationRad: number, activeIdx: nu
     const tx = cx + textR * Math.cos(midAngle);
     const ty = cy + textR * Math.sin(midAngle);
     const p = PRIZES[i];
-    const fs = Math.floor(size * 0.058);
-    const iconSize = size * 0.095;
+    const fs = Math.floor(size * 0.042);
+    const iconSize = size * 0.075;
     ctx.save();
     ctx.translate(tx, ty);
     ctx.rotate(midAngle + Math.PI / 2);
@@ -156,6 +159,7 @@ export function SpinWheel() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mvRef = useRef<any>(null);
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
+  const [retryCount, setRetryCount] = useState(0);
   const [prize, setPrize] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
   const [spinMsg, setSpinMsg] = useState<string | null>(null);
@@ -266,6 +270,15 @@ export function SpinWheel() {
         angleRef.current = targetAngle; phaseRef.current = "result";
         drawWheel(canvas, targetAngle, result, "result");
         setPhase("result"); setPrize(result);
+        // If TRY_AGAIN and under retry limit, auto-reset after 2s
+        if (PRIZES[result].label.join("") === "SPINAGAIN" && retryCount < 2) {
+          setTimeout(() => {
+            setRetryCount(r => r + 1);
+            setPhase("idle");
+            phaseRef.current = "idle";
+            setPrize(null);
+          }, 2000);
+        }
       }
     };
     requestAnimationFrame(animate);
@@ -342,7 +355,7 @@ export function SpinWheel() {
         )}
         {phase === "result" && (
           <div style={{ display: "flex", gap: 8 }}>
-            {PRIZES[prize!].label.join(" ") !== "TRY AGAIN" && (
+            {PRIZES[prize!].label.join(" ") !== "SPIN AGAIN" && (
               <button style={{ background: "#fff", color: "#1B2A4A", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>Shop Now</button>
             )}
             <button onClick={reset} style={{ background: "transparent", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 20px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>Try Again</button>
