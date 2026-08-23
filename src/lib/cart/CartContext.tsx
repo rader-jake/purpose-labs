@@ -44,7 +44,17 @@ function decodeHtmlEntities(text: string): string {
   return el.value;
 }
 
+function saveCartToken(response: Response) {
+  try {
+    const token = response.headers.get("x-cart-token");
+    if (token && typeof localStorage !== "undefined") {
+      localStorage.setItem("wc/cartToken", token);
+    }
+  } catch {}
+}
+
 async function parseCartResponse(response: Response): Promise<Cart> {
+  saveCartToken(response);
   const data = await response.json();
   if (!response.ok) {
     const message = typeof data?.message === "string" ? data.message : "Cart request failed";

@@ -24,7 +24,9 @@ export async function POST(request: NextRequest) {
     );
 
     await writeTokens(finalTokens);
-    return NextResponse.json(finalCart);
+    const res = NextResponse.json(finalCart);
+    if (finalTokens.cartToken) res.headers.set("x-cart-token", finalTokens.cartToken);
+    return res;
   } catch (error) {
     if (error instanceof StoreApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
