@@ -51,9 +51,14 @@ export default function AccountPage() {
   }, [router]);
 
   function logout() {
-    document.cookie = "pl_auth_token=; max-age=0; path=/";
-    document.cookie = "pl_auth_name=; max-age=0; path=/";
-    window.location.href = "/";
+    // Nuke cookies every possible way
+    const nukeDate = "Thu, 01 Jan 1970 00:00:00 GMT";
+    ["pl_auth_token", "pl_auth_name"].forEach(name => {
+      document.cookie = `${name}=; expires=${nukeDate}; path=/`;
+      document.cookie = `${name}=; expires=${nukeDate}; path=/; domain=${window.location.hostname}`;
+      document.cookie = `${name}=; max-age=0; path=/`;
+    });
+    window.location.replace("/");
   }
 
   if (loading) return (
