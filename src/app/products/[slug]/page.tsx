@@ -103,7 +103,7 @@ export default async function ProductPage({
                   };
                   const isSingleVial = !slug.includes("spray") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
                   const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
-                  const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") || slug.includes("bac-water");
+                  const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") || slug.includes("bac-water") || slug.includes("nad");
                   const modelSrc = slug.includes("klow") ? "/3d/vial_powder_blue.glb" : isLiquid ? "/3d/vial_new.glb" : "/3d/vial_powder_white.glb";
                   if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} modelSrc={modelSrc} />;
                   if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
