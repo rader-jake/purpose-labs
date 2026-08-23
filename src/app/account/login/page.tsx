@@ -39,7 +39,7 @@ function LoginForm() {
   }
 
   return (
-    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "system-ui, Helvetica Neue, sans-serif" }}>
+    <main style={{ minHeight: "100vh", background: "#fff", display: "flex", alignItems: "flex-start", paddingTop: "80px", justifyContent: "center", fontFamily: "system-ui, Helvetica Neue, sans-serif" }}>
       <div style={{ width: "100%", maxWidth: 420, padding: "0 24px" }}>
         <h1 style={{ color: "#1B2A4A", fontSize: 28, fontWeight: 800, marginBottom: 8, letterSpacing: "-0.02em" }}>Sign In</h1>
         <p style={{ color: "#7BAFD4", fontSize: 14, marginBottom: 32 }}>Welcome back to Purpose Labs</p>
