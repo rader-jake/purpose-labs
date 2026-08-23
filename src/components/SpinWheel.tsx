@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getAuthToken } from "@/lib/auth";
 
 const PRIZES = [
   { label: ["10%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
@@ -150,11 +152,14 @@ function drawWheel(canvas: HTMLCanvasElement, rotationRad: number, activeIdx: nu
 }
 
 export function SpinWheel() {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mvRef = useRef<any>(null);
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
   const [prize, setPrize] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [spinMsg, setSpinMsg] = useState<string | null>(null);
+  const [realCoupon, setRealCoupon] = useState<string | null>(null);
   const [size, setSize] = useState(320);
   const angleRef = useRef(0);
   const activeRef = useRef(0);
@@ -197,9 +202,45 @@ export function SpinWheel() {
     if (mv.model) apply(); else mv.addEventListener("load", apply, { once: true });
   }, []);
 
-  const spin = () => {
+  const PRIZE_ID_MAP: Record<string, number> = {
+    "10_OFF": 0, "FREE_SHIPPING": 1, "15_OFF": 2, "FREE_PRODUCT": 3, "20_OFF": 4, "TRY_AGAIN": 5,
+  };
+
+  const spin = async () => {
     if (phase !== "idle") return;
-    const result = pickPrize();
+    setSpinMsg(null); setRealCoupon(null);
+
+    const token = getAuthToken();
+    if (!token) { router.push("/account/login?redirect=spin"); return; }
+
+    // Check status first
+    const statusRes = await fetch("/api/spin", { headers: { Authorization: `Bearer ${token}` } });
+    const status = await statusRes.json();
+    if (!status.isLoggedIn) { router.push("/account/login?redirect=spin"); return; }
+    if (status.hasSpun) {
+      const next = status.nextSpin ? new Date(status.nextSpin) : null;
+      const days = next ? Math.ceil((next.getTime() - Date.now()) / 86400000) : 7;
+      setSpinMsg(`Come back in ${days} day${days !== 1 ? "s" : ""} for your next spin!`);
+      return;
+    }
+
+    // POST to spin
+    const spinRes = await fetch("/api/spin", { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+    if (!spinRes.ok) {
+      const err = await spinRes.json();
+      if (err.code === "already_spun" && err.nextSpin) {
+        const days = Math.ceil((new Date(err.nextSpin).getTime() - Date.now()) / 86400000);
+        setSpinMsg(`Come back in ${days} day${days !== 1 ? "s" : ""} for your next spin!`);
+      } else {
+        setSpinMsg("Something went wrong. Please try again.");
+      }
+      return;
+    }
+    const spinData = await spinRes.json();
+    const serverPrizeId = spinData.prize as string;
+    const result = PRIZE_ID_MAP[serverPrizeId] ?? pickPrize();
+    if (spinData.couponCode) setRealCoupon(spinData.couponCode);
+
     setPhase("spinning"); phaseRef.current = "spinning"; setPrize(null);
     const fullSpins = 8 + Math.floor(Math.random() * 3);
     const currentNorm = ((-angleRef.current % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -230,9 +271,9 @@ export function SpinWheel() {
     requestAnimationFrame(animate);
   };
 
-  const reset = () => { setPhase("idle"); phaseRef.current = "idle"; setPrize(null); setCopied(false); };
+  const reset = () => { setPhase("idle"); phaseRef.current = "idle"; setPrize(null); setCopied(false); setSpinMsg(null); setRealCoupon(null); };
   const vialSize = Math.round(size * 0.35);
-  const fakeCoupon = prize !== null ? `PL-${PRIZES[prize].label.join("").substring(0, 6)}-WIN` : "";
+  const displayCoupon = realCoupon ?? (prize !== null ? `PL-${PRIZES[prize].label.join("").substring(0, 6)}-WIN` : "");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, width: "100%" }}>
@@ -282,7 +323,10 @@ export function SpinWheel() {
 
       {/* Fixed-height action area */}
       <div style={{ height: 64, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8 }}>
-        {phase === "idle" && (
+        {spinMsg && (
+          <div style={{ fontSize: 13, color: "#c0392b", textAlign: "center", maxWidth: 300 }}>{spinMsg}</div>
+        )}
+        {phase === "idle" && !spinMsg && (
           <button onClick={spin} style={{
             background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
             border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
@@ -307,9 +351,9 @@ export function SpinWheel() {
       </div>
 
       {phase === "result" && prize !== null && PRIZES[prize].label.join(" ") !== "TRY AGAIN" && (
-        <div onClick={() => { navigator.clipboard.writeText(fakeCoupon); setCopied(true); }}
+        <div onClick={() => { navigator.clipboard.writeText(displayCoupon); setCopied(true); }}
           style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, letterSpacing: "0.12em", cursor: "pointer", fontFamily: "monospace" }}>
-          {copied ? "✓ COPIED" : fakeCoupon}
+          {copied ? "✓ COPIED" : displayCoupon}
         </div>
       )}
 

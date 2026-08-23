@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import Image from "next/image";
+import { getAuthToken, getCurrentUser } from "@/lib/auth";
 
 const NAV_LINKS = [
   { label: "Compounds", href: "/products" },
@@ -24,6 +25,7 @@ const TICKER_ITEMS = [
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authName, setAuthName] = useState<string | null>(null);
   const { cart, openDrawer } = useCart();
   const cartCount = cart?.items_count ?? 0;
 
@@ -32,6 +34,12 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) return;
+    getCurrentUser(token).then(u => { if (u) setAuthName(u.firstName || u.email); }).catch(() => {});
   }, []);
 
   // Duplicate items for seamless loop
@@ -123,8 +131,17 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Right: cart */}
+          {/* Right: auth + cart */}
           <div className="flex items-center gap-3">
+            {authName ? (
+              <Link href="/account" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-navy)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
+                Hi, {authName}
+              </Link>
+            ) : (
+              <Link href="/account/login" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-slate)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
+                Login
+              </Link>
+            )}
             <button
               onClick={openDrawer}
               className="relative flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-200"
