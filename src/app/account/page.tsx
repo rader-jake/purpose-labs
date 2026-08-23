@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { getAuthToken, removeAuthToken, getCurrentUser, AuthUser } from "@/lib/auth";
 
 interface Order {
@@ -15,14 +16,48 @@ interface Order {
 
 export default function AccountPage() {
   const router = useRouter();
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [spinStatus, setSpinStatus] = useState<{ hasSpun: boolean; nextSpin: string | null; prize: string | null; coupon: string | null } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (nextAuthStatus === "loading") return;
+
     async function init() {
       const token = getAuthToken();
+
+      // Google users: use NextAuth session, no JWT needed
+      if (!token && nextAuthSession?.user?.email) {
+        const email = nextAuthSession.user.email;
+        const name = nextAuthSession.user.name ?? "";
+        const firstName = (nextAuthSession as any).wcFirstName || name.split(" ")[0] || "";
+        const wcCustomerId = (nextAuthSession as any).wcCustomerId;
+        setUser({ id: wcCustomerId ?? 0, email, firstName, lastName: "", displayName: name, token: "" });
+
+        // Fetch spin status via NextAuth session (credentials: include sends cookies)
+        try {
+          const res = await fetch("/api/spin", { credentials: "include" });
+          if (res.ok) setSpinStatus(await res.json());
+        } catch {}
+
+        // Fetch orders if we have a WC customer ID
+        if (wcCustomerId) {
+          try {
+            const res = await fetch(
+              `https://joshuar120.sg-host.com/wp-json/wc/v3/orders?customer=${wcCustomerId}&per_page=5`,
+              { headers: { Authorization: "Basic " + btoa("ck_f7138959a5bb8acdcd20841a473028fe1139f86d:cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19") } }
+            );
+            if (res.ok) setOrders(await res.json());
+          } catch {}
+        }
+
+        setLoading(false);
+        return;
+      }
+
+      // Regular JWT users
       if (!token) { router.push("/account/login"); return; }
       const meRes = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } });
       if (!meRes.ok) { router.push("/account/login"); return; }
@@ -48,7 +83,7 @@ export default function AccountPage() {
       setLoading(false);
     }
     init();
-  }, [router]);
+  }, [router, nextAuthSession, nextAuthStatus]);
 
   function logout() {
     // Nuke cookies every possible way
