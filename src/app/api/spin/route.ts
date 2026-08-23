@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
 
 const WC_BASE = "https://joshuar120.sg-host.com/wp-json/wc/v3";
 const JWT_VALIDATE = "https://joshuar120.sg-host.com/wp-json/jwt-auth/v1/token/validate";
@@ -34,6 +36,18 @@ function getTokenFromRequest(req: NextRequest): string | null {
   if (auth?.startsWith("Bearer ")) return auth.slice(7);
   const cookie = req.cookies.get("pl_auth_token");
   return cookie?.value ?? null;
+}
+
+async function getCustomerFromNextAuth(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return null;
+    const email = session.user.email;
+    const auth = "Basic " + Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
+    const custRes = await fetch(`${WC_BASE}/customers?email=${encodeURIComponent(email)}&per_page=1`, { headers: { Authorization: auth } });
+    const customers = await custRes.json();
+    return Array.isArray(customers) && customers.length > 0 ? customers[0] : null;
+  } catch { return null; }
 }
 
 async function validateTokenAndGetCustomer(token: string) {
