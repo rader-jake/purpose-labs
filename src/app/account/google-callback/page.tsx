@@ -24,7 +24,7 @@ export default function GoogleCallback() {
       // Respect redirect param from login page (e.g. ?redirect=spin)
       const params = new URLSearchParams(window.location.search);
       const redirect = params.get("redirect");
-      window.location.href = redirect ? `/${redirect.replace(/^\//, "")}` : "/account";
+      window.location.href = redirect ? (redirect.startsWith("/") ? redirect : `/${redirect}`) : "/account";
     }
   }, [session, status]);
 

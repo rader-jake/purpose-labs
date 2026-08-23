@@ -375,7 +375,7 @@ export function SpinWheel() {
               width: Math.min(size * 0.9, 320),
             }}>SPIN</button>
           ) : (
-            <button onClick={() => router.push("/account/login?redirect=spin-test")} style={{
+            <button onClick={() => router.push("/account/login?redirect=/")} style={{
               background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
               border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
               padding: "14px 0", fontSize: 14, fontWeight: 900,
