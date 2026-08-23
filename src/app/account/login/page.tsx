@@ -28,7 +28,10 @@ function LoginForm() {
 
   async function handleGoogleSignIn() {
     setGoogleLoading(true);
-    await signIn("google", { callbackUrl: "/account/google-callback" });
+    const callbackUrl = redirect && redirect !== "account"
+      ? `/account/google-callback?redirect=${encodeURIComponent(redirect)}`
+      : "/account/google-callback";
+    await signIn("google", { callbackUrl });
   }
 
   async function handleSubmit(e: FormEvent) {

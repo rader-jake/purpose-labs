@@ -21,7 +21,10 @@ export default function GoogleCallback() {
       if (firstName) {
         document.cookie = `pl_auth_name=${encodeURIComponent(firstName)}; max-age=${maxAge}; path=/; SameSite=Lax`;
       }
-      window.location.href = "/account";
+      // Respect redirect param from login page (e.g. ?redirect=spin)
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      window.location.href = redirect ? `/${redirect.replace(/^\//, "")}` : "/account";
     }
   }, [session, status]);
 
