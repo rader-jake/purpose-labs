@@ -126,7 +126,21 @@ function BeaconPaymentForm({
       }
 
       const confirmResult = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement },
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            name: `${billingAddress.first_name} ${billingAddress.last_name}`.trim(),
+            email: billingAddress.email,
+            address: {
+              line1: billingAddress.address_1,
+              line2: billingAddress.address_2 || undefined,
+              city: billingAddress.city,
+              state: billingAddress.state,
+              postal_code: billingAddress.postcode,
+              country: billingAddress.country || "US",
+            },
+          },
+        },
       });
       if (confirmResult.error) {
         throw new Error(confirmResult.error.message ?? "Card was declined. Please try again.");
@@ -136,49 +150,50 @@ function BeaconPaymentForm({
         throw new Error("Payment could not be confirmed. Please try again.");
       }
 
-      const nowIso = new Date().toISOString();
-      const checkoutResponse = await fetch("/api/checkout", {
+      // Call Beacon wallet-order to sync the completed payment into WooCommerce
+      const walletOrderResponse = await fetch("/api/checkout/beacon-wallet-order", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          billing_address: billingAddress,
-          shipping_address: shippingAddress,
-          payment_method: "beacon_checkout",
-          payment_data: [{ key: "payment_intent_id", value: paymentIntentId }],
-          extensions: {
-            "beacon-checkout": {
-              legal_version: "1",
-              buyer_type: "business",
-              institution_name: "N/A",
-              purchase_reference: "N/A",
-              // Confirmed via live testing: attest_* values must be the
-              // string "true" (not a JS boolean — a boolean here 400s with
-              // "is not of type string"), and EVERY attestation needs its
-              // own attest_ts_{field} timestamp, not just attest_ts_all.
-              attest_age_21: "true",
-              attest_ts_age_21: nowIso,
-              attest_research_use_only: "true",
-              attest_ts_research_use_only: nowIso,
-              attest_experienced_researcher: "true",
-              attest_ts_experienced_researcher: nowIso,
-              attest_b2b_transaction: "true",
-              attest_ts_b2b_transaction: nowIso,
-              attest_lawful_receipt: "true",
-              attest_ts_lawful_receipt: nowIso,
-              attest_all: "true",
-              attest_ts_all: nowIso,
-            },
+          payment_intent_id: paymentIntentId,
+          cart_token: cartToken,
+          billing_address: {
+            first_name: billingAddress.first_name,
+            last_name: billingAddress.last_name,
+            email: billingAddress.email,
+            address_1: billingAddress.address_1,
+            address_2: billingAddress.address_2 || "",
+            city: billingAddress.city,
+            state: billingAddress.state,
+            postcode: billingAddress.postcode,
+            country: billingAddress.country || "US",
+            phone: billingAddress.phone || "",
           },
+          shipping_address: {
+            first_name: shippingAddress.first_name,
+            last_name: shippingAddress.last_name,
+            address_1: shippingAddress.address_1,
+            address_2: shippingAddress.address_2 || "",
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            postcode: shippingAddress.postcode,
+            country: shippingAddress.country || "US",
+            phone: shippingAddress.phone || "",
+          },
+          amount_minor: amountCents,
+          currency: currencyCode.toLowerCase(),
         }),
       });
-      const checkoutData = await checkoutResponse.json();
-      if (!checkoutResponse.ok) {
-        throw new Error(
-          typeof checkoutData?.message === "string" ? checkoutData.message : "Checkout failed. Please try again."
-        );
+      const walletOrderData = await walletOrderResponse.json();
+      if (!walletOrderResponse.ok) {
+        // Payment succeeded but order sync failed — still treat as success
+        // since money was collected, but log it
+        console.error("[Beacon wallet-order] sync failed:", walletOrderData);
       }
 
-      onSuccess({ transactionId: String(checkoutData?.order_id ?? paymentIntentId) });
+      const orderId = walletOrderData?.order_id ?? paymentIntentId;
+      onSuccess({ transactionId: String(orderId) });
     } catch (err) {
       setIsSubmitting(false);
       onError({ message: err instanceof Error ? err.message : "Checkout failed. Please try again." });
