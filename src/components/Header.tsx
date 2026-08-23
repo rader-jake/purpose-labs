@@ -156,7 +156,7 @@ export function Header() {
 
           {/* Right: search + auth + cart */}
           <div className="flex items-center gap-3">
-            <button className="flex sm:hidden h-10 w-10 items-center justify-center" aria-label="Search">
+            <button className="flex h-10 w-10 items-center justify-center" aria-label="Search" onClick={() => setSearchOpen(v => !v)}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--pl-navy)" }}><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
             </button>
             {authName ? (
