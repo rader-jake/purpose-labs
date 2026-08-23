@@ -144,7 +144,7 @@ export function VialViewer() {
           src="/3d/vial_powder_white.glb"
           auto-rotate
           auto-rotate-delay="0"
-          rotation-per-second="30deg"
+          rotation-per-second="80deg"
           camera-controls
           disable-zoom
           camera-orbit="180deg 80deg 18m"
