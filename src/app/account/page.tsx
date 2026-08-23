@@ -102,7 +102,7 @@ export default function AccountPage() {
             ) : (
               <>
                 <h2 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700 }}>🎡 You have a spin available!</h2>
-                <Link href="/spin" style={{ display: "inline-block", marginTop: 8, background: "#7BAFD4", color: "#fff", borderRadius: 8, padding: "10px 20px", textDecoration: "none", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em" }}>
+                <Link href="/" style={{ display: "inline-block", marginTop: 8, background: "#7BAFD4", color: "#fff", borderRadius: 8, padding: "10px 20px", textDecoration: "none", fontSize: 13, fontWeight: 700, letterSpacing: "0.08em" }}>
                   Spin Now →
                 </Link>
               </>
