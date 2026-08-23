@@ -162,7 +162,6 @@ export async function POST(req: NextRequest) {
       individual_use: true,
       usage_limit: 1,
       limit_usage_to_x_items: prize.id === "FREE_PRODUCT" ? 1 : null,
-      email_restrictions: [customer.email],
       date_expires: expiresIso,
     }),
   });
