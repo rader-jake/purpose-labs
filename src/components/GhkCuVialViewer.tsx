@@ -29,7 +29,7 @@ export function GhkCuVialViewer({
   regularPrice,
   salePrice,
   outOfStock,
-  variations,
+  variations = [],
 }: GhkCuVialViewerProps) {
   const [labelSrc, setLabelSrc] = useState("/3d/label-ghkcu-50.png");
   const MODEL = "/3d/vial_powder_blue.glb";
