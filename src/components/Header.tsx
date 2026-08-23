@@ -17,7 +17,7 @@ const TICKER_ITEMS = [
   "Same-Day Shipping on Orders Placed by 2PM EST",
   "Veteran Owned · U.S. Based · Research Use Only",
   "Third-Party Tested — COA Available for Every Batch",
-  "Free Reconstitution Water With Every Order",
+  
   "≥99% Purity · Batch-Verified by Independent Labs",
 ];
 

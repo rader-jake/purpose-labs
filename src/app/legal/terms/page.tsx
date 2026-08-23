@@ -135,7 +135,7 @@ export default function TermsPage() {
         </p>
         <ul>
           <li>Free shipping on orders over $200</li>
-          <li>Free reconstitution water included with every order</li>
+          
           <li>Risk of loss passes to you upon delivery to the carrier</li>
           <li>We are not responsible for carrier delays, customs holds, or lost packages after dispatch</li>
           <li>Incorrect shipping addresses provided by customers are not our responsibility</li>

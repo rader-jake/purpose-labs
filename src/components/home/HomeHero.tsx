@@ -71,7 +71,7 @@ export function HomeHero() {
                 className="max-w-lg text-sm sm:text-base leading-relaxed mb-4"
                 style={{ color: "var(--pl-text-secondary)" }}
               >
-                ≥99% purity. Batch-verified by independent US labs. Every order ships same-day with a free vial of reconstitution water — no minimums, no compromises.
+                ≥99% purity. Batch-verified by independent US labs. No minimums, no compromises.
               </p>
             </Reveal>
 
@@ -108,7 +108,7 @@ export function HomeHero() {
                 className="mt-6 text-[10px] font-semibold uppercase tracking-[0.12em]"
                 style={{ color: "var(--pl-muted)" }}
               >
-                Veteran Owned · Free Recon Water With Every Order · Same-Day Fulfillment · ≥99% Purity
+                Veteran Owned · Same-Day Fulfillment · ≥99% Purity
               </p>
             </Reveal>
           </div>

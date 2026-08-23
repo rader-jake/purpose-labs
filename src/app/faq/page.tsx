@@ -32,7 +32,7 @@ const SECTIONS = [
       {
         question: "Do you offer free shipping?",
         answer:
-          "Yes — we offer free shipping on all orders over $200. All orders also include a free vial of reconstitution water. Orders are processed and shipped within 48 hours from our US-based facility.",
+          "Yes — we offer free shipping on all orders over $200. Orders are processed and shipped within 48 hours from our US-based facility.",
       },
       {
         question: "Where do you ship?",
