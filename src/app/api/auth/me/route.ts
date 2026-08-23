@@ -11,53 +11,56 @@ export async function GET(req: NextRequest) {
 
   if (!token) return NextResponse.json({ user: null }, { status: 401 });
 
+  // Validate JWT
   const validateRes = await fetch(JWT_VALIDATE, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
   });
-
   if (!validateRes.ok) return NextResponse.json({ user: null }, { status: 401 });
 
-  const validateData = await validateRes.json();
-  // JWT validate returns: { code, data: { status } } — doesn't include user info
-  // We need the email stored in the cookie or passed separately
-  // Instead, decode the JWT payload to get user ID, then fetch WC customer
+  // Decode JWT payload to get WP user ID
   const [, payloadB64] = token.split(".");
-  let userId: string | null = null;
+  let wpUserId: string | null = null;
   try {
     const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString());
-    userId = payload?.data?.user?.id ?? null;
+    wpUserId = String(payload?.data?.user?.id ?? "");
   } catch {}
+  if (!wpUserId) return NextResponse.json({ user: null }, { status: 401 });
 
-  if (!userId) return NextResponse.json({ user: null }, { status: 401 });
-
-  // Get WC customer by WP user ID
   const auth = "Basic " + Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
 
-  // Try fetching by ID directly (WC customer ID may differ from WP user ID, so search by role)
-  const custRes = await fetch(`${WC_BASE}/customers?per_page=100`, {
-    headers: { Authorization: auth },
-  });
-  const allCustomers = await custRes.json();
-
-  // Also try fetching WP user info
-  const wpUserRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${userId}`, {
-    headers: { Authorization: "Basic " + Buffer.from(`Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs`).toString("base64") },
+  // Get WP user email via WP REST API
+  const wpAuth = "Basic " + Buffer.from(`Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs`).toString("base64");
+  const wpUserRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}`, {
+    headers: { Authorization: wpAuth },
   });
   const wpUser = wpUserRes.ok ? await wpUserRes.json() : null;
-  const email = wpUser?.email ?? null;
+  const email = wpUser?.email ?? "";
 
-  const customer = Array.isArray(allCustomers) && email
-    ? allCustomers.find((c: any) => c.email === email)
-    : null;
+  // Look up WC customer by email directly
+  const custRes = await fetch(`${WC_BASE}/customers?email=${encodeURIComponent(email)}`, {
+    headers: { Authorization: auth },
+  });
+  const customers = custRes.ok ? await custRes.json() : [];
+  const customer = Array.isArray(customers) ? customers[0] : null;
+
+  // Parse display name: use WC first_name if real, else split WP display name
+  const wpDisplayParts = (wpUser?.name ?? "").split(" ");
+  const wcFirstName = customer?.first_name;
+  const wcLastName = customer?.last_name;
+
+  // If WC name looks like a placeholder (Joe Doe, Test User, etc.) use WP display name
+  const isPlaceholder = !wcFirstName || wcFirstName.toLowerCase() === "joe" || wcFirstName.toLowerCase() === "test";
+  const firstName = isPlaceholder ? (wpDisplayParts[0] ?? "") : (wcFirstName ?? "");
+  const lastName = isPlaceholder ? (wpDisplayParts.slice(1).join(" ") ?? "") : (wcLastName ?? "");
 
   return NextResponse.json({
     user: {
-      id: customer?.id ?? userId,
-      email: email ?? customer?.email ?? "",
-      firstName: customer?.first_name ?? wpUser?.name?.split(" ")[0] ?? "",
-      lastName: customer?.last_name ?? "",
-      displayName: customer?.first_name ?? wpUser?.name ?? "",
+      id: customer?.id ?? wpUserId,
+      email,
+      firstName,
+      lastName,
+      displayName: firstName || email,
       token,
     }
   });
