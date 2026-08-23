@@ -225,44 +225,58 @@ export function SpinWheel() {
     const token = getAuthToken();
     const authHeaders: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
-    // Check status first
-    const statusRes = await fetch("/api/spin", { credentials: "include", headers: authHeaders });
-    const status = await statusRes.json();
-    if (!status.isLoggedIn) { router.push("/account/login?redirect=spin"); return; }
-    if (status.hasSpun) {
-      const next = status.nextSpin ? new Date(status.nextSpin) : null;
-      const days = next ? Math.ceil((next.getTime() - Date.now()) / 86400000) : 7;
-      setSpinMsg(`Come back in ${days} day${days !== 1 ? "s" : ""} for your next spin!`);
-      return;
-    }
-
-    // POST to spin
-    const spinRes = await fetch("/api/spin", { method: "POST", credentials: "include", headers: authHeaders });
-    if (!spinRes.ok) {
-      const err = await spinRes.json();
-      if (err.code === "already_spun" && err.nextSpin) {
-        const days = Math.ceil((new Date(err.nextSpin).getTime() - Date.now()) / 86400000);
-        setSpinMsg(`Come back in ${days} day${days !== 1 ? "s" : ""} for your next spin!`);
-      } else {
-        setSpinMsg("Something went wrong. Please try again.");
-      }
-      return;
-    }
-    const spinData = await spinRes.json();
-    const serverPrizeId = spinData.prize as string;
-    const result = PRIZE_ID_MAP[serverPrizeId] ?? pickPrize();
-    if (spinData.couponCode) setRealCoupon(spinData.couponCode);
-
+    // Start spinning immediately with a random result — we'll correct it when API responds
+    const optimisticResult = pickPrize();
+    const DURATION = 6000;
     setPhase("spinning"); phaseRef.current = "spinning"; setPrize(null);
+
     const fullSpins = 8 + Math.floor(Math.random() * 3);
     const currentNorm = ((-angleRef.current % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-    const targetNorm = result * SLICE + SLICE * 0.5;
+    const targetNorm = optimisticResult * SLICE + SLICE * 0.5;
     const diff = ((currentNorm - targetNorm) + Math.PI * 2) % (Math.PI * 2);
-    const targetAngle = angleRef.current + fullSpins * Math.PI * 2 + diff;
-    const DURATION = 6000;
+    let targetAngle = angleRef.current + fullSpins * Math.PI * 2 + diff;
     const startAngle = angleRef.current;
     const startTime = performance.now();
     const canvas = canvasRef.current!;
+
+    // Hit the API in parallel while wheel is spinning
+    let serverResult = optimisticResult;
+    let serverCoupon: string | null = null;
+    let apiError: string | null = null;
+
+    const apiPromise = fetch("/api/spin", { method: "POST", credentials: "include", headers: authHeaders })
+      .then(async res => {
+        if (res.status === 401) { apiError = "login"; return; }
+        const data = await res.json();
+        if (!res.ok) {
+          if (data.code === "already_spun" && data.nextSpin) {
+            const days = Math.ceil((new Date(data.nextSpin).getTime() - Date.now()) / 86400000);
+            apiError = `Come back in ${days} day${days !== 1 ? "s" : ""} for your next spin!`;
+          } else if (data.error === "Not authenticated") {
+            apiError = "login";
+          } else {
+            apiError = "Something went wrong. Please try again.";
+          }
+          return;
+        }
+        const prizeId = data.prize as string;
+        serverResult = PRIZE_ID_MAP[prizeId] ?? optimisticResult;
+        serverCoupon = data.couponCode ?? null;
+
+        // Recalculate target angle to land on real server result
+        const newTargetNorm = serverResult * SLICE + SLICE * 0.5;
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min(elapsed / DURATION, 0.6); // only adjust if less than 60% done
+        if (progress < 0.6) {
+          const currentAngle = startAngle + (targetAngle - startAngle) * (1 - Math.pow(1 - progress, 3));
+          const currentNorm2 = ((-currentAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+          const newDiff = ((currentNorm2 - newTargetNorm) + Math.PI * 2) % (Math.PI * 2);
+          const remainingSpins = Math.max(3, Math.floor((1 - progress) * fullSpins));
+          targetAngle = currentAngle + remainingSpins * Math.PI * 2 + newDiff;
+        }
+      })
+      .catch(() => { apiError = "Something went wrong. Please try again."; });
+
     const animate = (now: number) => {
       const progress = Math.min((now - startTime) / DURATION, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
@@ -273,21 +287,20 @@ export function SpinWheel() {
       drawWheel(canvas, angle, activeRef.current, "spinning");
       const mv = mvRef.current;
       if (mv) mv.setAttribute("camera-orbit", `${((angle * 180 / Math.PI) + 180) % 360}deg 90deg 18m`);
-      if (progress < 1) requestAnimationFrame(animate);
-      else {
+      if (progress < 1) { requestAnimationFrame(animate); return; }
+
+      // Animation done — wait for API if still pending, then show result
+      apiPromise.then(() => {
+        if (apiError === "login") { router.push("/account/login?redirect=spin"); setPhase("idle"); phaseRef.current = "idle"; return; }
+        if (apiError) { setSpinMsg(apiError); setPhase("idle"); phaseRef.current = "idle"; return; }
+        if (serverCoupon) setRealCoupon(serverCoupon);
         angleRef.current = targetAngle; phaseRef.current = "result";
-        drawWheel(canvas, targetAngle, result, "result");
-        setPhase("result"); setPrize(result);
-        // If TRY_AGAIN and under retry limit, auto-reset after 2s
-        if (PRIZES[result].label.join("") === "SPINAGAIN" && retryCount < 2) {
-          setTimeout(() => {
-            setRetryCount(r => r + 1);
-            setPhase("idle");
-            phaseRef.current = "idle";
-            setPrize(null);
-          }, 2000);
+        drawWheel(canvas, targetAngle, serverResult, "result");
+        setPhase("result"); setPrize(serverResult);
+        if (PRIZES[serverResult].label.join("") === "SPINAGAIN" && retryCount < 2) {
+          setTimeout(() => { setRetryCount(r => r + 1); setPhase("idle"); phaseRef.current = "idle"; setPrize(null); }, 2000);
         }
-      }
+      });
     };
     requestAnimationFrame(animate);
   };
