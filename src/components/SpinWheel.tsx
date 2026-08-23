@@ -415,6 +415,9 @@ export function SpinWheel() {
               letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
               width: Math.min(size * 0.9, 320),
             }}>SIGN IN TO SPIN</button>
+          ) : !statusChecked ? (
+            // Still loading — show nothing to prevent flash of SPIN button
+            <div style={{ height: 48 }} />
           ) : nextSpinAt ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 4 }}>Next spin in</div>
