@@ -142,13 +142,27 @@ export default async function ProductPage({
           {/* Storage & Stability */}
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Storage &amp; Stability</h2>
-            <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 8 }}>Lyophilized Compound</p>
-            <ul style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 2, listStyle: "none", padding: 0 }}>
-              <li>Store at <strong>-20°C or below</strong></li>
-              <li>Protect from heat, moisture, and direct light</li>
-              <li>Keep vial tightly sealed until use</li>
-              <li>Avoid repeated freeze-thaw cycles</li>
-            </ul>
+            {slug.includes("reconstitution") || slug.includes("bac-water") ? (
+              <>
+                <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 8 }}>Research Solution</p>
+                <ul style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 2, listStyle: "none", padding: 0 }}>
+                  <li>Store refrigerated at <strong>2–8°C</strong></li>
+                  <li>Protect from excessive heat and direct light</li>
+                  <li>Keep vial tightly sealed when not in use</li>
+                  <li>Avoid contamination during handling</li>
+                </ul>
+              </>
+            ) : (
+              <>
+                <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 8 }}>Lyophilized Compound</p>
+                <ul style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 2, listStyle: "none", padding: 0 }}>
+                  <li>Store at <strong>-20°C or below</strong></li>
+                  <li>Protect from heat, moisture, and direct light</li>
+                  <li>Keep vial tightly sealed until use</li>
+                  <li>Avoid repeated freeze-thaw cycles</li>
+                </ul>
+              </>
+            )}
           </div>
 
           {/* Laboratory Applications */}
