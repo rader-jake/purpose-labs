@@ -363,10 +363,41 @@ export function SpinWheel() {
         )}
       </div>
 
-      {phase === "result" && prize !== null && PRIZES[prize].label.join(" ") !== "TRY AGAIN" && (
-        <div onClick={() => { navigator.clipboard.writeText(displayCoupon); setCopied(true); }}
-          style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, letterSpacing: "0.12em", cursor: "pointer", fontFamily: "monospace" }}>
-          {copied ? "✓ COPIED" : displayCoupon}
+      {phase === "result" && prize !== null && PRIZES[prize].label.join(" ") !== "SPIN AGAIN" && (
+        <div style={{
+          marginTop: 16,
+          background: "linear-gradient(135deg, #1B2A4A, #243756)",
+          border: "1px solid rgba(123,175,212,0.35)",
+          borderRadius: 14,
+          padding: "18px 24px",
+          textAlign: "center",
+          width: Math.min(size * 0.9, 320),
+          boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+        }}>
+          <div style={{ fontSize: 10, letterSpacing: "0.25em", color: "#7BAFD4", textTransform: "uppercase", marginBottom: 6, fontWeight: 700 }}>
+            🎉 Your Discount Code
+          </div>
+          <div
+            onClick={() => { navigator.clipboard.writeText(displayCoupon); setCopied(true); }}
+            style={{
+              fontFamily: "monospace",
+              fontSize: 18,
+              fontWeight: 900,
+              letterSpacing: "0.12em",
+              color: "#fff",
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: 8,
+              padding: "10px 16px",
+              cursor: "pointer",
+              border: "1px dashed rgba(123,175,212,0.5)",
+              userSelect: "all",
+            }}
+          >
+            {displayCoupon}
+          </div>
+          <div style={{ fontSize: 10, color: copied ? "#7BAFD4" : "rgba(255,255,255,0.4)", marginTop: 8, letterSpacing: "0.1em" }}>
+            {copied ? "✓ COPIED TO CLIPBOARD" : "TAP TO COPY · EXPIRES IN 48 HOURS"}
+          </div>
         </div>
       )}
 
