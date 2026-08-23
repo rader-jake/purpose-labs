@@ -19,23 +19,45 @@ export async function GET(req: NextRequest) {
   if (!validateRes.ok) return NextResponse.json({ user: null }, { status: 401 });
 
   const validateData = await validateRes.json();
-  const userData = validateData.data;
+  // JWT validate returns: { code, data: { status } } — doesn't include user info
+  // We need the email stored in the cookie or passed separately
+  // Instead, decode the JWT payload to get user ID, then fetch WC customer
+  const [, payloadB64] = token.split(".");
+  let userId: string | null = null;
+  try {
+    const payload = JSON.parse(Buffer.from(payloadB64, "base64").toString());
+    userId = payload?.data?.user?.id ?? null;
+  } catch {}
 
-  // Get WC customer by email
+  if (!userId) return NextResponse.json({ user: null }, { status: 401 });
+
+  // Get WC customer by WP user ID
   const auth = "Basic " + Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
-  const custRes = await fetch(`${WC_BASE}/customers?email=${encodeURIComponent(userData?.user?.user_email ?? "")}`, {
+
+  // Try fetching by ID directly (WC customer ID may differ from WP user ID, so search by role)
+  const custRes = await fetch(`${WC_BASE}/customers?per_page=100`, {
     headers: { Authorization: auth },
   });
-  const customers = await custRes.json();
-  const customer = Array.isArray(customers) ? customers[0] : null;
+  const allCustomers = await custRes.json();
+
+  // Also try fetching WP user info
+  const wpUserRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${userId}`, {
+    headers: { Authorization: "Basic " + Buffer.from(`Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs`).toString("base64") },
+  });
+  const wpUser = wpUserRes.ok ? await wpUserRes.json() : null;
+  const email = wpUser?.email ?? null;
+
+  const customer = Array.isArray(allCustomers) && email
+    ? allCustomers.find((c: any) => c.email === email)
+    : null;
 
   return NextResponse.json({
     user: {
-      id: customer?.id ?? userData?.user?.ID,
-      email: userData?.user?.user_email ?? customer?.email,
-      firstName: customer?.first_name ?? userData?.user?.user_display_name ?? "",
+      id: customer?.id ?? userId,
+      email: email ?? customer?.email ?? "",
+      firstName: customer?.first_name ?? wpUser?.name?.split(" ")[0] ?? "",
       lastName: customer?.last_name ?? "",
-      displayName: customer?.first_name ?? userData?.user?.user_display_name ?? "",
+      displayName: customer?.first_name ?? wpUser?.name ?? "",
       token,
     }
   });
