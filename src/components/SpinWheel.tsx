@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { getAuthToken } from "@/lib/auth";
 
 const PRIZES = [
@@ -156,6 +157,7 @@ function drawWheel(canvas: HTMLCanvasElement, rotationRad: number, activeIdx: nu
 
 export function SpinWheel() {
   const router = useRouter();
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mvRef = useRef<any>(null);
   const [phase, setPhase] = useState<"idle" | "spinning" | "result">("idle");
@@ -168,6 +170,9 @@ export function SpinWheel() {
   const angleRef = useRef(0);
   const activeRef = useRef(0);
   const phaseRef = useRef("idle");
+
+  // Check if logged in (JWT or NextAuth)
+  const isLoggedIn = !!getAuthToken() || (nextAuthStatus === "authenticated" && !!nextAuthSession?.user);
 
   useEffect(() => {
     const update = () => setSize(Math.max(240, Math.min(window.innerWidth - 48, 400)));
@@ -361,13 +366,23 @@ export function SpinWheel() {
           <div style={{ fontSize: 13, color: "#c0392b", textAlign: "center", maxWidth: 300 }}>{spinMsg}</div>
         )}
         {phase === "idle" && !spinMsg && (
-          <button onClick={spin} style={{
-            background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
-            border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
-            padding: "14px 0", fontSize: 14, fontWeight: 900,
-            letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
-            width: Math.min(size * 0.9, 320),
-          }}>SPIN</button>
+          isLoggedIn ? (
+            <button onClick={spin} style={{
+              background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
+              border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
+              padding: "14px 0", fontSize: 14, fontWeight: 900,
+              letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
+              width: Math.min(size * 0.9, 320),
+            }}>SPIN</button>
+          ) : (
+            <button onClick={() => router.push("/account/login?redirect=spin-test")} style={{
+              background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
+              border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
+              padding: "14px 0", fontSize: 14, fontWeight: 900,
+              letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
+              width: Math.min(size * 0.9, 320),
+            }}>SIGN IN TO SPIN</button>
+          )
         )}
         {phase === "spinning" && (
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
