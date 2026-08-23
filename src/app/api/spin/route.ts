@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
   else if (prize.id === "15_OFF") { discountType = "percent"; amount = "15"; }
   else if (prize.id === "20_OFF") { discountType = "percent"; amount = "20"; }
   else if (prize.id === "FREE_SHIPPING") { discountType = "free_shipping"; amount = "0"; }
-  else if (prize.id === "FREE_PRODUCT") { discountType = "fixed_cart"; amount = "45"; }
+  else if (prize.id === "FREE_PRODUCT") { discountType = "percent"; amount = "100"; }
 
   const couponRes = await fetch(`${WC_BASE}/coupons`, {
     method: "POST",
@@ -153,6 +153,7 @@ export async function POST(req: NextRequest) {
       amount,
       individual_use: true,
       usage_limit: 1,
+      limit_usage_to_x_items: prize.id === "FREE_PRODUCT" ? 1 : null,
       email_restrictions: [customer.email],
       date_expires: expiresIso,
     }),
