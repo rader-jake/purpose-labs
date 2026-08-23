@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { SearchOverlay } from "@/components/SearchOverlay";
 import { useCart } from "@/lib/cart/CartContext";
 import Image from "next/image";
@@ -28,6 +29,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authName, setAuthName] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { data: nextAuthSession } = useSession();
   const { cart, openDrawer } = useCart();
   const cartCount = cart?.items_count ?? 0;
 
@@ -39,6 +41,13 @@ export function Header() {
   }, []);
 
   const checkAuth = () => {
+    // Google/NextAuth users
+    if (nextAuthSession?.user) {
+      const name = (nextAuthSession as any).wcFirstName || nextAuthSession.user.name?.split(" ")[0] || nextAuthSession.user.email || "there";
+      setAuthName(name);
+      return;
+    }
+    // JWT users
     const token = getAuthToken();
     if (!token) { setAuthName(null); return; }
     const nameCookie = document.cookie.match(/(?:^|; )pl_auth_name=([^;]*)/);
@@ -52,14 +61,13 @@ export function Header() {
 
   useEffect(() => {
     checkAuth();
-    // Re-check on page show (handles iOS Safari back/forward cache)
     window.addEventListener("pageshow", checkAuth);
     document.addEventListener("visibilitychange", checkAuth);
     return () => {
       window.removeEventListener("pageshow", checkAuth);
       document.removeEventListener("visibilitychange", checkAuth);
     };
-  }, []);
+  }, [nextAuthSession]);
 
   // Duplicate items for seamless loop
   const tickerContent = [...TICKER_ITEMS, ...TICKER_ITEMS];
