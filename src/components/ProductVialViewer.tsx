@@ -15,9 +15,10 @@ const STARS = Array.from({ length: 40 }, (_, i) => ({
 
 interface ProductVialViewerProps {
   labelSrc?: string;
+  modelSrc?: string;
 }
 
-export function ProductVialViewer({ labelSrc = "/3d/label-glp3rt.png" }: ProductVialViewerProps) {
+export function ProductVialViewer({ labelSrc = "/3d/label-glp3rt.png", modelSrc = "/3d/vial_new.glb" }: ProductVialViewerProps) {
   const starsRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -148,7 +149,7 @@ export function ProductVialViewer({ labelSrc = "/3d/label-glp3rt.png" }: Product
         {/* @ts-ignore */}
         <model-viewer
           id="product-vial-mv"
-          src="/3d/vial_new.glb"
+          src={modelSrc}
           camera-controls
           disable-zoom
           camera-orbit="180deg 80deg 18m"

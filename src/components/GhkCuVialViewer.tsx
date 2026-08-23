@@ -32,6 +32,7 @@ export function GhkCuVialViewer({
   variations,
 }: GhkCuVialViewerProps) {
   const [labelSrc, setLabelSrc] = useState("/3d/label-ghkcu-50.png");
+  const MODEL = "/3d/vial_powder_blue.glb";
 
   const handleVariantChange = (variationId: number) => {
     const variation = variations.find((v) => v.id === variationId);
@@ -46,7 +47,7 @@ export function GhkCuVialViewer({
   return (
     <>
       <div>
-        <ProductVialViewer labelSrc={labelSrc} />
+        <ProductVialViewer labelSrc={labelSrc} modelSrc={MODEL} />
       </div>
       <ProductBuyBox
         productId={productId}

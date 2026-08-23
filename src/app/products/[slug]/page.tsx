@@ -103,7 +103,8 @@ export default async function ProductPage({
                   };
                   const isSingleVial = !slug.includes("spray") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
                   const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
-                  if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} />;
+                  const modelSrc = slug.includes("klow") ? "/3d/vial_powder_blue.glb" : "/3d/vial_new.glb";
+                  if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} modelSrc={modelSrc} />;
                   if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
                   return null;
                 })()}
