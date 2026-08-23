@@ -36,18 +36,27 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
+  const checkAuth = () => {
     const token = getAuthToken();
-    if (!token) return;
-    // Read name directly from cookie for instant display
+    if (!token) { setAuthName(null); return; }
     const nameCookie = document.cookie.match(/(?:^|; )pl_auth_name=([^;]*)/);
     const cachedName = nameCookie ? decodeURIComponent(nameCookie[1]) : null;
     if (cachedName) { setAuthName(cachedName); return; }
-    // Fallback: fetch from API
     fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data?.user) setAuthName(data.user.firstName || data.user.email); })
-      .catch(() => {});
+      .then(data => { if (data?.user) setAuthName(data.user.firstName || data.user.email); else setAuthName(null); })
+      .catch(() => setAuthName(null));
+  };
+
+  useEffect(() => {
+    checkAuth();
+    // Re-check on page show (handles iOS Safari back/forward cache)
+    window.addEventListener("pageshow", checkAuth);
+    document.addEventListener("visibilitychange", checkAuth);
+    return () => {
+      window.removeEventListener("pageshow", checkAuth);
+      document.removeEventListener("visibilitychange", checkAuth);
+    };
   }, []);
 
   // Duplicate items for seamless loop
