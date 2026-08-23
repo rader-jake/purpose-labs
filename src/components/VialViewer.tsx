@@ -27,6 +27,7 @@ export function VialViewer() {
   useEffect(() => {
     const mv = document.getElementById("editorial-vial-mv") as any;
     if (!mv) return;
+
     const apply = async () => {
       try {
         const material = mv.model?.materials?.find((m: any) => m.name === "Label");
@@ -39,6 +40,18 @@ export function VialViewer() {
     };
     if (mv.model) apply();
     else mv.addEventListener("load", apply, { once: true });
+
+    // Dynamic spin speed: slow when label faces camera, fast when back faces camera
+    const interval = setInterval(() => {
+      const angle = ((mv.turntableRotation ?? 0) * 180) / Math.PI % 360;
+      const normalized = ((angle % 360) + 360) % 360;
+      // Label is near 0/360 deg — slow down; back (180deg) — speed up
+      const distFromFront = Math.min(normalized, 360 - normalized);
+      const speed = distFromFront < 60 ? 25 : 100;
+      mv.setAttribute("rotation-per-second", `${speed}deg`);
+    }, 100);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
