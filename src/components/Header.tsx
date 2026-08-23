@@ -143,11 +143,13 @@ export function Header() {
           <div className="flex items-center gap-3">
             {authName ? (
               <Link href="/account" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-navy)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
-                Hi, {authName}
+                <span className="hidden sm:inline">Hi, {authName}</span>
+                <span className="sm:hidden">👤</span>
               </Link>
             ) : (
               <Link href="/account/login" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-slate)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
-                Login / Register
+                <span className="hidden sm:inline">Login / Register</span>
+                <span className="sm:hidden">Login</span>
               </Link>
             )}
             <button
