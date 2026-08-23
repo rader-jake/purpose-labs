@@ -28,11 +28,16 @@ export async function POST(req: NextRequest) {
   const customers = await custRes.json();
   const customer = Array.isArray(customers) ? customers[0] : null;
 
+  // Split display name (e.g. "Joshua Rader") as fallback when WC has no name
+  const displayParts = (tokenData.user_display_name ?? "").split(" ");
+  const firstName = customer?.first_name || displayParts[0] || "";
+  const lastName = customer?.last_name || displayParts.slice(1).join(" ") || "";
+
   const user = {
     id: customer?.id ?? tokenData.user_id,
     email,
-    firstName: customer?.first_name ?? tokenData.user_display_name ?? "",
-    lastName: customer?.last_name ?? "",
+    firstName,
+    lastName,
     displayName: tokenData.user_display_name ?? email,
     token: tokenData.token,
   };
