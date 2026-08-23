@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signOut as nextAuthSignOut } from "next-auth/react";
 import { getAuthToken, removeAuthToken, getCurrentUser, AuthUser } from "@/lib/auth";
 
 interface Order {
@@ -86,14 +86,15 @@ export default function AccountPage() {
   }, [router, nextAuthSession, nextAuthStatus]);
 
   function logout() {
-    // Nuke cookies every possible way
+    // Clear JWT cookies
     const nukeDate = "Thu, 01 Jan 1970 00:00:00 GMT";
     ["pl_auth_token", "pl_auth_name"].forEach(name => {
       document.cookie = `${name}=; expires=${nukeDate}; path=/`;
       document.cookie = `${name}=; expires=${nukeDate}; path=/; domain=${window.location.hostname}`;
       document.cookie = `${name}=; max-age=0; path=/`;
     });
-    window.location.replace("/");
+    // Also sign out of NextAuth (Google session)
+    nextAuthSignOut({ callbackUrl: "/" });
   }
 
   if (loading) return (
