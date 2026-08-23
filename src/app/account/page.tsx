@@ -51,8 +51,8 @@ export default function AccountPage() {
   }, [router]);
 
   function logout() {
-    removeAuthToken();
-    document.cookie = "pl_auth_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "pl_auth_token=; max-age=0; path=/";
+    document.cookie = "pl_auth_name=; max-age=0; path=/";
     window.location.href = "/";
   }
 
