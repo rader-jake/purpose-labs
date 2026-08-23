@@ -16,12 +16,13 @@ function randomCode(n: number) {
 }
 
 const PRIZES = [
-  { id: "10_OFF",        label: "10% OFF",          weight: 30 },
-  { id: "FREE_SHIPPING", label: "Free Shipping",     weight: 25 },
-  { id: "15_OFF",        label: "15% OFF",           weight: 20 },
-  { id: "FREE_PRODUCT",  label: "Free Item",         weight: 10 },
+  { id: "FREE_PRODUCT",  label: "Free Item",         weight:  5 },
+  { id: "FREE_SHIPPING", label: "Free Shipping",     weight: 20 },
+  { id: "10_OFF",        label: "10% OFF",           weight: 28 },
+  { id: "25_OFF",        label: "25% OFF",           weight:  5 },
+  { id: "15_OFF",        label: "15% OFF",           weight: 17 },
+  { id: "TRY_AGAIN",     label: "Try Again",         weight: 15 },
   { id: "20_OFF",        label: "20% OFF",           weight: 10 },
-  { id: "TRY_AGAIN",     label: "Try Again",         weight:  5 },
 ];
 
 function pickPrize() {
@@ -148,6 +149,7 @@ export async function POST(req: NextRequest) {
   else if (prize.id === "15_OFF") { discountType = "percent"; amount = "15"; }
   else if (prize.id === "20_OFF") { discountType = "percent"; amount = "20"; }
   else if (prize.id === "FREE_SHIPPING") { discountType = "free_shipping"; amount = "0"; }
+  else if (prize.id === "25_OFF") { discountType = "percent"; amount = "25"; }
   else if (prize.id === "FREE_PRODUCT") { discountType = "percent"; amount = "100"; }
 
   const couponRes = await fetch(`${WC_BASE}/coupons`, {

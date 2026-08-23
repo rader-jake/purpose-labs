@@ -206,8 +206,16 @@ export function SpinWheel() {
     if (mv.model) apply(); else mv.addEventListener("load", apply, { once: true });
   }, []);
 
+  // Must match PRIZES array indices:
+  // 0=FREE VIAL, 1=FREE SHIPPING, 2=10% OFF, 3=25% OFF, 4=15% OFF, 5=SPIN AGAIN, 6=20% OFF, 7=FREE SHIPPING
   const PRIZE_ID_MAP: Record<string, number> = {
-    "10_OFF": 0, "FREE_SHIPPING": 1, "15_OFF": 2, "FREE_PRODUCT": 3, "20_OFF": 4, "TRY_AGAIN": 5,
+    "FREE_PRODUCT":  0,
+    "FREE_SHIPPING": 1,
+    "10_OFF":        2,
+    "25_OFF":        3,
+    "15_OFF":        4,
+    "TRY_AGAIN":     5,
+    "20_OFF":        6,
   };
 
   const spin = async () => {
