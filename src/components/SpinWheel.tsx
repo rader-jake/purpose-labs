@@ -174,6 +174,43 @@ export function SpinWheel() {
   // Check if logged in (JWT or NextAuth)
   const isLoggedIn = !!getAuthToken() || (nextAuthStatus === "authenticated" && !!nextAuthSession?.user);
 
+  const [nextSpinAt, setNextSpinAt] = useState<Date | null>(null);
+  const [countdown, setCountdown] = useState<string | null>(null);
+  const [statusChecked, setStatusChecked] = useState(false);
+
+  // Check spin status on load
+  useEffect(() => {
+    if (!isLoggedIn || nextAuthStatus === "loading") return;
+    const token = getAuthToken();
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    fetch("/api/spin", { credentials: "include", headers })
+      .then(r => r.json())
+      .then(data => {
+        if (data.hasSpun && data.nextSpin) {
+          setNextSpinAt(new Date(data.nextSpin));
+        }
+        setStatusChecked(true);
+      })
+      .catch(() => setStatusChecked(true));
+  }, [isLoggedIn, nextAuthStatus]);
+
+  // Live countdown ticker
+  useEffect(() => {
+    if (!nextSpinAt) return;
+    const tick = () => {
+      const diff = nextSpinAt.getTime() - Date.now();
+      if (diff <= 0) { setNextSpinAt(null); setCountdown(null); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s}s`);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [nextSpinAt]);
+
   useEffect(() => {
     const update = () => setSize(Math.max(240, Math.min(window.innerWidth - 48, 400)));
     update();
@@ -299,6 +336,10 @@ export function SpinWheel() {
         if (apiError === "login") { router.push("/account/login?redirect=spin"); setPhase("idle"); phaseRef.current = "idle"; return; }
         if (apiError) { setSpinMsg(apiError); setPhase("idle"); phaseRef.current = "idle"; return; }
         if (serverCoupon) setRealCoupon(serverCoupon);
+        // Set next spin countdown immediately
+        if (PRIZES[serverResult].label.join("") !== "SPINAGAIN") {
+          setNextSpinAt(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+        }
         angleRef.current = targetAngle; phaseRef.current = "result";
         drawWheel(canvas, targetAngle, serverResult, "result");
         setPhase("result"); setPrize(serverResult);
@@ -366,15 +407,7 @@ export function SpinWheel() {
           <div style={{ fontSize: 13, color: "#c0392b", textAlign: "center", maxWidth: 300 }}>{spinMsg}</div>
         )}
         {phase === "idle" && !spinMsg && (
-          isLoggedIn ? (
-            <button onClick={spin} style={{
-              background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
-              border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
-              padding: "14px 0", fontSize: 14, fontWeight: 900,
-              letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
-              width: Math.min(size * 0.9, 320),
-            }}>SPIN</button>
-          ) : (
+          !isLoggedIn ? (
             <button onClick={() => router.push("/account/login?redirect=/")} style={{
               background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
               border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
@@ -382,6 +415,19 @@ export function SpinWheel() {
               letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
               width: Math.min(size * 0.9, 320),
             }}>SIGN IN TO SPIN</button>
+          ) : nextSpinAt ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 4 }}>Next spin in</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: "#7BAFD4", letterSpacing: "0.05em", fontFamily: "monospace" }}>{countdown}</div>
+            </div>
+          ) : (
+            <button onClick={spin} style={{
+              background: "linear-gradient(180deg, #243756, #1B2A4A)", color: "#fff",
+              border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10,
+              padding: "14px 0", fontSize: 14, fontWeight: 900,
+              letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer",
+              width: Math.min(size * 0.9, 320),
+            }}>SPIN</button>
           )
         )}
         {phase === "spinning" && (
