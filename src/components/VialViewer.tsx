@@ -25,6 +25,23 @@ export function VialViewer() {
   }, []);
 
   useEffect(() => {
+    const mv = document.getElementById("editorial-vial-mv") as any;
+    if (!mv) return;
+    const apply = async () => {
+      try {
+        const material = mv.model?.materials?.find((m: any) => m.name === "Label");
+        if (material) {
+          const texture = await mv.createTexture("/3d/label-glp3rt.png");
+          const pbr = material.pbrMetallicRoughness;
+          if (pbr?.baseColorTexture) pbr.baseColorTexture.setTexture(texture);
+        }
+      } catch (e) {}
+    };
+    if (mv.model) apply();
+    else mv.addEventListener("load", apply, { once: true });
+  }, []);
+
+  useEffect(() => {
     const container = containerRef.current;
     const starsEl = starsRef.current;
     if (!container || !starsEl) return;
@@ -123,13 +140,14 @@ export function VialViewer() {
       <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
         {/* @ts-ignore */}
         <model-viewer
+          id="editorial-vial-mv"
           src="/3d/vial_powder_white.glb"
           auto-rotate
           auto-rotate-delay="0"
-          rotation-per-second="80deg"
+          rotation-per-second="30deg"
           camera-controls
           disable-zoom
-          camera-orbit="0deg 80deg 18m"
+          camera-orbit="180deg 80deg 18m"
           field-of-view="16deg"
           style={{ width: "100%", height: "100%", minHeight: "480px", background: "transparent" }}
         />
