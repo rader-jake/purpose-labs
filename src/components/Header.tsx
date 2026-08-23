@@ -26,6 +26,8 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authName, setAuthName] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { cart, openDrawer } = useCart();
   const cartCount = cart?.items_count ?? 0;
 
@@ -196,7 +198,32 @@ export function Header() {
             </nav>
           </div>
         )}
-      </header>
+      {/* Search overlay */}
+    {searchOpen && (
+      <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "flex-start", justifyContent: "center", paddingTop: 80 }}
+        onClick={() => setSearchOpen(false)}>
+        <form style={{ width: "100%", maxWidth: 600, padding: "0 20px" }}
+          onClick={e => e.stopPropagation()}
+          onSubmit={e => { e.preventDefault(); if (searchQuery.trim()) { setSearchOpen(false); window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`; } }}>
+          <div style={{ display: "flex", background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ flex: 1, padding: "16px 20px", fontSize: 16, border: "none", outline: "none", color: "#1B2A4A", fontFamily: "system-ui, sans-serif" }}
+            />
+            <button type="submit" style={{ padding: "16px 20px", background: "#1B2A4A", border: "none", cursor: "pointer" }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    )}
+    </header>
     </>
   );
 }

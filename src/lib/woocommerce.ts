@@ -139,6 +139,9 @@ export interface GetProductsOptions {
   /** Fetch only these specific product IDs (WooCommerce's `include` param) —
    * used for batch-fetching related products by ID in one request. */
   include?: number[];
+  /** Full-text search query */
+  search?: string;
+  per_page?: number;
 }
 
 export async function getProducts(options: GetProductsOptions = {}): Promise<WooProduct[]> {
