@@ -29,7 +29,8 @@ function LoginForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Login failed");
       setAuthToken(data.user.token);
-      router.push(`/${redirect.replace(/^\//, "")}`);
+      // Full reload so header re-mounts and picks up auth cookie
+      window.location.href = `/${redirect.replace(/^\//, "")}`;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
