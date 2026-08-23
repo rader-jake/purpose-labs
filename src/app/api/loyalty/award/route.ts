@@ -1,19 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
 import { awardPoints, getTier, POINTS_PER_DOLLAR, getCustomerPoints } from "@/lib/loyalty";
+import { createHmac } from "crypto";
 
-const LOYALTY_SECRET = "pl-loyalty-2026";
+const WEBHOOK_SECRET = "pl-loyalty-2026";
+
+function verifyWCSignature(body: string, signature: string | null): boolean {
+  if (!signature) return false;
+  const hmac = createHmac("sha256", WEBHOOK_SECRET).update(body).digest("base64");
+  return hmac === signature;
+}
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("x-loyalty-secret");
-  if (secret !== LOYALTY_SECRET) {
+  const rawBody = await req.text();
+  const signature = req.headers.get("x-wc-webhook-signature");
+
+  if (!verifyWCSignature(rawBody, signature)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({}));
-  const { customerId, orderTotal } = body;
+  let body: any;
+  try { body = JSON.parse(rawBody); } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
-  if (!customerId || !orderTotal) {
-    return NextResponse.json({ error: "Missing customerId or orderTotal" }, { status: 400 });
+  // WooCommerce sends the full order object
+  const customerId = body.customer_id ?? body.customerId;
+  const orderTotal = body.total ?? body.orderTotal;
+  const status = body.status;
+
+  // Only award points on completed orders
+  if (status && status !== "completed") {
+    return NextResponse.json({ skipped: true, reason: `status=${status}` });
+  }
+
+  if (!customerId || customerId === 0) {
+    return NextResponse.json({ skipped: true, reason: "guest order" });
+  }
+
+  if (!orderTotal) {
+    return NextResponse.json({ error: "Missing orderTotal" }, { status: 400 });
   }
 
   const total = parseFloat(String(orderTotal));
@@ -21,11 +46,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid orderTotal" }, { status: 400 });
   }
 
-  // Get current tier based on lifetime points BEFORE award
   const { lifetime } = await getCustomerPoints(Number(customerId));
   const tier = getTier(lifetime);
 
-  // Calculate points: $1 = 10 pts + tier bonus
   const basePoints = Math.floor(total * POINTS_PER_DOLLAR);
   const bonusPoints = Math.floor(basePoints * (tier.bonusPercent / 100));
   const totalPoints = basePoints + bonusPoints;
