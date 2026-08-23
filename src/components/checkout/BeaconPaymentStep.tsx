@@ -107,10 +107,12 @@ function BeaconPaymentForm({
 
     setIsSubmitting(true);
     try {
+      const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
       const intentResponse = await fetch("/api/checkout/beacon-intent", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountCents, currencyCode }),
+        body: JSON.stringify({ amountCents, currencyCode, cart_token: cartToken }),
       });
       const intentData = await intentResponse.json();
       if (!intentResponse.ok) {
