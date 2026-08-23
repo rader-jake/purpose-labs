@@ -133,8 +133,11 @@ export function Header() {
 
           {/* Center: logo */}
           <Link href="/" className="absolute left-1/2 flex -translate-x-1/2 items-center gap-3">
-            <Image src="/purposeLabsLogo.png" alt="Purpose Labs" width={28} height={28} />
-            <span className="text-2xl sm:text-3xl" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}>
+            {/* Mobile: PL monogram SVG only */}
+            <img src="/pl-logo-mobile.svg" alt="Purpose Labs" width={36} height={36} className="block sm:hidden" />
+            {/* Desktop: original logo + text */}
+            <Image src="/purposeLabsLogo.png" alt="Purpose Labs" width={28} height={28} className="hidden sm:block" />
+            <span className="hidden sm:inline text-2xl sm:text-3xl" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}>
               Purpose Labs
             </span>
           </Link>
