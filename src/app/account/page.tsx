@@ -24,7 +24,9 @@ export default function AccountPage() {
     async function init() {
       const token = getAuthToken();
       if (!token) { router.push("/account/login"); return; }
-      const u = await getCurrentUser(token);
+      const meRes = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } });
+      if (!meRes.ok) { router.push("/account/login"); return; }
+      const { user: u } = await meRes.json();
       if (!u) { router.push("/account/login"); return; }
       setUser(u);
 
