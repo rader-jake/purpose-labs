@@ -142,7 +142,7 @@ export function Header() {
               </Link>
             ) : (
               <Link href="/account/login" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-slate)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
-                Login
+                Login / Register
               </Link>
             )}
             <button
