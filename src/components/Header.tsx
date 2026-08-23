@@ -39,6 +39,11 @@ export function Header() {
   useEffect(() => {
     const token = getAuthToken();
     if (!token) return;
+    // Read name directly from cookie for instant display
+    const nameCookie = document.cookie.match(/(?:^|; )pl_auth_name=([^;]*)/);
+    const cachedName = nameCookie ? decodeURIComponent(nameCookie[1]) : null;
+    if (cachedName) { setAuthName(cachedName); return; }
+    // Fallback: fetch from API
     fetch("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data?.user) setAuthName(data.user.firstName || data.user.email); })

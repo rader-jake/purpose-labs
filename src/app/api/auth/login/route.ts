@@ -39,10 +39,10 @@ export async function POST(req: NextRequest) {
 
   const res = NextResponse.json({ user });
   res.cookies.set("pl_auth_token", tokenData.token, {
-    httpOnly: false,
-    path: "/",
-    maxAge: 30 * 24 * 60 * 60,
-    sameSite: "lax",
+    httpOnly: false, path: "/", maxAge: 30 * 24 * 60 * 60, sameSite: "lax",
+  });
+  res.cookies.set("pl_auth_name", user.firstName || user.displayName || "", {
+    httpOnly: false, path: "/", maxAge: 30 * 24 * 60 * 60, sameSite: "lax",
   });
   return res;
 }
