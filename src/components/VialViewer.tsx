@@ -123,7 +123,7 @@ export function VialViewer() {
       <div style={{ position: "absolute", inset: 0, zIndex: 1 }}>
         {/* @ts-ignore */}
         <model-viewer
-          src="/3d/vial_new.glb"
+          src="/3d/vial_powder_white.glb"
           auto-rotate
           auto-rotate-delay="0"
           rotation-per-second="80deg"
