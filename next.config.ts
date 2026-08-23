@@ -1,7 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async headers() {
+    return [
+      {
+        source: "/api/cart/:path*",
+        headers: [
+          {
+            key: "Access-Control-Expose-Headers",
+            value: "x-cart-token",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
