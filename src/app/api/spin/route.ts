@@ -43,13 +43,21 @@ async function validateTokenAndGetCustomer(token: string) {
   });
   if (!res.ok) return null;
 
+  // Decode WP user ID from JWT
   const payload = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-  const userLogin: string = payload.data?.user?.user_login ?? "";
+  const wpUserId = payload.data?.user?.id ?? "";
+  if (!wpUserId) return null;
 
-  const custRes = await fetch(
-    `${WC_BASE}/customers?search=${encodeURIComponent(userLogin)}&per_page=1`,
-    { headers: { Authorization: wcAuth() } }
-  );
+  // Get WP user email
+  const wpAuth = "Basic " + Buffer.from("Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs").toString("base64");
+  const wpRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}`, { headers: { Authorization: wpAuth } });
+  if (!wpRes.ok) return null;
+  const wpUser = await wpRes.json();
+  const email = wpUser.email ?? "";
+  if (!email) return null;
+
+  // Look up WC customer by email
+  const custRes = await fetch(`${WC_BASE}/customers?email=${encodeURIComponent(email)}&per_page=1`, { headers: { Authorization: wcAuth() } });
   const customers = await custRes.json();
   return Array.isArray(customers) && customers.length > 0 ? customers[0] : null;
 }

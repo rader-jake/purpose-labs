@@ -50,9 +50,9 @@ export async function GET(req: NextRequest) {
   const wcLastName = customer?.last_name;
 
   // If WC name looks like a placeholder (Joe Doe, Test User, etc.) use WP display name
-  const isPlaceholder = !wcFirstName || wcFirstName.toLowerCase() === "joe" || wcFirstName.toLowerCase() === "test";
-  const firstName = isPlaceholder ? (wpDisplayParts[0] ?? "") : (wcFirstName ?? "");
-  const lastName = isPlaceholder ? (wpDisplayParts.slice(1).join(" ") ?? "") : (wcLastName ?? "");
+  // Use WC name if set, otherwise fall back to WP display name
+  const firstName = wcFirstName || wpDisplayParts[0] || "";
+  const lastName = wcLastName || wpDisplayParts.slice(1).join(" ") || "";
 
   return NextResponse.json({
     user: {
