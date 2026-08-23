@@ -47,7 +47,7 @@ export function VialViewer() {
       const normalized = ((angle % 360) + 360) % 360;
       // Label is near 0/360 deg — slow down; back (180deg) — speed up
       const distFromFront = Math.min(normalized, 360 - normalized);
-      const speed = distFromFront < 60 ? 25 : 100;
+      const speed = distFromFront < 60 ? 100 : 25;
       mv.setAttribute("rotation-per-second", `${speed}deg`);
     }, 100);
 
