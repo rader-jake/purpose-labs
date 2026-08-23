@@ -144,12 +144,12 @@ export function Header() {
             {authName ? (
               <Link href="/account" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-navy)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
                 <span className="hidden sm:inline">Hi, {authName}</span>
-                <span className="sm:hidden">👤</span>
+                <span className="sm:hidden"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
               </Link>
             ) : (
               <Link href="/account/login" style={{ fontSize: 13, fontWeight: 600, color: "var(--pl-slate)", textDecoration: "none", fontFamily: "var(--pl-font-body)" }}>
                 <span className="hidden sm:inline">Login / Register</span>
-                <span className="sm:hidden">Login</span>
+                <span className="sm:hidden"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
               </Link>
             )}
             <button
