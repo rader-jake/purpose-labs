@@ -43,7 +43,10 @@ export function Header() {
   const checkAuth = () => {
     // Google/NextAuth users
     if (nextAuthSession?.user) {
-      const name = (nextAuthSession as any).wcFirstName || nextAuthSession.user.name?.split(" ")[0] || nextAuthSession.user.email || "there";
+      const wcFirst = (nextAuthSession as any).wcFirstName;
+      const googleFirst = nextAuthSession.user.name?.split(" ")[0];
+      // Avoid generic names like "Purpose", "Labs", etc. — fall back to email prefix
+      const name = wcFirst || googleFirst || nextAuthSession.user.email?.split("@")[0] || "there";
       setAuthName(name);
       return;
     }
