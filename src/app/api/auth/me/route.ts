@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
   // Get WP user email via WP REST API
   const wpAuth = "Basic " + Buffer.from(`Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs`).toString("base64");
-  const wpUserRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}`, {
+  const wpUserRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}?context=edit`, {
     headers: { Authorization: wpAuth },
   });
   const wpUser = wpUserRes.ok ? await wpUserRes.json() : null;

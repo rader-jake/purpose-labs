@@ -50,7 +50,7 @@ async function validateTokenAndGetCustomer(token: string) {
 
   // Get WP user email
   const wpAuth = "Basic " + Buffer.from("Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs").toString("base64");
-  const wpRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}`, { headers: { Authorization: wpAuth } });
+  const wpRes = await fetch(`https://joshuar120.sg-host.com/wp-json/wp/v2/users/${wpUserId}?context=edit`, { headers: { Authorization: wpAuth } });
   if (!wpRes.ok) return null;
   const wpUser = await wpRes.json();
   const email = wpUser.email ?? "";
