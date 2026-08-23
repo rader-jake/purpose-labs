@@ -145,11 +145,12 @@ export interface GetProductsOptions {
 }
 
 export async function getProducts(options: GetProductsOptions = {}): Promise<WooProduct[]> {
-  const { perPage = 100, orderby, exclude, include } = options;
-  const params: Record<string, string> = { per_page: String(perPage) };
+  const { perPage = 100, orderby, exclude, include, search, per_page } = options;
+  const params: Record<string, string> = { per_page: String(per_page ?? perPage) };
   if (orderby) params.orderby = orderby;
   if (exclude && exclude.length > 0) params.exclude = exclude.join(",");
   if (include && include.length > 0) params.include = include.join(",");
+  if (search) params.search = search;
 
   const raw = await wooCommerceFetch<WooApiProduct[]>("/products", params);
   return raw.map(mapProduct);
