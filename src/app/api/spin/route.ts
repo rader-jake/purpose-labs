@@ -18,7 +18,7 @@ function randomCode(n: number) {
 const PRIZES = [
   { id: "FREE_PRODUCT",  label: "Free Item",         weight:  5 },
   { id: "FREE_SHIPPING", label: "Free Shipping",     weight: 20 },
-  { id: "10_OFF",        label: "10% OFF",           weight: 28 },
+  { id: "10_FIXED",      label: "$10 OFF",           weight: 28 },
   { id: "25_OFF",        label: "25% OFF",           weight:  5 },
   { id: "15_OFF",        label: "15% OFF",           weight: 17 },
   { id: "TRY_AGAIN",     label: "Try Again",         weight: 15 },
@@ -145,7 +145,8 @@ export async function POST(req: NextRequest) {
 
   let discountType = "percent";
   let amount = "0";
-  if (prize.id === "10_OFF") { discountType = "percent"; amount = "10"; }
+  let minimumAmount = "0";
+  if (prize.id === "10_FIXED") { discountType = "fixed_cart"; amount = "10"; minimumAmount = "25"; }
   else if (prize.id === "15_OFF") { discountType = "percent"; amount = "15"; }
   else if (prize.id === "20_OFF") { discountType = "percent"; amount = "20"; }
   else if (prize.id === "FREE_SHIPPING") { discountType = "free_shipping"; amount = "0"; }
@@ -159,6 +160,7 @@ export async function POST(req: NextRequest) {
       code,
       discount_type: discountType,
       amount,
+      minimum_amount: minimumAmount,
       individual_use: true,
       usage_limit: 1,
       limit_usage_to_x_items: prize.id === "FREE_PRODUCT" ? 1 : null,

@@ -8,7 +8,7 @@ import { getAuthToken } from "@/lib/auth";
 const PRIZES = [
   { label: ["FREE", "VIAL"],    color: "#2000FF", text: "#FFFFFF", icon: "gift", gold: true },
   { label: ["FREE", "SHIPPING"], color: "#8A9BB0", text: "#1B2A4A", icon: "truck" },
-  { label: ["10%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
+  { label: ["$10", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
   { label: ["25%", "OFF"],      color: "#7BAFD4", text: "#1B2A4A", icon: "tag" },
   { label: ["15%", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
   { label: ["SPIN", "AGAIN"],    color: "#8A9BB0", text: "#1B2A4A", icon: "refresh" },
@@ -216,7 +216,7 @@ export function SpinWheel() {
   const PRIZE_ID_MAP: Record<string, number> = {
     "FREE_PRODUCT":  0,
     "FREE_SHIPPING": 1,
-    "10_OFF":        2,
+    "10_FIXED":      2,
     "25_OFF":        3,
     "15_OFF":        4,
     "TRY_AGAIN":     5,
