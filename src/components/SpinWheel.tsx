@@ -364,9 +364,8 @@ export function SpinWheel() {
         {phase === "result" && (
           <div style={{ display: "flex", gap: 8 }}>
             {PRIZES[prize!].label.join(" ") !== "SPIN AGAIN" && (
-              <button style={{ background: "#fff", color: "#1B2A4A", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>Shop Now</button>
+              <a href="/products" style={{ background: "#fff", color: "#1B2A4A", border: "none", borderRadius: 8, padding: "10px 20px", fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none", display: "inline-flex", alignItems: "center" }}>Shop Now</a>
             )}
-            <button onClick={reset} style={{ background: "transparent", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 20px", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer" }}>Try Again</button>
           </div>
         )}
       </div>
