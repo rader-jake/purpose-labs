@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { formatMoney } from "@/lib/cart/money";
 import type { OrderConfirmationData } from "@/lib/order/types";
+import { TikTokPurchaseEvent } from "./TikTokPurchaseEvent";
 
 export function OrderConfirmation({ data }: { data: OrderConfirmationData }) {
   const { shippingAddress } = data;
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-20" style={{ fontFamily: "var(--pl-font-body)" }}>
+      <TikTokPurchaseEvent data={data} />
       <div className="mb-10 text-center">
         <p
           className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em]"
