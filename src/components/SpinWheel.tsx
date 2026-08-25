@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { getAuthToken } from "@/lib/auth";
 
 const PRIZES = [
-  { label: ["FREE", "GHK-Cu"],  color: "#2000FF", text: "#FFFFFF", icon: "gift", gold: true },
+  { label: ["FREE", "VIAL"],    color: "#2000FF", text: "#FFFFFF", icon: "gift", gold: true },
   { label: ["FREE", "SHIPPING"], color: "#8A9BB0", text: "#1B2A4A", icon: "truck" },
   { label: ["$10", "OFF"],      color: "#1B2A4A", text: "#FFFFFF", icon: "tag" },
   { label: ["25%", "OFF"],      color: "#7BAFD4", text: "#1B2A4A", icon: "tag" },
