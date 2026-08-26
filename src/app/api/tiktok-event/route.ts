@@ -1,50 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sendTikTokEvent, type TikTokEventName } from "@/lib/tiktok-events";
 
-const PIXEL_ID = process.env.TIKTOK_PIXEL_ID!;
-const ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN!;
-const TT_API_URL = `https://business-api.tiktok.com/open_api/v1.3/event/track/`;
+const EVENT_NAMES: TikTokEventName[] = [
+  "ViewContent",
+  "AddToCart",
+  "InitiateCheckout",
+  "PlaceAnOrder",
+  "CompletePayment",
+];
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { event, event_id, properties, user } = body;
-
-    const payload = {
-      pixel_code: PIXEL_ID,
-      event,
-      event_id,
-      timestamp: new Date().toISOString(),
-      context: {
-        user_agent: req.headers.get("user-agent") || "",
-        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "",
-        page: {
-          url: properties?.url || "",
-          referrer: req.headers.get("referer") || "",
-        },
-      },
-      properties: {
-        currency: properties?.currency || "USD",
-        value: properties?.value,
-        content_id: properties?.content_id,
-        content_name: properties?.content_name,
-        content_type: properties?.content_type || "product",
-        quantity: properties?.quantity,
-        order_id: properties?.order_id,
-      },
-      user: user || {},
+    const { event, event_id, properties, user } = body as {
+      event?: string;
+      event_id?: string;
+      properties?: Record<string, unknown>;
+      user?: { email?: string; phone?: string };
     };
+    if (!event || !EVENT_NAMES.includes(event as TikTokEventName)) {
+      return NextResponse.json({ error: "Unsupported TikTok event" }, { status: 400 });
+    }
 
-    const res = await fetch(TT_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Token": ACCESS_TOKEN,
-      },
-      body: JSON.stringify(payload),
+    await sendTikTokEvent({
+      eventName: event as TikTokEventName,
+      eventId: event_id,
+      ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || undefined,
+      userAgent: req.headers.get("user-agent") || undefined,
+      pageUrl: typeof properties?.url === "string" ? properties.url : req.headers.get("referer") || undefined,
+      email: user?.email,
+      phone: user?.phone,
+      currency: typeof properties?.currency === "string" ? properties.currency : undefined,
+      value: typeof properties?.value === "number" ? properties.value : undefined,
+      contentId: typeof properties?.content_id === "string" ? properties.content_id : undefined,
+      contentName: typeof properties?.content_name === "string" ? properties.content_name : undefined,
+      quantity: typeof properties?.quantity === "number" ? properties.quantity : undefined,
+      orderId: typeof properties?.order_id === "string" ? properties.order_id : undefined,
     });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("[TikTok Events API]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

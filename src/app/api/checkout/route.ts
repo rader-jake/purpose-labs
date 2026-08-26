@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
     // Fire TikTok server-side purchase event
     sendTikTokEvent({
       eventName: "CompletePayment",
+      eventId: `order_${String((data as Record<string, unknown> | null)?.["order_id"] ?? "")}`,
       ipAddress: request.headers.get("x-forwarded-for")?.split(",")[0] ?? undefined,
       userAgent: request.headers.get("user-agent") ?? undefined,
       pageUrl: request.headers.get("referer") ?? undefined,

@@ -7,9 +7,8 @@ interface Props {
   data: OrderConfirmationData;
 }
 
-// Fires a TikTok Purchase event via both:
-// 1. Browser pixel (ttq.track) — fast, for pixel attribution
-// 2. Server-side Events API — reliable, bypasses ad blockers
+// Fires the browser half of the purchase event. The checkout route sends the
+// matching event_id server-side so TikTok can deduplicate the two signals.
 export function TikTokPurchaseEvent({ data }: Props) {
   const fired = useRef(false);
 
@@ -17,7 +16,7 @@ export function TikTokPurchaseEvent({ data }: Props) {
     if (fired.current) return;
     fired.current = true;
 
-    const value = data.totals.total_price / 100; // cents → dollars
+    const value = parseFloat(data.totals.total_price) / 100;
     const orderId = data.orderNumber;
     const contents = data.items.map((item) => ({
       content_id: item.id.toString(),
@@ -44,24 +43,6 @@ export function TikTokPurchaseEvent({ data }: Props) {
       console.warn("[TikTok Pixel] browser track failed", e);
     }
 
-    // 2. Server-side Events API
-    const email = data.billingAddress?.email;
-    fetch("/api/tiktok-event", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "CompletePayment",
-        event_id: `order_${orderId}`,
-        properties: {
-          value,
-          currency: "USD",
-          order_id: orderId,
-          content_type: "product",
-          url: window.location.href,
-        },
-        user: email ? { email } : {},
-      }),
-    }).catch((e) => console.warn("[TikTok Events API] server send failed", e));
   }, [data]);
 
   return null;
