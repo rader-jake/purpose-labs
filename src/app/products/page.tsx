@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getProducts } from "@/lib/woocommerce";
+import { getProducts, NON_MERCHANDISABLE_PRODUCT_IDS } from "@/lib/woocommerce";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const products = await getProducts({ orderby: "menu_order" });
+  const products = await getProducts({ orderby: "menu_order", exclude: NON_MERCHANDISABLE_PRODUCT_IDS });
 
   return (
     <main

@@ -62,8 +62,19 @@ function stripCasBadge(html: string): string {
   return html.replace(CAS_BADGE_PATTERN, "").trim();
 }
 
+// Local hero image overrides — used when WooCommerce has no image or a
+// poor-quality placeholder. Slug → public-folder path.
+const LOCAL_IMAGE_OVERRIDES: Record<string, string> = {
+  "reconstitution-solution": "/hero-bacwater.jpg",
+  "bac-water": "/hero-bacwater.jpg",
+};
+
 function mapProduct(raw: WooApiProduct): WooProduct {
   const casNumber = extractCasNumber(raw.short_description || "");
+  const localImg = LOCAL_IMAGE_OVERRIDES[raw.slug];
+  const images = localImg
+    ? [{ id: 0, src: localImg, alt: raw.name }]
+    : raw.images;
   return {
     id: raw.id,
     name: raw.name,
@@ -78,7 +89,7 @@ function mapProduct(raw: WooApiProduct): WooProduct {
     short_description: casNumber
       ? stripCasBadge(raw.short_description)
       : raw.short_description,
-    images: raw.images,
+    images,
     casNumber,
     related_ids: raw.related_ids,
   };
@@ -162,7 +173,7 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Woo
 // also like" suggestion despite not being real merchandise a customer
 // would choose. Confirmed recon solution genuinely turns up in other products'
 // related_ids (e.g. Tesamorelin's), not just a hypothetical risk.
-const NON_MERCHANDISABLE_PRODUCT_IDS = [94, 1057];
+export const NON_MERCHANDISABLE_PRODUCT_IDS = [94, 1057];
 
 export async function getBestSellers(limit = 8): Promise<WooProduct[]> {
   return getProducts({
