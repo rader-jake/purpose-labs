@@ -48,7 +48,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
   {
     slug: "glp-3-10mg",
     lab: "BT Labs · 2026",
-    title: "GLP-3 10MG",
+    title: "RT 10MG",
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
