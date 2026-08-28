@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const tokens = await ensureTokens(await readTokens());
     const { data, tokens: nextTokens } = await addCartItem(tokens, id, quantity);
 
-    // Auto-apply free bac water promo after adding an item
+    // Auto-apply free recon solution promo after adding an item
     const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
       data as Cart,
       nextTokens

@@ -3,7 +3,7 @@ import { applyCoupon, removeCoupon, getCart, StoreApiError } from "./storeApi";
 import type { CartTokens } from "./storeApi";
 import type { Cart } from "./types";
 
-// Product IDs that do NOT qualify for free bac water
+// Product IDs that do NOT qualify for free recon solution
 const BAC_WATER_ID = 94;
 const EXCLUDED_IDS = new Set([94, 801, 806, 840]);
 const PROMO_COUPON = "pl-auto-bacwater";
@@ -12,7 +12,7 @@ const PROMO_COUPON = "pl-auto-bacwater";
  * After every cart mutation, silently ensure the pl-auto-bacwater coupon
  * is applied if the cart contains qualifying products, and removed if not.
  *
- * "Qualifying" = any product that isn't bac water itself, the spray products,
+ * "Qualifying" = any product that isn't recon solution itself, the spray products,
  * or the spray bundle (IDs 94, 801, 806, 840).
  *
  * Returns the updated cart (post-coupon) and final tokens.

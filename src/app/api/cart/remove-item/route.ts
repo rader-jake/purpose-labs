@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const tokens = await ensureTokens(await readTokens());
     const { data, tokens: nextTokens } = await removeCartItem(tokens, key);
 
-    // Auto-remove free bac water promo if no qualifying items remain
+    // Auto-remove free recon solution promo if no qualifying items remain
     const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
       data as Cart,
       nextTokens

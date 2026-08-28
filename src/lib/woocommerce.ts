@@ -23,7 +23,7 @@ export interface WooProduct {
   /** WooCommerce's own related-products algorithm (shared category/tags).
    * Verified against the live catalog: reliably populated (5 IDs on every
    * real product checked), empty only for the dev-only "Test Item". Can
-   * include non-merchandisable IDs like bac water — see
+   * include non-merchandisable IDs like recon solution — see
    * NON_MERCHANDISABLE_PRODUCT_IDS below. */
   related_ids: number[];
 }
@@ -156,11 +156,11 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Woo
   return raw.map(mapProduct);
 }
 
-// Bac water (id 94) is auto-added to every qualifying order rather than
+// Recon solution (id 94) is auto-added to every qualifying order rather than
 // something a customer chooses to buy, and Test Item (id 1057) is a dev
 // artifact — both would otherwise show up as a "best seller" or a "you may
 // also like" suggestion despite not being real merchandise a customer
-// would choose. Confirmed bac water genuinely turns up in other products'
+// would choose. Confirmed recon solution genuinely turns up in other products'
 // related_ids (e.g. Tesamorelin's), not just a hypothetical risk.
 const NON_MERCHANDISABLE_PRODUCT_IDS = [94, 1057];
 
@@ -250,7 +250,7 @@ export async function getProductVariations(productId: number): Promise<WooProduc
 // via POST /wc/store/v1/checkout with payment_method: "tagada" — see
 // storeApi.ts's submitCheckout). Confirmed WooCommerce's own order record
 // is correct even where Tagada's hosted checkout page later displays it
-// wrong (bac water: $0 here, $9.99 there) — that's a Tagada-gateway-side
+// wrong (recon solution: $0 here, $9.99 there) — that's a Tagada-gateway-side
 // bug, tracked separately, not something this mapping should paper over.
 
 export interface WooOrderAddress {

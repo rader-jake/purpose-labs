@@ -27,9 +27,9 @@ export const FREE_SHIPPING_THRESHOLD_CENTS = 20000; // $200.00
  * is empty and extensions only carries unrelated plugin data.
  *
  * This used to check item.prices.price === "0" directly, which matched
- * how bac water's free pricing worked originally (the item's own price
+ * how recon solution's free pricing worked originally (the item's own price
  * zeroed out). WooCommerce silently switched mechanisms at some point —
- * confirmed against a live cart response: bac water's prices.price and
+ * confirmed against a live cart response: recon solution's prices.price and
  * regular_price now both stay at full price ("999"), and the $0 is
  * applied instead via a cart-level coupon (pl-auto-bacwater). The old
  * check went stale and stopped disabling quantity controls for it.
