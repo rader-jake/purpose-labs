@@ -68,17 +68,7 @@ gtag('js', new Date());
 gtag('config', 'G-CEQNESY8XS');
 gtag('config', 'AW-18395672517');
         ` }} />
-        {/* Tidio Live Chat */}
-        <script dangerouslySetInnerHTML={{ __html: `
-(function() {
-  document.tidioChatCode = "irlvsqw5w3wlpqee1ighdosq96kpjfov";
-  var tidioScript = document.createElement("script");
-  tidioScript.type = "text/javascript";
-  tidioScript.async = true;
-  tidioScript.src = "//code.tidio.co/irlvsqw5w3wlpqee1ighdosq96kpjfov.js";
-  document.body.appendChild(tidioScript);
-})();
-        ` }} />
+
         {/* TikTok Pixel — DA6C3A3C77U6GHRTDDBG */}
         <script dangerouslySetInnerHTML={{ __html: `
 !function (w, d, t) {
@@ -102,6 +92,8 @@ gtag('config', 'AW-18395672517');
             render normally (server-rendered, present in the DOM) for
             SEO. The gate is purely a visual/interactive overlay. */}
         <AgeGate />
+        {/* Tidio Live Chat */}
+        <script async src="//code.tidio.co/irlvsqw5w3wlpqee1ighdosq96kpjfov.js" />
       </body>
     </html>
   );
