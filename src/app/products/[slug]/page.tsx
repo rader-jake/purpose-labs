@@ -79,7 +79,6 @@ export default async function ProductPage({
                     "l-carnitine": "/3d/label-lcarnitine.png",
                     "nad": "/3d/label-nad.png",
                     "reconstitution": "/3d/label-bacwater.png",
-                    "bac-water": "/3d/label-bacwater.png",
                     "glp-3-10mg": "/3d/label-glp3rt.png",
                     "glp-3rt": "/3d/label-glp3rt.png",
                     "bpc-157": "/3d/label-bpc157.png",
@@ -103,7 +102,7 @@ export default async function ProductPage({
                   };
                   const isSingleVial = !slug.includes("spray") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
                   const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
-                  const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") || slug.includes("bac-water");
+                  const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") ;
                   const modelSrc = slug.includes("klow") ? "/3d/vial_powder_blue.glb" : isLiquid ? "/3d/vial_new.glb" : "/3d/vial_powder_white.glb";
                   if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} modelSrc={modelSrc} />;
                   if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
@@ -142,7 +141,7 @@ export default async function ProductPage({
           {/* Storage & Stability */}
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 32, marginBottom: 32 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 16 }}>Storage &amp; Stability</h2>
-            {slug.includes("reconstitution") || slug.includes("bac-water") ? (
+            {slug.includes("reconstitution")  ? (
               <>
                 <p style={{ fontWeight: 700, color: "var(--pl-text-primary)", marginBottom: 8 }}>Research Solution</p>
                 <ul style={{ color: "var(--pl-text-secondary)", fontSize: 14, lineHeight: 2, listStyle: "none", padding: 0 }}>

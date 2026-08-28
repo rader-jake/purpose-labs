@@ -17,12 +17,12 @@ const SECTIONS = [
       {
         question: "What form do the peptides come in?",
         answer:
-          "Our peptides are supplied in lyophilized (freeze-dried) powder form in sealed vials. This format ensures maximum stability during storage and shipping. Reconstitution water is required for reconstitution and is available separately in our store.",
+          "Our peptides are supplied in lyophilized (freeze-dried) powder form in sealed vials. This format ensures maximum stability during storage and shipping. Reconstitution solution is required for reconstitution and is available separately in our store.",
       },
       {
         question: "How should peptides be stored?",
         answer:
-          "Lyophilized peptides should be stored at −20°C (in a freezer) and kept away from light and moisture. Once reconstituted with reconstitution water, store at 4°C (refrigerated) and use within 30 days for optimal stability.",
+          "Lyophilized peptides should be stored at −20°C (in a freezer) and kept away from light and moisture. Once reconstituted with reconstitution solution, store at 4°C (refrigerated) and use within 30 days for optimal stability.",
       },
     ],
   },

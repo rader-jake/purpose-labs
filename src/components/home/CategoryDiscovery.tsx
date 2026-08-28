@@ -14,7 +14,7 @@ const CATEGORIES = [
   },
   {
     name: "Accessories",
-    description: "Laboratory reconstitution water and supplies.",
+    description: "Laboratory reconstitution solution and supplies.",
     link: "/products?category=accessories",
   },
 ];
