@@ -11,13 +11,22 @@ export interface BeaconPaymentStepProps extends PaymentStepProps {
   shippingAddress: AddressInput;
 }
 
-const ATTESTATION_STATEMENTS = [
-  "I confirm I am at least 21 years of age.",
-  "I confirm these products are for research use only (RUO), not for human or animal consumption.",
-  "I confirm I am an experienced researcher qualified to handle these materials.",
-  "I confirm this is a business-to-business transaction between research entities.",
-  "I confirm lawful receipt of these materials is permitted in my jurisdiction.",
+const ATTESTATION_STATEMENTS: { key: string; label: string }[] = [
+  { key: "attest_age_21", label: "I confirm I am at least 21 years of age." },
+  { key: "attest_research_use_only", label: "I confirm these products are for research use only (RUO), not for human or animal consumption." },
+  { key: "attest_experienced_researcher", label: "I confirm I am an experienced researcher qualified to handle these materials." },
+  { key: "attest_b2b_transaction", label: "I confirm this is a business-to-business transaction between research entities." },
+  { key: "attest_lawful_receipt", label: "I confirm lawful receipt of these materials is permitted in my jurisdiction." },
 ];
+
+const BUYER_TYPE_OPTIONS = [
+  { value: "laboratory", label: "Laboratory" },
+  { value: "academic", label: "Academic institution" },
+  { value: "business", label: "Business" },
+  { value: "other_organization", label: "Other" },
+];
+
+const LEGAL_VERSION = "2026.07.22-1";
 
 const cardElementOptions = {
   style: {
@@ -30,36 +39,10 @@ const cardElementOptions = {
   },
 };
 
-/**
- * Real Beacon Stripe Checkout integration — confirmed via live testing to
- * be an embedded Stripe Elements/PaymentIntent flow (not a redirect_url
- * pattern like Tagada). Two things are confirmed NOT working yet, reported
- * here rather than silently worked around:
- *
- * 1. POST beacon-checkout/v1/payment-intent (proxied via
- *    /api/checkout/beacon-intent) fails with beacon_sc_bad_nonce
- *    regardless of how the Store API Cart-Token/Nonce pair or the admin
- *    gateway api_key are forwarded — see src/lib/cart/beaconApi.ts for the
- *    full list of what was tried. This blocks step 1 of the submit flow
- *    below (PaymentIntent creation) from ever succeeding as currently
- *    built.
- * 2. No Stripe publishable key exists anywhere in the discoverable Beacon
- *    gateway config (only Beacon's own secret api_key/callback_secret,
- *    both explicitly password-typed). NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
- *    must be supplied once one is obtained — until then this component
- *    can't initialize Stripe.js at all, and renders a clear "not
- *    configured" state instead of crashing.
- */
 export function BeaconPaymentStep(props: BeaconPaymentStepProps) {
   const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     if (!publishableKey) return null;
-    // Beacon confirmed payment-intent creates the PaymentIntent under their
-    // connected account, not the platform account the publishable key's own
-    // dashboard belongs to — Stripe scopes PaymentIntent lookups per
-    // account, so confirming one created on a connected account requires
-    // the matching stripeAccount here (Stripe Connect "direct charge"
-    // pattern), or the confirm call 404s with "No such payment_intent".
     return loadStripe(publishableKey, { stripeAccount: "acct_1U2yBlPzodzW27XV" });
   }, []);
 
@@ -87,6 +70,34 @@ export function BeaconPaymentStep(props: BeaconPaymentStepProps) {
   );
 }
 
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  borderRadius: "6px",
+  border: "1px solid var(--pl-border)",
+  backgroundColor: "#fff",
+  color: "var(--pl-navy)",
+  fontFamily: "var(--pl-font-body)",
+  fontSize: "14px",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "var(--pl-navy)",
+  marginBottom: "4px",
+  fontFamily: "var(--pl-font-body)",
+};
+
+const errorStyle: React.CSSProperties = {
+  fontSize: "12px",
+  color: "#c0392b",
+  marginTop: "2px",
+};
+
 function BeaconPaymentForm({
   amountCents,
   currencyCode,
@@ -97,17 +108,87 @@ function BeaconPaymentForm({
 }: BeaconPaymentStepProps) {
   const stripe = useStripe();
   const elements = useElements();
+
+  const [buyerType, setBuyerType] = useState("");
+  const [institutionName, setInstitutionName] = useState("");
+  const [purchaseReference, setPurchaseReference] = useState("");
   const [attested, setAttested] = useState(false);
+  const [attestTs, setAttestTs] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function handleAttestChange(checked: boolean) {
+    setAttested(checked);
+    if (checked) {
+      setAttestTs(new Date().toISOString());
+    } else {
+      setAttestTs("");
+    }
+  }
+
+  function validate() {
+    const errs: Record<string, string> = {};
+    if (!buyerType) errs.buyerType = "Please select a purchaser type.";
+    if (!institutionName.trim()) errs.institutionName = "Institution / organization is required.";
+    if (!purchaseReference.trim()) errs.purchaseReference = "Purchase reference is required.";
+    if (!attested) errs.attest = "You must confirm the attestation statements.";
+    return errs;
+  }
 
   async function handlePay() {
     if (!stripe || !elements) return;
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) return;
 
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
     setIsSubmitting(true);
+
     try {
       const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
+
+      // Sync attestation data to Store API before charging
+      const extensionData = {
+        legal_version: LEGAL_VERSION,
+        attest_all: "1",
+        attest_ts_all: attestTs,
+        buyer_type: buyerType,
+        institution_name: institutionName.trim(),
+        purchase_reference: purchaseReference.trim(),
+        attest_age_21: "1",
+        attest_research_use_only: "1",
+        attest_experienced_researcher: "1",
+        attest_b2b_transaction: "1",
+        attest_lawful_receipt: "1",
+        attest_ts_age_21: attestTs,
+        attest_ts_research_use_only: attestTs,
+        attest_ts_experienced_researcher: attestTs,
+        attest_ts_b2b_transaction: attestTs,
+        attest_ts_lawful_receipt: attestTs,
+      };
+
+      const extHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (cartToken) extHeaders["Cart-Token"] = cartToken;
+
+      try {
+        await fetch(
+          `${process.env.NEXT_PUBLIC_WC_URL ?? ""}/wp-json/wc/store/v1/cart/extensions`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: extHeaders,
+            body: JSON.stringify({ namespace: "beacon-checkout", data: extensionData }),
+          }
+        );
+      } catch (extErr) {
+        console.warn("[Beacon] cart/extensions sync failed (non-fatal):", extErr);
+      }
+
+      // Create PaymentIntent
       const intentResponse = await fetch("/api/checkout/beacon-intent", {
         method: "POST",
         credentials: "include",
@@ -150,7 +231,7 @@ function BeaconPaymentForm({
         throw new Error("Payment could not be confirmed. Please try again.");
       }
 
-      // Call Beacon wallet-order to sync the completed payment into WooCommerce
+      // Sync order with extensions in checkout body
       const walletOrderResponse = await fetch("/api/checkout/beacon-wallet-order", {
         method: "POST",
         credentials: "include",
@@ -158,6 +239,17 @@ function BeaconPaymentForm({
         body: JSON.stringify({
           payment_intent_id: paymentIntentId,
           cart_token: cartToken,
+          payment_method: "beacon_checkout",
+          extensions: {
+            "beacon-checkout": {
+              legal_version: LEGAL_VERSION,
+              attest_all: "1",
+              attest_ts_all: attestTs,
+              buyer_type: buyerType,
+              institution_name: institutionName.trim(),
+              purchase_reference: purchaseReference.trim(),
+            },
+          },
           billing_address: {
             first_name: billingAddress.first_name,
             last_name: billingAddress.last_name,
@@ -187,8 +279,6 @@ function BeaconPaymentForm({
       });
       const walletOrderData = await walletOrderResponse.json();
       if (!walletOrderResponse.ok) {
-        // Payment succeeded but order sync failed — still treat as success
-        // since money was collected, but log it
         console.error("[Beacon wallet-order] sync failed:", walletOrderData);
       }
 
@@ -202,18 +292,62 @@ function BeaconPaymentForm({
 
   return (
     <div
-      className="flex flex-col gap-4 rounded-lg border p-6"
+      className="flex flex-col gap-5 rounded-lg border p-6"
       style={{ borderColor: "var(--pl-border)", backgroundColor: "var(--pl-ivory-soft)" }}
     >
-      <div className="rounded-md border p-3" style={{ borderColor: "var(--pl-border)" }}>
+      {/* Purchaser Type */}
+      <div>
+        <label style={labelStyle}>Purchaser type *</label>
+        <select
+          value={buyerType}
+          onChange={(e) => setBuyerType(e.target.value)}
+          style={{ ...inputStyle, appearance: "auto" }}
+        >
+          <option value="" disabled>Choose one…</option>
+          {BUYER_TYPE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        {errors.buyerType && <p style={errorStyle}>{errors.buyerType}</p>}
+      </div>
+
+      {/* Institution / Organization */}
+      <div>
+        <label style={labelStyle}>Institution / Organization *</label>
+        <input
+          type="text"
+          value={institutionName}
+          onChange={(e) => setInstitutionName(e.target.value)}
+          placeholder="Lab / org name, or N/A"
+          style={inputStyle}
+        />
+        {errors.institutionName && <p style={errorStyle}>{errors.institutionName}</p>}
+      </div>
+
+      {/* Purchase Reference */}
+      <div>
+        <label style={labelStyle}>Purchase reference *</label>
+        <input
+          type="text"
+          value={purchaseReference}
+          onChange={(e) => setPurchaseReference(e.target.value)}
+          placeholder="PO / notebook ID, or N/A"
+          style={inputStyle}
+        />
+        {errors.purchaseReference && <p style={errorStyle}>{errors.purchaseReference}</p>}
+      </div>
+
+      {/* Card Element */}
+      <div className="rounded-md border p-3" style={{ borderColor: "var(--pl-border)", backgroundColor: "#fff" }}>
         <CardElement options={cardElementOptions} />
       </div>
 
+      {/* Confirm-all checkbox */}
       <label className="flex cursor-pointer items-start gap-3">
         <input
           type="checkbox"
           checked={attested}
-          onChange={(e) => setAttested(e.target.checked)}
+          onChange={(e) => handleAttestChange(e.target.checked)}
           className="mt-1"
         />
         <span
@@ -223,15 +357,28 @@ function BeaconPaymentForm({
           <span className="font-medium" style={{ color: "var(--pl-navy)" }}>
             By checking this box, I confirm all of the following:
           </span>
-          {ATTESTATION_STATEMENTS.map((statement) => (
-            <span key={statement}>&bull; {statement}</span>
+          {ATTESTATION_STATEMENTS.map((s) => (
+            <span key={s.key}>&bull; {s.label}</span>
           ))}
         </span>
       </label>
+      {errors.attest && <p style={{ ...errorStyle, marginTop: "-12px" }}>{errors.attest}</p>}
+
+      {/* Terms link */}
+      <p style={{ fontSize: "12px", color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)", marginTop: "-8px" }}>
+        <a
+          href="https://purposelabs.shop/?beacon_sc_checkout_terms=1"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "var(--pl-navy)", textDecoration: "underline" }}
+        >
+          Read Checkout Terms &amp; Attestation Agreement
+        </a>
+      </p>
 
       <button
         onClick={handlePay}
-        disabled={!attested || !stripe || isSubmitting}
+        disabled={!stripe || isSubmitting}
         className="w-full rounded-full px-6 py-4 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
         style={{
           backgroundColor: "var(--pl-navy)",
