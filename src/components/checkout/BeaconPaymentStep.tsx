@@ -110,8 +110,6 @@ function BeaconPaymentForm({
   const elements = useElements();
 
   const [buyerType, setBuyerType] = useState("");
-  const [institutionName, setInstitutionName] = useState("");
-  const [purchaseReference, setPurchaseReference] = useState("");
   const [attested, setAttested] = useState(false);
   const [attestTs, setAttestTs] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -129,8 +127,6 @@ function BeaconPaymentForm({
   function validate() {
     const errs: Record<string, string> = {};
     if (!buyerType) errs.buyerType = "Please select a purchaser type.";
-    if (!institutionName.trim()) errs.institutionName = "Institution / organization is required.";
-    if (!purchaseReference.trim()) errs.purchaseReference = "Purchase reference is required.";
     if (!attested) errs.attest = "You must confirm the attestation statements.";
     return errs;
   }
@@ -157,8 +153,6 @@ function BeaconPaymentForm({
         attest_all: "1",
         attest_ts_all: attestTs,
         buyer_type: buyerType,
-        institution_name: institutionName.trim(),
-        purchase_reference: purchaseReference.trim(),
         attest_age_21: "1",
         attest_research_use_only: "1",
         attest_experienced_researcher: "1",
@@ -246,8 +240,6 @@ function BeaconPaymentForm({
               attest_all: "1",
               attest_ts_all: attestTs,
               buyer_type: buyerType,
-              institution_name: institutionName.trim(),
-              purchase_reference: purchaseReference.trim(),
             },
           },
           billing_address: {
@@ -309,32 +301,6 @@ function BeaconPaymentForm({
           ))}
         </select>
         {errors.buyerType && <p style={errorStyle}>{errors.buyerType}</p>}
-      </div>
-
-      {/* Institution / Organization */}
-      <div>
-        <label style={labelStyle}>Institution / Organization *</label>
-        <input
-          type="text"
-          value={institutionName}
-          onChange={(e) => setInstitutionName(e.target.value)}
-          placeholder="Lab / org name, or N/A"
-          style={inputStyle}
-        />
-        {errors.institutionName && <p style={errorStyle}>{errors.institutionName}</p>}
-      </div>
-
-      {/* Purchase Reference */}
-      <div>
-        <label style={labelStyle}>Purchase reference *</label>
-        <input
-          type="text"
-          value={purchaseReference}
-          onChange={(e) => setPurchaseReference(e.target.value)}
-          placeholder="PO / notebook ID, or N/A"
-          style={inputStyle}
-        />
-        {errors.purchaseReference && <p style={errorStyle}>{errors.purchaseReference}</p>}
       </div>
 
       {/* Card Element */}
