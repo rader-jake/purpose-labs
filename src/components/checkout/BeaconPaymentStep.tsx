@@ -71,7 +71,13 @@ Buyer's affirmative selection of each required attestation checkbox, together wi
 Seller and its processing platform may retain a canonical attestation record linked to the order, including document version/hash, assent labels, purchaser fields, and order identifiers, for compliance, audit, and dispute purposes.
 
 12. Governing terms
-This Agreement is governed by applicable law in the jurisdiction of the Seller. Any disputes arising under this Agreement shall be resolved in accordance with Seller's dispute resolution policy.`;
+This Agreement is governed by applicable law in the jurisdiction of the Seller. Any disputes arising under this Agreement shall be resolved in accordance with Seller's dispute resolution policy.
+
+If Seller publishes additional website terms, product-specific restrictions, or a refund policy, those terms apply in addition to this Agreement. If there is a conflict regarding research-use-only status or buyer qualifications, this Agreement controls for those subjects.
+
+---
+
+End of Agreement — Version 2026.07.22-1`;
 
 function TermsAccordion() {
   const [open, setOpen] = useState(false);
