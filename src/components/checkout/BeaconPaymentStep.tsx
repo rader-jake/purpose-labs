@@ -28,32 +28,53 @@ const BUYER_TYPE_OPTIONS = [
 
 const LEGAL_VERSION = "2026.07.22-1";
 
+const TERMS_TEXT = `Attestation Agreement
+
+Document ID: beacon-ruo-checkout-terms · Version: 2026.07.22-1
+Applies to: Research-use-only (RUO) peptide and laboratory reagent purchases processed through Beacon Checkout.
+
+1. Parties and scope
+This Checkout Terms & Attestation Agreement (the "Agreement") applies to every order placed through this store for research-use-only materials, including peptides and related laboratory reagents (the "Materials"). By completing checkout, the individual submitting the order ("Buyer") agrees to this Agreement on behalf of the purchasing organization.
+
+2. Research use only — no human or animal use
+All Materials are sold strictly for laboratory research use only. Materials are not foods, drugs, cosmetics, medical devices, or dietary supplements. Buyer represents and warrants that Materials will not be used for:
+• human consumption, administration, injection, inhalation, or topical application;
+• animal consumption or administration, except where Buyer's research protocol is conducted under applicable institutional animal-care oversight and Materials are not marketed or intended by Seller for veterinary therapeutic use;
+• diagnostic, therapeutic, clinical, or household purposes; or
+• any use requiring regulatory approval that has not been obtained by Buyer.
+
+3. Buyer qualifications
+Buyer represents that the individual completing checkout is an experienced researcher, or is acting under the direct authority and supervision of an experienced researcher, with the training, qualifications, facilities, equipment, and written procedures appropriate for the Materials ordered.
+
+4. Business / institutional purchaser only
+Orders are accepted only from businesses, laboratories, academic institutions, or other organizational purchasers. Orders are not accepted for personal, family, household, or other consumer purposes. The individual completing checkout has authority to bind the purchasing organization.
+
+5. Age and capacity
+The individual completing checkout is at least twenty-one (21) years of age and has legal capacity to enter into this Agreement.
+
+6. Compliance with law and lawful receipt
+Buyer represents and warrants that Buyer is legally authorized to purchase and receive the Materials in the jurisdiction where the Materials will be received, possessed, and used. Buyer is solely responsible for ensuring that its possession, storage, handling, and use of the Materials comply with all applicable laws, regulations, institutional policies, and safety requirements in Buyer's jurisdiction.
+
+7. No medical or regulatory claims
+Seller makes no claims that Materials diagnose, treat, cure, or prevent any disease. Product descriptions are for research identification only and do not constitute medical, legal, or regulatory advice.
+
+8. Assumption of risk
+Buyer assumes all risks arising from the purchase, possession, storage, handling, and research use of the Materials, including risks related to chemical properties, purity limitations, and laboratory handling, except to the extent prohibited by applicable law.
+
+9. Indemnification
+To the fullest extent permitted by law, Buyer shall indemnify and hold harmless Seller and its payment processor/platform partners from claims arising out of Buyer's breach of this Agreement or Buyer's misuse of the Materials.
+
+10. Electronic assent
+Buyer's affirmative selection of each required attestation checkbox, together with submission of the order (via "Place order" or an equivalent checkout action), constitutes Buyer's electronic signature and agreement to this Agreement. Exact checkbox labels, selection timestamps, and a hash of this document version are retained as compliance evidence.
+
+11. Evidence retention
+Seller and its processing platform may retain a canonical attestation record linked to the order, including document version/hash, assent labels, purchaser fields, and order identifiers, for compliance, audit, and dispute purposes.
+
+12. Governing terms
+This Agreement is governed by applicable law in the jurisdiction of the Seller. Any disputes arising under this Agreement shall be resolved in accordance with Seller's dispute resolution policy.`;
+
 function TermsAccordion() {
   const [open, setOpen] = useState(false);
-  const [content, setContent] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleToggle() {
-    const next = !open;
-    setOpen(next);
-    if (next && content === null) {
-      setLoading(true);
-      try {
-        const res = await fetch("https://purposelabs.shop/?beacon_sc_checkout_terms=1");
-        const html = await res.text();
-        // Extract the main content text from the page body
-        const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        const stripped = match
-          ? match[1].replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, "\n").trim()
-          : "Terms not available. Please visit purposelabs.shop for full terms.";
-        setContent(stripped.slice(0, 3000));
-      } catch {
-        setContent("Could not load terms. Visit purposelabs.shop/?beacon_sc_checkout_terms=1");
-      } finally {
-        setLoading(false);
-      }
-    }
-  }
 
   return (
     <div
@@ -66,7 +87,7 @@ function TermsAccordion() {
     >
       <button
         type="button"
-        onClick={handleToggle}
+        onClick={() => setOpen((o) => !o)}
         style={{
           width: "100%",
           display: "flex",
@@ -102,7 +123,7 @@ function TermsAccordion() {
             whiteSpace: "pre-wrap",
           }}
         >
-          {loading ? "Loading…" : (content ?? "")}
+          {TERMS_TEXT}
         </div>
       )}
     </div>
