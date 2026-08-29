@@ -28,6 +28,87 @@ const BUYER_TYPE_OPTIONS = [
 
 const LEGAL_VERSION = "2026.07.22-1";
 
+function TermsAccordion() {
+  const [open, setOpen] = useState(false);
+  const [content, setContent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleToggle() {
+    const next = !open;
+    setOpen(next);
+    if (next && content === null) {
+      setLoading(true);
+      try {
+        const res = await fetch("https://purposelabs.shop/?beacon_sc_checkout_terms=1");
+        const html = await res.text();
+        // Extract the main content text from the page body
+        const match = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+        const stripped = match
+          ? match[1].replace(/<[^>]+>/g, " ").replace(/\s{2,}/g, "\n").trim()
+          : "Terms not available. Please visit purposelabs.shop for full terms.";
+        setContent(stripped.slice(0, 3000));
+      } catch {
+        setContent("Could not load terms. Visit purposelabs.shop/?beacon_sc_checkout_terms=1");
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
+
+  return (
+    <div
+      style={{
+        border: "1px solid var(--pl-border)",
+        borderRadius: "8px",
+        overflow: "hidden",
+        fontFamily: "var(--pl-font-body)",
+      }}
+    >
+      <button
+        type="button"
+        onClick={handleToggle}
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "12px 16px",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          fontFamily: "var(--pl-font-body)",
+          fontWeight: 600,
+          fontSize: "13px",
+          color: "var(--pl-navy)",
+          textAlign: "left",
+        }}
+      >
+        Read Checkout Terms &amp; Attestation Agreement
+        <span style={{ fontSize: "18px", lineHeight: 1, color: "var(--pl-navy)" }}>
+          {open ? "−" : "+"}
+        </span>
+      </button>
+      {open && (
+        <div
+          style={{
+            padding: "12px 16px",
+            borderTop: "1px solid var(--pl-border)",
+            backgroundColor: "#f8f9fb",
+            fontSize: "11px",
+            color: "var(--pl-text-secondary)",
+            lineHeight: "1.6",
+            maxHeight: "260px",
+            overflowY: "auto",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {loading ? "Loading…" : (content ?? "")}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const cardElementOptions = {
   style: {
     base: {
@@ -330,17 +411,8 @@ function BeaconPaymentForm({
       </label>
       {errors.attest && <p style={{ ...errorStyle, marginTop: "-12px" }}>{errors.attest}</p>}
 
-      {/* Terms link */}
-      <p style={{ fontSize: "12px", color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)", marginTop: "-8px" }}>
-        <a
-          href="https://purposelabs.shop/?beacon_sc_checkout_terms=1"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "var(--pl-navy)", textDecoration: "underline" }}
-        >
-          Read Checkout Terms &amp; Attestation Agreement
-        </a>
-      </p>
+      {/* Terms accordion */}
+      <TermsAccordion />
 
       <button
         onClick={handlePay}
