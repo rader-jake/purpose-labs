@@ -117,11 +117,7 @@ export function CartDrawer() {
                 className="text-sm font-medium"
                 style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
               >
-                {/* total_price is the full grand total (items + fees +
-                    shipping + tax), not a pre-shipping subtotal — label
-                    must match or the number looks wrong next to a single
-                    cheap item once shipping/tax apply. */}
-                Total
+                Subtotal
               </span>
               <span
                 className="text-3xl"
@@ -131,7 +127,7 @@ export function CartDrawer() {
                   fontWeight: 500,
                 }}
               >
-                {formatMoney(cart.totals.total_price)}
+                {formatMoney(cart.totals.total_items)}
               </span>
             </div>
             <Link
