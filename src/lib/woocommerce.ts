@@ -172,7 +172,7 @@ export async function getProducts(options: GetProductsOptions = {}): Promise<Woo
 // also like" suggestion despite not being real merchandise a customer
 // would choose. Confirmed recon solution genuinely turns up in other products'
 // related_ids (e.g. Tesamorelin's), not just a hypothetical risk.
-export const NON_MERCHANDISABLE_PRODUCT_IDS = [94, 1057];
+export const NON_MERCHANDISABLE_PRODUCT_IDS = [1057];
 
 export async function getBestSellers(limit = 8): Promise<WooProduct[]> {
   return getProducts({
