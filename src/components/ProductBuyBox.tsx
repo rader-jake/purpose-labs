@@ -66,6 +66,8 @@ export function ProductBuyBox({
       contentId: String(productId),
       contentName: name,
       value: parseFloat(price) || undefined,
+      productId,
+      pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

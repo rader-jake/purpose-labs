@@ -12,6 +12,25 @@ declare global {
   }
 }
 
+const BEACON_BASE = "https://joshuar120.sg-host.com/wp-json/beacon-tt/v1";
+
+async function beaconPost(
+  path: string,
+  body: Record<string, unknown>
+): Promise<{ event_id?: string; props?: Record<string, unknown> } | null> {
+  try {
+    const res = await fetch(`${BEACON_BASE}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    return res.json() as Promise<{ event_id?: string; props?: Record<string, unknown> }>;
+  } catch {
+    return null;
+  }
+}
+
 export function ttqTrack(event: string, props?: Record<string, unknown>) {
   try {
     if (typeof window !== "undefined" && window.ttq) {
@@ -22,17 +41,32 @@ export function ttqTrack(event: string, props?: Record<string, unknown>) {
   }
 }
 
-export function trackViewContent(props: {
+export async function trackViewContent(props: {
   contentId: string;
   contentName: string;
   value?: number;
   currency?: string;
+  productId?: number;
+  pageUrl?: string;
 }) {
+  const beacon = await beaconPost("/events/view-content", {
+    product_id: props.productId,
+    page_url: props.pageUrl,
+    ttclid: typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("ttclid") ?? undefined
+      : undefined,
+    ttp: typeof window !== "undefined"
+      ? (document.cookie.match(/(?:^|;\s*)_ttp=([^;]*)/) ?? [])[1]
+      : undefined,
+  });
+
   ttqTrack("ViewContent", {
     content_id: props.contentId,
     content_name: props.contentName,
     value: props.value,
     currency: props.currency ?? "USD",
+    ...(beacon?.props ?? {}),
+    ...(beacon?.event_id ? { event_id: beacon.event_id } : {}),
   });
 }
 
@@ -52,9 +86,16 @@ export function trackAddToCart(props: {
   });
 }
 
-export function trackInitiateCheckout(props?: { value?: number; currency?: string }) {
+export async function trackInitiateCheckout(props?: { value?: number; currency?: string }) {
+  const beacon = await beaconPost("/events/initiate-checkout", {
+    value: props?.value,
+    currency: props?.currency ?? "USD",
+  });
+
   ttqTrack("InitiateCheckout", {
     value: props?.value,
     currency: props?.currency ?? "USD",
+    ...(beacon?.props ?? {}),
+    ...(beacon?.event_id ? { event_id: beacon.event_id } : {}),
   });
 }
