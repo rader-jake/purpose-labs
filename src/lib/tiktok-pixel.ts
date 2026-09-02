@@ -70,19 +70,34 @@ export async function trackViewContent(props: {
   });
 }
 
-export function trackAddToCart(props: {
+export async function trackAddToCart(props: {
   contentId: string;
   contentName: string;
   value?: number;
   quantity?: number;
   currency?: string;
+  productId?: number;
 }) {
+  const beacon = await beaconPost("/events/add-to-cart", {
+    product_id: props.productId ?? parseInt(props.contentId, 10),
+    quantity: props.quantity ?? 1,
+    page_url: typeof window !== "undefined" ? window.location.href : undefined,
+    ttclid: typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("ttclid") ?? undefined
+      : undefined,
+    ttp: typeof window !== "undefined"
+      ? (document.cookie.match(/(?:^|;\s*)_ttp=([^;]*)/) ?? [])[1]
+      : undefined,
+  });
+
   ttqTrack("AddToCart", {
     content_id: props.contentId,
     content_name: props.contentName,
     value: props.value,
     quantity: props.quantity ?? 1,
     currency: props.currency ?? "USD",
+    ...(beacon?.props ?? {}),
+    ...(beacon?.event_id ? { event_id: beacon.event_id } : {}),
   });
 }
 

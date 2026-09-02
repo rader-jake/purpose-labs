@@ -93,11 +93,12 @@ export function ProductBuyBox({
     setAddError(null);
     try {
       await addItem(effectiveId, quantity);
-      trackAddToCart({
+      await trackAddToCart({
         contentId: String(effectiveId),
         contentName: name,
         value: parseFloat(effectivePrice) || undefined,
         quantity,
+        productId: effectiveId,
       });
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
