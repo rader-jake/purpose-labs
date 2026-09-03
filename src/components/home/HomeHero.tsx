@@ -7,8 +7,6 @@ export function HomeHero() {
   // NEXT_PUBLIC_WORDPRESS_ORIGIN in .env.local. Points at whatever host
   // WordPress actually lives on, so this doesn't silently break again
   // next time the backend moves.
-  const heroImage = `${process.env.NEXT_PUBLIC_WORDPRESS_ORIGIN}/wp-content/uploads/2026/04/theSummerStack-scaled.png`;
-
   return (
     <section 
       className="relative overflow-hidden bg-[#F1F6F9] pt-12 pb-16 md:pt-16 md:pb-24 lg:pt-20 lg:pb-28"
@@ -27,7 +25,7 @@ export function HomeHero() {
         <div className="flex flex-col lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-8">
           
           {/* 1. Eyebrow & Headline (Row 1 Left on Desktop, Order 1 on Mobile/Tablet) */}
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-1 order-1 flex flex-col items-start mb-6 lg:mb-4">
+          <div className="lg:col-span-12 lg:col-start-1 lg:row-start-1 order-1 flex flex-col items-start mb-6 lg:mb-4">
             <Reveal delay={100}>
               <span 
                 className="mb-3 inline-block text-[10px] font-bold uppercase tracking-[0.2em]"
@@ -53,17 +51,10 @@ export function HomeHero() {
 
           {/* 2. Product Visual (Row 1-2 Right on Desktop, Order 2 on Mobile/Tablet) */}
           {/* Overlaps desktop columns slightly, and sizes dynamically on mobile */}
-          <div className="lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-2 order-2 lg:order-none flex justify-center items-center w-full mb-8 lg:mb-0 lg:-ml-6 z-10">
-            <Reveal delay={250} duration={900}>
-              <HeroProductVisual 
-                imageSrc={heroImage} 
-                imageAlt="Purpose Labs lyophylized peptide vial" 
-              />
-            </Reveal>
-          </div>
+
 
           {/* 3. Supporting Details & Actions (Row 2 Left on Desktop, Order 3 on Mobile/Tablet) */}
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2 order-3 flex flex-col items-start">
+          <div className="lg:col-span-12 lg:col-start-1 lg:row-start-2 order-3 flex flex-col items-start">
             
             {/* Supporting Copy */}
             <Reveal delay={300}>
