@@ -1,18 +1,25 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const SpinWheel = dynamic(() => import("@/components/SpinWheel").then(m => m.SpinWheel), { ssr: false });
+import Image from "next/image";
 
 type HeroProductVisualProps = {
   imageSrc?: string;
   imageAlt?: string;
 };
 
-export function HeroProductVisual(_props: HeroProductVisualProps) {
+export function HeroProductVisual({ imageSrc, imageAlt = "Purpose Labs peptide vial" }: HeroProductVisualProps) {
+  if (!imageSrc) return null;
+
   return (
     <div className="relative mx-auto select-none" style={{ width: "100%", maxWidth: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <SpinWheel />
+      <Image
+        src={imageSrc}
+        alt={imageAlt}
+        width={480}
+        height={480}
+        priority
+        style={{ objectFit: "contain", width: "100%", height: "auto" }}
+      />
     </div>
   );
 }
