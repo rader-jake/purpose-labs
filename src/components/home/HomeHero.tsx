@@ -14,11 +14,11 @@ export function HomeHero() {
         style={{ width: "100%", height: "auto", display: "block" }}
       />
 
-      {/* CTA button — centered, overlaid at the bottom */}
-      <div className="absolute bottom-6 sm:bottom-8 md:bottom-10 left-0 right-0 flex justify-center">
+      {/* CTA button — bottom-left, aligned with banner text */}
+      <div className="absolute bottom-[12%] left-[4%] sm:left-[5%] md:left-[6%]">
         <Link
           href="/products"
-          className="rounded-full h-12 px-10 text-sm font-semibold uppercase tracking-[0.12em] flex items-center justify-center shadow-lg bg-[#14274E] text-[#F1F6F9] hover:bg-[#0f1d3b] transition-all duration-300"
+          className="rounded-md h-12 px-8 text-sm font-bold uppercase tracking-[0.15em] flex items-center justify-center shadow-lg bg-[#14274E] text-[#F1F6F9] hover:bg-[#0f1d3b] transition-all duration-300"
         >
           Shop the Sale →
         </Link>
