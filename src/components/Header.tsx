@@ -16,7 +16,7 @@ const NAV_LINKS = [
 
 const TICKER_ITEMS = [
   "🔥 30% Off Sitewide — Limited Time Only",
-  "🌞 Summer Special — Buy 2 Get 1 Free · Same Item · Auto-Applied at Checkout",
+  "🎖️ Memorial Day Sale — Buy 1 Get 1 Free · Same Item · Auto-Applied at Checkout",
   "Same-Day Shipping on Orders Placed by 2PM EST",
   "Veteran Owned · U.S. Based · Research Use Only",
   "Third-Party Tested — COA Available for Every Batch",
