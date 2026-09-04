@@ -4,8 +4,8 @@ import Image from "next/image";
 export function HomeHero() {
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Whole banner is clickable */}
-      <Link href="/products" className="block w-full">
+      {/* Entire banner links to the catalog — button is baked into the image */}
+      <Link href="/products" className="block w-full cursor-pointer">
         <Image
           src="/memorial-day-hero.jpg"
           alt="Memorial Day Sale — Buy 1 Get 1 Free"
@@ -15,13 +15,6 @@ export function HomeHero() {
           style={{ width: "100%", height: "auto", display: "block" }}
         />
       </Link>
-
-      {/* Visible button overlaid bottom-left */}
-      <div className="absolute bottom-[8%] left-[5%] pointer-events-none">
-        <span className="inline-flex items-center justify-center rounded-full bg-[#14274E] text-white text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] px-5 py-2 sm:px-6 sm:py-2.5 shadow-md">
-          Shop the Sale →
-        </span>
-      </div>
     </section>
   );
 }
