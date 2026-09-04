@@ -7,7 +7,7 @@ export function HomeHero() {
       {/* Entire banner links to the catalog — button is baked into the image */}
       <Link href="/products" className="block w-full cursor-pointer">
         <Image
-          src="/memorial-day-hero.jpg"
+          src="/memorial-day-hero-v2.jpg"
           alt="Memorial Day Sale — Buy 1 Get 1 Free"
           width={1200}
           height={675}
