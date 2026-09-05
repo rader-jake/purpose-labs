@@ -77,6 +77,8 @@ gtag('config', 'AW-18395672517');
   ttq.page();
 }(window, document, 'ttq');
         ` }} />
+        {/* Affiliatly — affiliate tracking (must load on every page) */}
+        <script async src="https://static.affiliatly.com/v3/affiliatly.js?affiliatly_code=AF-1074151" />
       </head>
       <body className="min-h-full flex flex-col">
         <AuthProvider>
