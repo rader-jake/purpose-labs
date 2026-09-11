@@ -69,6 +69,7 @@ export default function CheckoutPage() {
   const [addressError, setAddressError] = useState<string | null>(null);
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [shipmentProtection, setShipmentProtection] = useState(false);
 
   if (isLoading) {
     return (
@@ -198,7 +199,7 @@ export default function CheckoutPage() {
 
       <div className="flex flex-col gap-6">
         {/* Contact */}
-        <CheckoutCard title="Contact">
+        <CheckoutCard title="Contact" step={1}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <input
@@ -235,7 +236,7 @@ export default function CheckoutPage() {
         </CheckoutCard>
 
         {/* Shipping Address */}
-        <CheckoutCard title="Shipping Address">
+        <CheckoutCard title="Shipping Address" step={2}>
           <div>
             <input
               placeholder="Address"
@@ -309,11 +310,20 @@ export default function CheckoutPage() {
         </CheckoutCard>
 
         {/* Order Summary */}
-        <CheckoutCard title="Order Summary">
+        <CheckoutCard title="Order Summary" step={3}>
           <ul className="flex flex-col gap-3">
             {cart.items.map((item) => (
-              <li key={item.key} className="flex items-center justify-between text-sm">
-                <span style={{ color: "var(--pl-slate)" }}>
+              <li key={item.key} className="flex items-center justify-between text-sm gap-3">
+                {(item.images?.[0]?.src || item.images?.[0]?.thumbnail) && (
+                  <img
+                    src={item.images[0].src || item.images[0].thumbnail}
+                    alt={item.name}
+                    width={48}
+                    height={48}
+                    style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
+                  />
+                )}
+                <span style={{ color: "var(--pl-slate)", flex: 1 }}>
                   {item.name} × {item.quantity}
                 </span>
                 {/* Pre-discount, matching "Subtotal" below — line_total is
@@ -370,12 +380,40 @@ export default function CheckoutPage() {
                     <span>{formatMoney(cart.totals.total_tax)}</span>
                   </div>
                 )}
+            {shipmentProtection && (
+              <div className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
+                <span>Shipment Protection</span>
+                <span>+$5.00</span>
+              </div>
+            )}
             <div
               className="mt-2 flex items-center justify-between border-t pt-2 text-base font-medium"
               style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)" }}
             >
               <span>Total</span>
-              <span>{formatMoney(cart.totals.total_price)}</span>
+              <span>{formatMoney(String(Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)))}</span>
+            </div>
+          </div>
+
+          {/* Shipment Protection upsell */}
+          <div
+            className="flex items-start gap-3 rounded-lg border p-4 cursor-pointer"
+            style={{ borderColor: shipmentProtection ? "var(--pl-navy)" : "var(--pl-border)", backgroundColor: shipmentProtection ? "rgba(0,0,60,0.04)" : "transparent" }}
+            onClick={() => setShipmentProtection((v) => !v)}
+          >
+            <input
+              type="checkbox"
+              checked={shipmentProtection}
+              onChange={(e) => { e.stopPropagation(); setShipmentProtection((v) => !v); }}
+              style={{ marginTop: 2, accentColor: "var(--pl-navy)", width: 16, height: 16, flexShrink: 0 }}
+            />
+            <div>
+              <p className="text-sm font-semibold" style={{ color: "var(--pl-navy)" }}>
+                Shipment Protection — $5.00
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--pl-muted)" }}>
+                Protect your order against loss or damage in transit.
+              </p>
             </div>
           </div>
 
@@ -401,7 +439,7 @@ export default function CheckoutPage() {
           {isValid ? (
             ENABLE_BEACON ? (
               <BeaconPaymentStep
-                amountCents={Number(cart.totals.total_price)}
+                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
                 currencyCode={cart.totals.currency_symbol}
                 billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
                 shippingAddress={buildAddressInput()}
@@ -410,7 +448,7 @@ export default function CheckoutPage() {
               />
             ) : (
               <PaymentStepStub
-                amountCents={Number(cart.totals.total_price)}
+                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
                 currencyCode={cart.totals.currency_symbol}
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
@@ -425,16 +463,35 @@ export default function CheckoutPage() {
   );
 }
 
-function CheckoutCard({ title, children }: { title: string; children: React.ReactNode }) {
+function CheckoutCard({ title, children, step }: { title: string; children: React.ReactNode; step?: number }) {
   return (
     <section
       className="flex flex-col gap-4 rounded-lg border p-6"
       style={{ borderColor: "var(--pl-border)", backgroundColor: "var(--pl-white)" }}
     >
       <h2
-        className="text-xl"
+        className="text-xl flex items-center gap-3"
         style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)", fontWeight: 500 }}
       >
+        {step !== undefined && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              backgroundColor: "var(--pl-navy)",
+              color: "var(--pl-ivory)",
+              fontSize: 13,
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
+            {step}
+          </span>
+        )}
         {title}
       </h2>
       {children}
