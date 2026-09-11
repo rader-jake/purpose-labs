@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
-import { PaymentStepStub } from "@/components/checkout/PaymentStepStub";
+import { StripePaymentStep } from "@/components/checkout/StripePaymentStep";
 import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
@@ -447,7 +447,7 @@ export default function CheckoutPage() {
                 onError={handlePaymentError}
               />
             ) : (
-              <PaymentStepStub
+              <StripePaymentStep
                 amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
                 currencyCode={cart.totals.currency_symbol}
                 onSuccess={handlePaymentSuccess}
