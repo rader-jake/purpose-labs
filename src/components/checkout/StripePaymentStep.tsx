@@ -13,16 +13,69 @@ import { formatMoney } from "@/lib/cart/money";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
+const ATTESTATION_STATEMENTS = [
+  "I confirm I am at least 21 years of age.",
+  "I confirm these products are for research use only (RUO), not for human or animal consumption.",
+  "I confirm I am an experienced researcher qualified to handle these materials.",
+  "I confirm this is a business-to-business transaction between research entities.",
+  "I confirm lawful receipt of these materials is permitted in my jurisdiction.",
+];
+
+const BUYER_TYPE_OPTIONS = [
+  { value: "laboratory", label: "Laboratory" },
+  { value: "academic", label: "Academic institution" },
+  { value: "business", label: "Business" },
+  { value: "other_organization", label: "Other" },
+];
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: "13px",
+  fontWeight: 600,
+  color: "var(--pl-navy)",
+  marginBottom: "4px",
+  fontFamily: "var(--pl-font-body)",
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  borderRadius: "6px",
+  border: "1px solid var(--pl-border)",
+  backgroundColor: "#fff",
+  color: "var(--pl-navy)",
+  fontFamily: "var(--pl-font-body)",
+  fontSize: "14px",
+  outline: "none",
+  boxSizing: "border-box",
+};
+
 function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [buyerType, setBuyerType] = useState("");
+  const [attested, setAttested] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  function validate() {
+    const errs: Record<string, string> = {};
+    if (!buyerType) errs.buyerType = "Please select a purchaser type.";
+    if (!attested) errs.attest = "You must confirm the attestation statements.";
+    return errs;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!stripe || !elements) return;
 
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setFormErrors(errs);
+      return;
+    }
+    setFormErrors({});
     setIsProcessing(true);
     setErrorMsg(null);
 
@@ -48,7 +101,38 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {/* Purchaser type */}
+      <div>
+        <label style={labelStyle}>Purchaser type *</label>
+        <select
+          value={buyerType}
+          onChange={(e) => setBuyerType(e.target.value)}
+          style={{ ...inputStyle, appearance: "auto" }}
+        >
+          <option value="" disabled>Choose one…</option>
+          {BUYER_TYPE_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>{o.label}</option>
+          ))}
+        </select>
+        {formErrors.buyerType && <p className="text-xs text-red-600 mt-1">{formErrors.buyerType}</p>}
+      </div>
+
       <PaymentElement />
+
+      {/* Attestation */}
+      <label className="flex cursor-pointer items-start gap-3">
+        <input
+          type="checkbox"
+          checked={attested}
+          onChange={(e) => setAttested(e.target.checked)}
+          className="mt-1"
+        />
+        <span className="flex flex-col gap-1 text-xs leading-relaxed" style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}>
+          <span className="font-medium" style={{ color: "var(--pl-navy)" }}>By checking this box, I confirm all of the following:</span>
+          {ATTESTATION_STATEMENTS.map((s, i) => <span key={i}>&bull; {s}</span>)}
+        </span>
+      </label>
+      {formErrors.attest && <p className="text-xs text-red-600 mt-[-8px]">{formErrors.attest}</p>}
 
       {errorMsg && (
         <p className="text-sm text-red-600">{errorMsg}</p>
