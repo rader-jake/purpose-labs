@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import { CardElement, Elements, useElements, useStripe } from "@stripe/react-stripe-js";
+import type { PaymentRequest } from "@stripe/stripe-js";
+import { CardElement, Elements, PaymentRequestButtonElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import type { AddressInput } from "@/lib/cart/types";
 import type { PaymentStepProps } from "@/lib/payment/types";
 
@@ -217,11 +218,79 @@ function BeaconPaymentForm({
   const stripe = useStripe();
   const elements = useElements();
 
+  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null);
+  const [prReady, setPrReady] = useState(false);
   const [buyerType, setBuyerType] = useState("");
   const [attested, setAttested] = useState(false);
   const [attestTs, setAttestTs] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!stripe) return;
+    const pr = stripe.paymentRequest({
+      country: "US",
+      currency: "usd",
+      total: {
+        label: "Purpose Labs Order",
+        amount: amountCents,
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+    });
+    pr.canMakePayment().then((result) => {
+      if (result) {
+        setPaymentRequest(pr);
+        setPrReady(true);
+      }
+    });
+    pr.on("paymentmethod", async (ev) => {
+      try {
+        const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
+        const intentResponse = await fetch("/api/checkout/beacon-intent", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amountCents, currencyCode, cart_token: cartToken }),
+        });
+        const intentData = await intentResponse.json();
+        if (!intentResponse.ok) {
+          ev.complete("fail");
+          onError({ message: intentData?.message || "Payment failed. Please try again." });
+          return;
+        }
+        const clientSecret = intentData?.client_secret;
+        if (!clientSecret) {
+          ev.complete("fail");
+          onError({ message: "Payment could not be started." });
+          return;
+        }
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+          clientSecret,
+          { payment_method: ev.paymentMethod.id },
+          { handleActions: false }
+        );
+        if (confirmError) {
+          ev.complete("fail");
+          onError({ message: confirmError.message ?? "Payment failed." });
+          return;
+        }
+        ev.complete("success");
+        if (paymentIntent?.status === "requires_action") {
+          const { error } = await stripe.confirmCardPayment(clientSecret);
+          if (error) {
+            onError({ message: error.message ?? "Payment failed." });
+            return;
+          }
+        }
+        const orderId = paymentIntent?.id ?? "unknown";
+        onSuccess({ transactionId: String(orderId) });
+      } catch (err) {
+        ev.complete("fail");
+        onError({ message: err instanceof Error ? err.message : "Payment failed." });
+      }
+    });
+  }, [stripe, amountCents]);
 
   function handleAttestChange(checked: boolean) {
     setAttested(checked);
@@ -395,6 +464,29 @@ function BeaconPaymentForm({
       className="flex flex-col gap-5 rounded-lg border p-6"
       style={{ borderColor: "var(--pl-border)", backgroundColor: "var(--pl-ivory-soft)" }}
     >
+      {/* Apple Pay / Google Pay */}
+      {prReady && paymentRequest && (
+        <div>
+          <PaymentRequestButtonElement
+            options={{
+              paymentRequest,
+              style: {
+                paymentRequestButton: {
+                  type: "buy",
+                  theme: "dark",
+                  height: "48px",
+                },
+              },
+            }}
+          />
+          <div className="flex items-center gap-3 my-3">
+            <div className="flex-1 border-t" style={{ borderColor: "var(--pl-border)" }} />
+            <span className="text-xs" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>or pay with card</span>
+            <div className="flex-1 border-t" style={{ borderColor: "var(--pl-border)" }} />
+          </div>
+        </div>
+      )}
+
       {/* Purchaser Type */}
       <div>
         <label style={labelStyle}>Purchaser type *</label>
