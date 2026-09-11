@@ -117,7 +117,7 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
         {formErrors.buyerType && <p className="text-xs text-red-600 mt-1">{formErrors.buyerType}</p>}
       </div>
 
-      <PaymentElement />
+      <PaymentElement options={{ wallets: { applePay: "auto", googlePay: "auto" } }} />
 
       {/* Attestation */}
       <label className="flex cursor-pointer items-start gap-3">
@@ -199,6 +199,7 @@ export function StripePaymentStep(props: PaymentStepProps) {
       stripe={stripePromise}
       options={{
         clientSecret,
+        wallets: { applePay: "auto", googlePay: "auto" },
         appearance: {
           theme: "stripe",
           variables: {
