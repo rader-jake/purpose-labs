@@ -152,7 +152,7 @@ export function BeaconPaymentStep(props: BeaconPaymentStepProps) {
   const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     if (!publishableKey) return null;
-    return loadStripe(publishableKey);
+    return loadStripe(publishableKey, { stripeAccount: "acct_1U2yBlPzodzW27XV" });
   }, []);
 
   if (!stripePromise) {
@@ -260,11 +260,11 @@ function BeaconPaymentForm({
         }
 
         const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
-        const intentResponse = await fetch("/api/checkout/stripe-intent", {
+        const intentResponse = await fetch("/api/checkout/beacon-intent", {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amountCents, currencyCode }),
+          body: JSON.stringify({ amountCents, currencyCode, cart_token: cartToken }),
         });
         const intentData = await intentResponse.json();
         if (!intentResponse.ok) {
@@ -272,7 +272,7 @@ function BeaconPaymentForm({
           onError({ message: intentData?.message || "Payment failed. Please try again." });
           return;
         }
-        const clientSecret = intentData?.clientSecret;
+        const clientSecret = intentData?.client_secret;
         if (!clientSecret) {
           ev.complete("fail");
           onError({ message: "Payment could not be started." });
@@ -436,12 +436,12 @@ function BeaconPaymentForm({
         console.warn("[Beacon] cart/extensions sync failed (non-fatal):", extErr);
       }
 
-      // Create PaymentIntent directly via our Stripe (no Beacon Connect fee issue)
-      const intentResponse = await fetch("/api/checkout/stripe-intent", {
+      // Create PaymentIntent via Beacon
+      const intentResponse = await fetch("/api/checkout/beacon-intent", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountCents, currencyCode }),
+        body: JSON.stringify({ amountCents, currencyCode, cart_token: cartToken }),
       });
       const intentData = await intentResponse.json();
       if (!intentResponse.ok) {
@@ -449,7 +449,7 @@ function BeaconPaymentForm({
           typeof intentData?.message === "string" ? intentData.message : "Could not start payment. Please try again."
         );
       }
-      const clientSecret = intentData?.clientSecret;
+      const clientSecret = intentData?.client_secret;
       if (typeof clientSecret !== "string" || !clientSecret) {
         throw new Error("Payment could not be started. Please try again.");
       }
