@@ -166,12 +166,32 @@ export default function CheckoutPage() {
     setAttemptedSubmit(true);
   }
 
-  function handlePaymentSuccess(result: PaymentResult) {
+  async function handlePaymentSuccess(result: PaymentResult) {
     setPaymentError(null);
     const address = buildAddressInput();
-    // Non-null: this handler only fires from the payment step below,
-    // which doesn't render unless the earlier `!cart` guard already
-    // returned — TS can't see that across the closure, but it holds.
+
+    // Create WooCommerce order
+    try {
+      const lineItems = (cart?.items ?? []).map((item) => ({
+        product_id: item.id,
+        quantity: item.quantity,
+        variation_id: item.variation_id ?? undefined,
+      }));
+      await fetch("/api/checkout/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          payment_intent_id: result.transactionId,
+          billing_address: { ...address, email: customerInfo.email },
+          shipping_address: address,
+          line_items: lineItems,
+          amount_minor: Number(cart?.totals.total_price ?? 0),
+        }),
+      });
+    } catch (e) {
+      console.error("[create-order] failed:", e);
+    }
+
     setOrderConfirmation(
       buildMockOrderConfirmation(cart!, result.transactionId, { ...address, email: customerInfo.email }, address)
     );
