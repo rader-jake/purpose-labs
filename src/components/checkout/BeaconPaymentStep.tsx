@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import type { PaymentRequest } from "@stripe/stripe-js";
 import { CardElement, Elements, PaymentRequestButtonElement, useElements, useStripe } from "@stripe/react-stripe-js";
@@ -223,6 +223,12 @@ function BeaconPaymentForm({
   const [buyerType, setBuyerType] = useState("");
   const [attested, setAttested] = useState(false);
   const [attestTs, setAttestTs] = useState("");
+
+  // Refs so the paymentmethod event handler (closure) can read current state
+  const attestedRef = useRef(false);
+  const attestTsRef = useRef("");
+  const buyerTypeRef = useRef("");
+  const shippingAddressRef = useRef(shippingAddress);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -246,6 +252,13 @@ function BeaconPaymentForm({
     });
     pr.on("paymentmethod", async (ev) => {
       try {
+        // Validate attestation before proceeding
+        if (!attestedRef.current || !buyerTypeRef.current) {
+          ev.complete("fail");
+          onError({ message: "Please select a purchaser type and confirm the attestation before using Apple Pay." });
+          return;
+        }
+
         const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
         const intentResponse = await fetch("/api/checkout/beacon-intent", {
           method: "POST",
@@ -283,7 +296,65 @@ function BeaconPaymentForm({
             return;
           }
         }
-        const orderId = paymentIntent?.id ?? "unknown";
+
+        const paymentIntentId = paymentIntent?.id;
+        if (!paymentIntentId) {
+          onError({ message: "Payment could not be confirmed. Please try again." });
+          return;
+        }
+
+        // Create WooCommerce order (same as card flow)
+        const apTs = attestTsRef.current;
+        const apBuyerType = buyerTypeRef.current;
+        const walletOrderResponse = await fetch("/api/checkout/beacon-wallet-order", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            payment_intent_id: paymentIntentId,
+            cart_token: cartToken,
+            payment_method: "beacon_checkout",
+            extensions: {
+              "beacon-checkout": {
+                legal_version: LEGAL_VERSION,
+                attest_all: "1",
+                attest_ts_all: apTs,
+                buyer_type: apBuyerType,
+              },
+            },
+            billing_address: {
+              first_name: ev.payerName?.split(" ")[0] ?? "",
+              last_name: ev.payerName?.split(" ").slice(1).join(" ") ?? "",
+              email: ev.payerEmail ?? "",
+              address_1: ev.paymentMethod.billing_details?.address?.line1 ?? "",
+              address_2: ev.paymentMethod.billing_details?.address?.line2 ?? "",
+              city: ev.paymentMethod.billing_details?.address?.city ?? "",
+              state: ev.paymentMethod.billing_details?.address?.state ?? "",
+              postcode: ev.paymentMethod.billing_details?.address?.postal_code ?? "",
+              country: ev.paymentMethod.billing_details?.address?.country ?? "US",
+              phone: "",
+            },
+            shipping_address: {
+              first_name: shippingAddressRef.current.first_name,
+              last_name: shippingAddressRef.current.last_name,
+              address_1: shippingAddressRef.current.address_1,
+              address_2: shippingAddressRef.current.address_2 || "",
+              city: shippingAddressRef.current.city,
+              state: shippingAddressRef.current.state,
+              postcode: shippingAddressRef.current.postcode,
+              country: shippingAddressRef.current.country || "US",
+              phone: shippingAddressRef.current.phone || "",
+            },
+            amount_minor: amountCents,
+            currency: currencyCode.toLowerCase(),
+          }),
+        });
+        const walletOrderData = await walletOrderResponse.json();
+        if (!walletOrderResponse.ok) {
+          console.error("[Beacon apple-pay wallet-order] sync failed:", walletOrderData);
+        }
+
+        const orderId = walletOrderData?.order_id ?? paymentIntentId;
         onSuccess({ transactionId: String(orderId) });
       } catch (err) {
         ev.complete("fail");
@@ -291,6 +362,12 @@ function BeaconPaymentForm({
       }
     });
   }, [stripe, amountCents]);
+
+  // Keep refs in sync
+  useEffect(() => { attestedRef.current = attested; }, [attested]);
+  useEffect(() => { attestTsRef.current = attestTs; }, [attestTs]);
+  useEffect(() => { buyerTypeRef.current = buyerType; }, [buyerType]);
+  useEffect(() => { shippingAddressRef.current = shippingAddress; }, [shippingAddress]);
 
   function handleAttestChange(checked: boolean) {
     setAttested(checked);
