@@ -175,7 +175,7 @@ export default function CheckoutPage() {
       const lineItems = (cart?.items ?? []).map((item) => ({
         product_id: item.id,
         quantity: item.quantity,
-        variation_id: item.variation_id ?? undefined,
+        variation_id: (item as { variation_id?: number }).variation_id ?? undefined,
       }));
       await fetch("/api/checkout/create-order", {
         method: "POST",
