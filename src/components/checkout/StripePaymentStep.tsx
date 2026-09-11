@@ -199,7 +199,6 @@ export function StripePaymentStep(props: PaymentStepProps) {
       stripe={stripePromise}
       options={{
         clientSecret,
-        wallets: { applePay: "auto", googlePay: "auto" },
         appearance: {
           theme: "stripe",
           variables: {
