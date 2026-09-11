@@ -440,7 +440,7 @@ export default function CheckoutPage() {
             ENABLE_BEACON ? (
               <BeaconPaymentStep
                 amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
-                currencyCode={cart.totals.currency_symbol}
+                currencyCode="usd"
                 billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
                 shippingAddress={buildAddressInput()}
                 onSuccess={handlePaymentSuccess}
@@ -449,7 +449,7 @@ export default function CheckoutPage() {
             ) : (
               <StripePaymentStep
                 amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
-                currencyCode={cart.totals.currency_symbol}
+                currencyCode="usd"
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
               />
