@@ -82,7 +82,7 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/order-confirmation`,
+        return_url: `${window.location.origin}/checkout/order-received/stripe-redirect`,
       },
       redirect: "if_required",
     });
@@ -92,9 +92,12 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
       setErrorMsg(msg);
       onError({ message: msg });
       setIsProcessing(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+    } else if (paymentIntent && (paymentIntent.status === "succeeded" || paymentIntent.status === "processing")) {
       onSuccess({ transactionId: paymentIntent.id });
     } else {
+      const msg = "Payment could not be completed. Please try again or use a different card.";
+      setErrorMsg(msg);
+      onError({ message: msg });
       setIsProcessing(false);
     }
   }
