@@ -68,7 +68,7 @@ export default function AccountPage() {
           try {
             const res = await fetch(
               `https://joshuar120.sg-host.com/wp-json/wc/v3/orders?customer=${wcCustomerId}&per_page=5`,
-              { headers: { Authorization: "Basic " + btoa("ck_f7138959a5bb8acdcd20841a473028fe1139f86d:cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19") } }
+              { headers: { Authorization: "Basic " + btoa("ck_a1f40e9cce84ad42533a358083d6b819b670d7c9:cs_7964f8082bcbe98d4688a0697eb40a611b538de8") } }
             );
             if (res.ok) setOrders(await res.json());
           } catch {}
@@ -90,7 +90,7 @@ export default function AccountPage() {
       try {
         const res = await fetch(
           `https://joshuar120.sg-host.com/wp-json/wc/v3/orders?customer=${u.id}&per_page=5`,
-          { headers: { Authorization: "Basic " + btoa("ck_f7138959a5bb8acdcd20841a473028fe1139f86d:cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19") } }
+          { headers: { Authorization: "Basic " + btoa("ck_a1f40e9cce84ad42533a358083d6b819b670d7c9:cs_7964f8082bcbe98d4688a0697eb40a611b538de8") } }
         );
         if (res.ok) setOrders(await res.json());
       } catch {}

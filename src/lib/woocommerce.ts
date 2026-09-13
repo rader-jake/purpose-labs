@@ -96,8 +96,8 @@ function mapProduct(raw: WooApiProduct): WooProduct {
 
 function getWooCommerceCredentials() {
   const url = process.env.WOOCOMMERCE_URL ?? "https://joshuar120.sg-host.com";
-  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY ?? "ck_f7138959a5bb8acdcd20841a473028fe1139f86d";
-  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET ?? "cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19";
+  const consumerKey = process.env.WOOCOMMERCE_CONSUMER_KEY ?? "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
+  const consumerSecret = process.env.WOOCOMMERCE_CONSUMER_SECRET ?? "cs_7964f8082bcbe98d4688a0697eb40a611b538de8";
 
   return { url: url.replace(/\/+$/, ""), consumerKey, consumerSecret };
 }

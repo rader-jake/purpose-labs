@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendTikTokEvent } from "@/lib/tiktok-events";
 
 const WP_BASE = "https://joshuar120.sg-host.com";
-const WC_KEY = "ck_f7138959a5bb8acdcd20841a473028fe1139f86d";
-const WC_SECRET = "cs_fb8754e54748d4fcb3f0a4d75c0e9de44a5f55e0";
+const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
+const WC_SECRET = "cs_7964f8082bcbe98d4688a0697eb40a611b538de8";
 const AUTH = "Basic " + Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
 
 export async function POST(request: NextRequest) {

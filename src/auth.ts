@@ -2,8 +2,8 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 const WC_URL = "https://joshuar120.sg-host.com";
-const WC_KEY = "ck_f7138959a5bb8acdcd20841a473028fe1139f86d";
-const WC_SECRET = "cs_fb8754b74f8dd9cd6feec5a6fe50320e2a161a19";
+const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
+const WC_SECRET = "cs_7964f8082bcbe98d4688a0697eb40a611b538de8";
 const JWT_ENDPOINT = `${WC_URL}/wp-json/jwt-auth/v1/token`;
 
 function wcAuth() {
