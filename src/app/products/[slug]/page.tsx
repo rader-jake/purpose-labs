@@ -92,6 +92,7 @@ export default async function ProductPage({
                     "semax": "/3d/label-semax.png",
                     "selank": "/3d/label-selank.png",
                     "tirzepatide": "/3d/label-tirzepatide.png",
+                    "pl-tz": "/3d/label-tirzepatide.png",
                     "igf-1": "/3d/label-igf1lr3.png",
                     "igf1": "/3d/label-igf1lr3.png",
                     "tesamorelin": "/3d/label-tesamorelin.png",

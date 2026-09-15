@@ -209,7 +209,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
   },
   {
     // Same as IGF-1-LR3 above — page link, not a raw file.
-    slug: "tirzepatide-10mg",
+    slug: "pl-tz",
     lab: "Freedom Diagnostics · 2026",
     title: "Tirzepatide 10MG",
     purity: "99.74%",
