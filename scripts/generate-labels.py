@@ -110,7 +110,7 @@ def draw_label(filename, product_name, dosage):
     print(f"Saved: {out}")
 
 PRODUCTS = [
-    ("label-glp3rt.png",      "GLP-3RT",               "10 MG"),
+    ("label-glp3rt.png",      "PL-RT",                 "10 MG"),
     ("label-bpc157.png",      "BPC-157",               "10 MG"),
     ("label-tb500.png",       "TB-500",                "10 MG"),
     ("label-cjc1295.png",     "CJC-1295 + IPAMORELIN", "5MG / 5MG"),

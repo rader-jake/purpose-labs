@@ -46,7 +46,7 @@ export type CoaEntry = {
 
 export const COA_DIRECTORY: CoaEntry[] = [
   {
-    slug: "glp-3-10mg",
+    slug: "pl-rt",
     lab: "BT Labs · 2026",
     title: "RT 10MG",
     purity: "≥99%",

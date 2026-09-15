@@ -81,6 +81,7 @@ export default async function ProductPage({
                     "reconstitution": "/3d/label-bacwater.png",
                     "glp-3-10mg": "/3d/label-glp3rt.png",
                     "glp-3rt": "/3d/label-glp3rt.png",
+                    "pl-rt": "/3d/label-glp3rt.png",
                     "bpc-157": "/3d/label-bpc157.png",
                     "bpc157": "/3d/label-bpc157.png",
                     "tb-500": "/3d/label-tb500.png",
