@@ -117,7 +117,7 @@ PRODUCTS = [
     ("label-mt2.png",         "MT-2",                  "10 MG"),
     ("label-semax.png",       "SEMAX",                 "10 MG"),
     ("label-selank.png",      "SELANK",                "10 MG"),
-    ("label-tirzepatide.png", "TIRZEPATIDE",           "10 MG"),
+    ("label-tirzepatide.png", "PL-TZ",                 "10 MG"),
     ("label-igf1lr3.png",     "IGF-1-LR3",             "1 MG"),
     ("label-tesamorelin.png", "TESAMORELIN",           "5 MG"),
     ("label-klow.png",        "KLOW",                  "80 MG"),
