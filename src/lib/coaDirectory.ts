@@ -171,7 +171,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     docs: [{ label: "View COA", url: "/coas/KLOW_COA.jpg" }],
   },
   {
-    slug: "tesamorelin-5mg",
+    slug: "pl-tesa",
     lab: "BT Labs · 2026",
     title: "Tesamorelin 5MG",
     purity: "99.7%",

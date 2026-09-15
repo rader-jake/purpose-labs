@@ -98,6 +98,7 @@ export default async function ProductPage({
                     "igf1": "/3d/label-igf1lr3.png",
                     "tesamorelin": "/3d/label-tesamorelin.png",
                     "tesa": "/3d/label-tesamorelin.png",
+                    "pl-tesa": "/3d/label-tesamorelin.png",
                     "klow": "/3d/label-klow.png",
                     "mots-c": "/3d/label-motsc.png",
                     "motsc": "/3d/label-motsc.png",
