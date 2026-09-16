@@ -64,9 +64,7 @@ function stripCasBadge(html: string): string {
 
 // Local hero image overrides — used when WooCommerce has no image or a
 // poor-quality placeholder. Slug → public-folder path.
-const LOCAL_IMAGE_OVERRIDES: Record<string, string> = {
-  "reconstitution-solution": "/hero-reconstitution.jpg",
-};
+const LOCAL_IMAGE_OVERRIDES: Record<string, string> = {};
 
 function mapProduct(raw: WooApiProduct): WooProduct {
   const casNumber = extractCasNumber(raw.short_description || "");
