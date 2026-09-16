@@ -103,7 +103,7 @@ export default async function ProductPage({
                     "mots-c": "/3d/label-motsc.png",
                     "motsc": "/3d/label-motsc.png",
                   };
-                  const isSingleVial = !slug.includes("spray") && !slug.includes("dispersal") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
+                  const isSingleVial = !slug.includes("spray") && !slug.includes("dispersal") && !slug.includes("reconstitution") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
                   const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
                   const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") ;
                   const modelSrc = slug.includes("klow") ? "/3d/vial_powder_blue.glb" : isLiquid ? "/3d/vial_new.glb" : "/3d/vial_powder_white.glb";
