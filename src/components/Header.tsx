@@ -15,11 +15,9 @@ const NAV_LINKS = [
 ];
 
 const TICKER_ITEMS = [
-  "🎖️ Labor Day Sale — Buy 1 Get 1 Free · Same Item · Auto-Applied at Checkout",
   "Same-Day Shipping on Orders Placed by 2PM EST",
   "Veteran Owned · U.S. Based · Research Use Only",
   "Third-Party Tested — COA Available for Every Batch",
-  
   "≥99% Purity · Batch-Verified by Independent Labs",
 ];
 
