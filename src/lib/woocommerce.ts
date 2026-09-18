@@ -114,18 +114,35 @@ async function wooCommerceFetch<T>(
 
   const basicAuth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString("base64");
 
-  const response = await fetch(endpoint.toString(), {
-    headers: {
-      Authorization: `Basic ${basicAuth}`,
-    },
-    // Products change infrequently; revalidate periodically rather than
-    // caching forever. Order lookups (post-payment confirmation) opt into
-    // "no-store" instead — a stale "pending" status right after a
-    // customer completes payment would be actively misleading.
-    ...(options.cache === "no-store"
-      ? { cache: "no-store" as const }
-      : { next: { revalidate: 60 } }),
-  });
+  // 8s timeout — Vercel serverless functions cap at 10s. SiteGround shared
+  // hosting can spike on cold PHP starts; without this, a slow backend
+  // causes Vercel to 500 with no graceful handling (confirmed issue 2026-09-17).
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  let response: Response;
+  try {
+    response = await fetch(endpoint.toString(), {
+      signal: controller.signal,
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+      },
+      // Products change infrequently; revalidate periodically rather than
+      // caching forever. Order lookups (post-payment confirmation) opt into
+      // "no-store" instead — a stale "pending" status right after a
+      // customer completes payment would be actively misleading.
+      ...(options.cache === "no-store"
+        ? { cache: "no-store" as const }
+        : { next: { revalidate: 60 } }),
+    });
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(`WooCommerce API timeout after 8s: ${path}`);
+    }
+    throw err;
+  }
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const body = await response.text();
