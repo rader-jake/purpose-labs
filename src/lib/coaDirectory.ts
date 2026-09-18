@@ -48,7 +48,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
   {
     slug: "pl-rt",
     lab: "BT Labs · 2026",
-    title: "RT 10MG",
+    title: "PL-RT",
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
@@ -174,7 +174,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
   {
     slug: "pl-tesa",
     lab: "BT Labs · 2026",
-    title: "Tesamorelin 5MG",
+    title: "PL-TESA",
     purity: "99.7%",
     storage: "R.T.",
     docs: [{ label: "View COA", url: "/coas/tesamorelin-5mg-coa.pdf" }],
@@ -212,7 +212,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     // Same as IGF-1-LR3 above — page link, not a raw file.
     slug: "pl-tz",
     lab: "Freedom Diagnostics · 2026",
-    title: "Tirzepatide 10MG",
+    title: "PL-TZ",
     purity: "99.74%",
     method: "HPLC-UV + LC-MS",
     lot: "TR8585",
