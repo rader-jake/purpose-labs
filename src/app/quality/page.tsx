@@ -135,6 +135,11 @@ function CoaCard({
             Endotoxin Tested ✔
           </span>
         )}
+        {entry.sevenXTested && (
+          <span style={{ color: "var(--pl-navy)", fontWeight: 700, fontSize: 11, letterSpacing: "0.1em" }}>
+            7X TESTED ✔
+          </span>
+        )}
       </div>
 
       <div className="mt-auto flex flex-wrap gap-2 pt-2">

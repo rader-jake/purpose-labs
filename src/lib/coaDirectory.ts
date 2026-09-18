@@ -41,6 +41,7 @@ export type CoaEntry = {
   storage?: string;
   lot?: string;
   endotoxinTested?: boolean;
+  sevenXTested?: boolean;
   docs: CoaDoc[];
 };
 
@@ -53,10 +54,11 @@ export const COA_DIRECTORY: CoaEntry[] = [
     method: "FTIR + HPLC",
     storage: "R.T.",
     endotoxinTested: true,
+    sevenXTested: true,
     docs: [
+      { label: "View COA (ILS · Aug 2026)", url: "/coas/pl-rt-coa.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/GLP-3-RT-CoA-RT1025-Endotoxins-Jul2026.pdf" },
       { label: "View COA (FTIR/HPLC)", url: "/coas/GLP-3-RT-CoA-Lot-RT1025-FTIR-HPLC.pdf" },
-      { label: "View COA (ILS · Aug 2026)", url: "/coas/pl-rt-coa.pdf" },
     ],
   },
   {
