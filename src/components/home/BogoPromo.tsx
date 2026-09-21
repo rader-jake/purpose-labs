@@ -29,7 +29,7 @@ export function BogoPromo() {
 
       {/* CTA */}
       <a
-        href="https://purposelabs.shop/shop/"
+        href="/products"
         className="shrink-0 rounded-full bg-yellow-400 hover:bg-yellow-300 text-[#14274E] text-xs font-black uppercase tracking-widest px-5 py-2 transition-colors duration-200"
       >
         Shop Now →

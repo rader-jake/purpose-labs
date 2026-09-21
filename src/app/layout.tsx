@@ -59,6 +59,7 @@ export default function RootLayout({
       <head>
         <style>{`html.pl-age-ok #age-gate-root { display: none; }`}</style>
         <script dangerouslySetInnerHTML={{ __html: AGE_GATE_NO_FLASH_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var u=new URLSearchParams(window.location.search).get('aff');if(u){localStorage.setItem('pl_aff_id',u);}}catch(e){}})();` }} />
         {/* Google Tag (gtag.js) — GA4 + Google Ads */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CEQNESY8XS" />
         <script dangerouslySetInnerHTML={{ __html: `

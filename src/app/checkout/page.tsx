@@ -177,6 +177,7 @@ export default function CheckoutPage() {
         quantity: item.quantity,
         variation_id: (item as { variation_id?: number }).variation_id ?? undefined,
       }));
+      const affId = typeof window !== 'undefined' ? localStorage.getItem('pl_aff_id') ?? undefined : undefined;
       await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,6 +187,7 @@ export default function CheckoutPage() {
           shipping_address: address,
           line_items: lineItems,
           amount_minor: Number(cart?.totals.total_price ?? 0),
+          aff_id: affId,
         }),
       });
     } catch (e) {
