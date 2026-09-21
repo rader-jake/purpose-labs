@@ -6,9 +6,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   ReactNode,
 } from "react";
+import { getCouponForAffiliate } from "@/lib/affiliateMap";
 import type { AddressInput, Cart } from "./types";
 
 interface CartContextValue {
@@ -68,13 +70,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const affiliateCouponAttempted = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/cart")
       .then(parseCartResponse)
       .then((data) => {
-        if (!cancelled) setCart(data);
+        if (!cancelled) {
+          setCart(data);
+          // Auto-apply affiliate coupon once on initial cart load
+          if (!affiliateCouponAttempted.current) {
+            affiliateCouponAttempted.current = true;
+            try {
+              const affId = localStorage.getItem("pl_aff_id");
+              const couponCode = getCouponForAffiliate(affId);
+              if (couponCode) {
+                const alreadyApplied = data.coupons?.some(
+                  (c: { code: string }) => c.code.toLowerCase() === couponCode.toLowerCase()
+                );
+                if (!alreadyApplied) {
+                  fetch("/api/cart/apply-coupon", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ code: couponCode }),
+                  })
+                    .then(parseCartResponse)
+                    .then((updated) => { if (!cancelled) setCart(updated); })
+                    .catch(() => {/* silent — don't surface affiliate coupon errors to user */});
+                }
+              }
+            } catch {/* localStorage unavailable */}
+          }
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load cart");
