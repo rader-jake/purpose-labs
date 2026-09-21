@@ -55,7 +55,22 @@ export async function POST(request: NextRequest) {
         country: shipping_address.country ?? "US",
         phone: shipping_address.phone ?? "",
       } : undefined,
-      line_items: line_items ?? [],
+      line_items: (() => {
+        const seenProductIds = new Set<number>();
+        return (line_items ?? []).map((item) => {
+          const isDuplicate = seenProductIds.has(item.product_id);
+          seenProductIds.add(item.product_id);
+          if (isDuplicate) {
+            return {
+              ...item,
+              subtotal: "0",
+              total: "0",
+              meta_data: [{ key: "Promotion", value: "B1G1 Free" }],
+            };
+          }
+          return item;
+        });
+      })(),
       coupon_lines: (coupon_lines ?? []).map((code) => ({ code })),
       meta_data: [
         { key: "_stripe_payment_intent", value: payment_intent_id },
