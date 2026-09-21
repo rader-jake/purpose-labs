@@ -178,6 +178,7 @@ export default function CheckoutPage() {
         variation_id: (item as { variation_id?: number }).variation_id ?? undefined,
       }));
       const affId = typeof window !== 'undefined' ? localStorage.getItem('pl_aff_id') ?? undefined : undefined;
+      const couponCodes = (cart?.coupons ?? []).map((c: { code: string }) => c.code);
       await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -186,6 +187,7 @@ export default function CheckoutPage() {
           billing_address: { ...address, email: customerInfo.email },
           shipping_address: address,
           line_items: lineItems,
+          coupon_lines: couponCodes,
           amount_minor: Number(cart?.totals.total_price ?? 0),
           aff_id: affId,
         }),

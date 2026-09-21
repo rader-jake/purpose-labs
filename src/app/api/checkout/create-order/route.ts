@@ -13,12 +13,13 @@ export async function POST(request: NextRequest) {
       billing_address?: Record<string, string>;
       shipping_address?: Record<string, string>;
       line_items?: Array<{ product_id: number; quantity: number; variation_id?: number }>;
+      coupon_lines?: string[];
       amount_minor?: number;
       currency?: string;
       aff_id?: string;
     };
 
-    const { payment_intent_id, billing_address, shipping_address, line_items, amount_minor, aff_id } = body;
+    const { payment_intent_id, billing_address, shipping_address, line_items, coupon_lines, amount_minor, aff_id } = body;
 
     if (!payment_intent_id) {
       return NextResponse.json({ message: "payment_intent_id is required" }, { status: 400 });
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
         phone: shipping_address.phone ?? "",
       } : undefined,
       line_items: line_items ?? [],
+      coupon_lines: (coupon_lines ?? []).map((code) => ({ code })),
       meta_data: [
         { key: "_stripe_payment_intent", value: payment_intent_id },
         ...(aff_id ? [
