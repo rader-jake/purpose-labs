@@ -84,12 +84,17 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           }}
         >
           <span className="text-sm">🎁</span>
-          <p
-            className="text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "rgba(160,120,20,0.95)" }}
-          >
-            Buy 1, Get 1 Free
-          </p>
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-wide"
+              style={{ color: "rgba(160,120,20,0.95)" }}
+            >
+              Buy 1, Get 1 Free
+            </p>
+            <p className="text-[10px] mt-0.5" style={{ color: "rgba(160,120,20,0.6)" }}>
+              Automatically applied at checkout
+            </p>
+          </div>
         </div>
 
         {/* Certificate of Analysis Button */}

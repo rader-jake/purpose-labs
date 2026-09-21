@@ -171,7 +171,7 @@ export function ProductBuyBox({
               className="mt-0.5 text-xs leading-relaxed"
               style={{ color: "rgba(255,255,255,0.55)" }}
             >
-              Add 1 to your cart — a second vial is automatically added free.
+              Add 1 to your cart — a second vial is automatically added free at checkout.
             </p>
           </div>
         </div>
