@@ -127,7 +127,15 @@ export function CartDrawer() {
                   fontWeight: 500,
                 }}
               >
-                {formatMoney(cart.totals.total_items)}
+                {formatMoney(
+                  String(
+                    Math.max(
+                      0,
+                      Number(cart.totals.total_items) -
+                        cart.coupons.reduce((sum, c) => sum + Number(c.totals.total_discount), 0)
+                    )
+                  )
+                )}
               </span>
             </div>
             <Link
