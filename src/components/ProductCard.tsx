@@ -138,6 +138,23 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         )}
 
+        {/* BOGO reminder */}
+        <div
+          className="flex items-center gap-2 rounded-lg px-3 py-2"
+          style={{
+            background: "linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.03) 100%)",
+            border: "1px solid rgba(212,175,55,0.4)",
+          }}
+        >
+          <span className="text-sm">🎁</span>
+          <p
+            className="text-xs font-semibold uppercase tracking-wide"
+            style={{ color: "rgba(160,120,20,0.95)" }}
+          >
+            Buy 1, Get 1 Free
+          </p>
+        </div>
+
         <CoaButton productSlug={product.slug} />
 
         {product.type === "variable" ? (
