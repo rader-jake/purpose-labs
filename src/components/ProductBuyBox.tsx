@@ -145,6 +145,38 @@ export function ProductBuyBox({
         )}
       </div>
 
+      {/* BOGO Banner */}
+      <div
+        className="mb-4 sm:mb-6 relative overflow-hidden rounded-xl px-5 py-4"
+        style={{
+          background: "linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(212,175,55,0.04) 100%)",
+          border: "1px solid rgba(212,175,55,0.45)",
+        }}
+      >
+        {/* Subtle top shimmer line */}
+        <div
+          className="absolute inset-x-0 top-0 h-px"
+          style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.6), transparent)" }}
+        />
+        <div className="flex items-center gap-3">
+          <span className="text-xl">🎁</span>
+          <div>
+            <p
+              className="text-xs font-bold uppercase tracking-[0.18em]"
+              style={{ color: "rgba(212,175,55,0.95)", letterSpacing: "0.18em" }}
+            >
+              Buy One, Get One Free
+            </p>
+            <p
+              className="mt-0.5 text-xs leading-relaxed"
+              style={{ color: "rgba(255,255,255,0.55)" }}
+            >
+              Add 2 to your cart — the second vial is on us.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {hasVariations && (
         <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
           {sortedVariations.map((variation) => {
