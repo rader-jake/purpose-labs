@@ -85,6 +85,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ order_id: payment_intent_id, wc_error: data }, { status: 200 });
     }
 
+    // Track affiliate sale in Affiliatly
+    if (aff_id && wcRes.ok) {
+      try {
+        const affId = parseInt(aff_id, 10);
+        const orderId = String(data.id ?? payment_intent_id);
+        const orderTotal = amount_minor ? (amount_minor / 100).toFixed(2) : "0.00";
+        const couponStr = (coupon_lines ?? []).join(",");
+        const emailStr = billing_address?.email ?? "";
+        const affBody = new URLSearchParams({
+          mode: "mark_php",
+          id_affiliatly: "AF-1074151",
+          id_user: "0",
+          id_hash: "",
+          aff_uid: String(affId),
+          order: orderId,
+          price: orderTotal,
+          from: "php",
+          hash: "fa08a8afbe2c98444b7feddfc00625e2",
+          coupon_code: couponStr,
+          skus: "[]",
+          client_email: emailStr,
+        });
+        await fetch("https://www.affiliatly.com/api_request.php", {
+          method: "POST",
+          body: affBody.toString(),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+        // Also fire order status = 2 (approved)
+        const affStatusBody = new URLSearchParams({
+          mode: "order_status",
+          id_affiliatly: "AF-1074151",
+          order: orderId,
+          status: "2",
+          hash: "fa08a8afbe2c98444b7feddfc00625e2",
+        });
+        await fetch("https://www.affiliatly.com/api_request.php", {
+          method: "POST",
+          body: affStatusBody.toString(),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        });
+        console.log("[affiliatly] tracked order", orderId, "for affiliate", affId);
+      } catch (e) {
+        console.error("[affiliatly] tracking failed:", e);
+      }
+    }
+
     // Fire TikTok purchase event
     sendTikTokEvent({
       eventName: "CompletePayment",
