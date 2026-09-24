@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
@@ -345,7 +346,7 @@ function CartLineItem({ item }: { item: CartItem }) {
             className="text-sm font-medium leading-tight"
             style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
           >
-            {item.name}
+            {decodeHtmlEntities(item.name)}
           </p>
           {free && (
             <span

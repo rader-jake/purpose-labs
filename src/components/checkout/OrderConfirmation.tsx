@@ -3,6 +3,7 @@ import { formatMoney } from "@/lib/cart/money";
 import type { OrderConfirmationData } from "@/lib/order/types";
 import { TikTokPurchaseEvent } from "./TikTokPurchaseEvent";
 import { AfflilatlyConversionEvent } from "./AfflilatlyConversionEvent";
+import { decodeHtmlEntities } from "@/lib/utils";
 
 export function OrderConfirmation({ data }: { data: OrderConfirmationData }) {
   const { shippingAddress } = data;
@@ -40,7 +41,7 @@ export function OrderConfirmation({ data }: { data: OrderConfirmationData }) {
           {data.items.map((item) => (
             <li key={item.key} className="flex items-center justify-between text-sm">
               <span style={{ color: "var(--pl-slate)" }}>
-                {item.name} × {item.quantity}
+                {decodeHtmlEntities(item.name)} × {item.quantity}
               </span>
               <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_total)}</span>
             </li>
