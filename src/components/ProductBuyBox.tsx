@@ -145,29 +145,13 @@ export function ProductBuyBox({
         )}
       </div>
 
-      {/* Luxury BOGO Banner */}
+      {/* BOGO Banner */}
       <div
-        className="mb-4 sm:mb-6 relative overflow-hidden rounded-xl px-5 py-4"
-        style={{
-          background: "linear-gradient(135deg, rgba(212,175,55,0.07) 0%, rgba(212,175,55,0.02) 100%)",
-          border: "1px solid rgba(212,175,55,0.3)",
-        }}
+        className="mb-4 sm:mb-6 rounded-xl px-5 py-4 text-center"
+        style={{ background: "#e8a020" }}
       >
-        <div className="absolute inset-x-0 top-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)" }} />
-        <div className="flex items-center gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] mb-1" style={{ color: "rgba(212,175,55,0.7)" }}>
-              Exclusive Offer
-            </p>
-            <p className="text-xs font-light tracking-[0.12em] uppercase" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Purchase one vial —{" "}
-              <span className="font-semibold" style={{ color: "rgba(212,175,55,0.95)" }}>receive a second complimentary</span>
-            </p>
-            <p className="text-[10px] mt-1 tracking-wide" style={{ color: "rgba(255,255,255,0.35)" }}>
-              Applied automatically at checkout
-            </p>
-          </div>
-        </div>
+        <p className="text-white text-base font-black uppercase tracking-widest">🎁 Buy One, Get One FREE!</p>
+        <p className="text-white/80 text-xs mt-1">Get any vial free — applied automatically at checkout</p>
       </div>
 
       {hasVariations && (

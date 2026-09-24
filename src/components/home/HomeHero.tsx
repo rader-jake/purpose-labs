@@ -32,14 +32,15 @@ export function HomeHero() {
 
             <Reveal delay={200}>
               <h1 
-                className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-medium tracking-tight"
+                className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight"
                 style={{ 
                   color: "var(--pl-navy)", 
                   fontFamily: "var(--pl-font-display)",
                   lineHeight: 1.05
                 }}
               >
-                Research-Grade<br />Peptides.<br />Batch Verified.
+                Buy One,<br />
+                <span style={{ color: "#e8a020" }}>Get One FREE!</span>
               </h1>
             </Reveal>
           </div>
@@ -59,7 +60,7 @@ export function HomeHero() {
                 className="max-w-lg text-sm sm:text-base leading-relaxed mb-4"
                 style={{ color: "var(--pl-text-secondary)" }}
               >
-                ≥99% purity. Batch-verified by independent US labs. No minimums, no compromises.
+                Get any vial of equal or lesser value for free. Applied automatically at checkout. BAC Water not included.
               </p>
             </Reveal>
 
