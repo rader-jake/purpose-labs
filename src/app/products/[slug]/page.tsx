@@ -82,6 +82,7 @@ export default async function ProductPage({
                     "glp-3-10mg": "/3d/label-glp3rt.png",
                     "glp-3rt": "/3d/label-glp3rt.png",
                     "pl-rt": "/3d/label-glp3rt.png",
+                    "purpose-labs-3rt": "/3d/label-glp3rt.png",
                     "bpc-157": "/3d/label-bpc157.png",
                     "bpc157": "/3d/label-bpc157.png",
                     "tb-500": "/3d/label-tb500.png",
@@ -126,6 +127,23 @@ export default async function ProductPage({
           )}
         </div>
       </section>
+
+      {/* BOGO Banner — only shown on 3RT single vial page */}
+      {(slug.includes("pl-rt") || slug.includes("glp-3rt") || slug.includes("glp-3-10mg") || slug === "purpose-labs-3rt") && (
+        <a
+          href="/products/purpose-labs-3rt-2-pack"
+          className="block w-full text-center py-4 px-6 font-semibold text-sm uppercase tracking-widest transition-opacity hover:opacity-90"
+          style={{
+            background: "linear-gradient(90deg, #1B2A4A 0%, #243760 50%, #1B2A4A 100%)",
+            color: "var(--pl-ivory)",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            letterSpacing: "0.12em",
+          }}
+        >
+          🔥 <strong>BOGO DEAL</strong> — Get 2 vials for $90 &nbsp;·&nbsp; <span style={{ color: "#4ade80" }}>$45 each</span> &nbsp;→
+        </a>
+      )}
 
       <section
         className="mx-auto max-w-3xl px-6 py-16"
