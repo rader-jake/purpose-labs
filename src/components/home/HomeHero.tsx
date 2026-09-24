@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { HeroProductVisual } from "./HeroProductVisual";
 import { Reveal } from "./Reveal";
 
@@ -39,54 +38,24 @@ export function HomeHero() {
                   lineHeight: 1.0
                 }}
               >
-                Buy One,<br />
-                <span style={{ color: "#e8a020" }}>Get One FREE!</span>
+                Research-Grade<br />
+                <span style={{ color: "var(--pl-navy)" }}>Peptides.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={260}>
               <p className="text-sm sm:text-base leading-relaxed mb-5 max-w-md" style={{ color: "var(--pl-text-secondary)" }}>
-                Order any peptide vial — we'll automatically add a second one free to your cart. No codes needed.
+                ≥99% purity. Batch-verified by independent US labs. No minimums, no compromises.
               </p>
             </Reveal>
 
-            {/* Box callout */}
             <Reveal delay={320}>
-              <div className="flex items-center gap-4 mb-6 rounded-2xl px-4 py-3 w-full max-w-md"
-                style={{ background: "rgba(27,42,74,0.06)", border: "1px solid rgba(27,42,74,0.12)" }}>
-                <Image
-                  src="/images/pl-box.jpg"
-                  alt="Purpose Labs box"
-                  width={72}
-                  height={72}
-                  className="rounded-xl object-cover flex-shrink-0"
-                />
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: "var(--pl-navy)" }}>
-                    🎁 Ships in your order
-                  </p>
-                  <p className="text-xs leading-relaxed" style={{ color: "var(--pl-slate)" }}>
-                    Your free vial arrives in the same Purpose Labs box — no extra shipment, no hassle.
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={380}>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Link
                   href="/products"
-                  className="rounded-full h-12 px-10 text-sm font-black uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300"
-                  style={{ background: "#e8a020", color: "#fff" }}
+                  className="rounded-full h-12 px-10 text-sm font-semibold uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 bg-[#14274E] text-[#F1F6F9] hover:bg-[#0f1d3b]"
                 >
-                  Claim Your Free Vial →
-                </Link>
-                <Link
-                  href="/products"
-                  className="rounded-full h-12 px-8 text-sm font-semibold uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 border"
-                  style={{ borderColor: "var(--pl-navy)", color: "var(--pl-navy)" }}
-                >
-                  Browse All
+                  Shop the Catalog →
                 </Link>
               </div>
             </Reveal>

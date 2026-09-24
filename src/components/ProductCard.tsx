@@ -138,14 +138,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         )}
 
-        {/* BOGO badge */}
-        <div
-          className="flex items-center justify-center gap-2 rounded-lg px-3 py-2"
-          style={{ background: "#e8a020" }}
-        >
-          <span className="text-white text-xs font-black uppercase tracking-widest">🎁 Buy 1, Get 1 FREE!</span>
-        </div>
-
         <CoaButton productSlug={product.slug} />
 
         {product.type === "variable" ? (
