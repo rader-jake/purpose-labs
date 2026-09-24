@@ -128,22 +128,44 @@ export default async function ProductPage({
         </div>
       </section>
 
-      {/* BOGO Banner — only shown on 3RT single vial page */}
-      {(slug.includes("pl-rt") || slug.includes("glp-3rt") || slug.includes("glp-3-10mg") || slug === "purpose-labs-3rt") && (
-        <a
-          href="/products/purpose-labs-3rt-2-pack"
-          className="block w-full text-center py-4 px-6 font-semibold text-sm uppercase tracking-widest transition-opacity hover:opacity-90"
-          style={{
-            background: "linear-gradient(90deg, #1B2A4A 0%, #243760 50%, #1B2A4A 100%)",
-            color: "var(--pl-ivory)",
-            borderTop: "1px solid rgba(255,255,255,0.1)",
-            borderBottom: "1px solid rgba(255,255,255,0.1)",
-            letterSpacing: "0.12em",
-          }}
-        >
-          🔥 <strong>BOGO DEAL</strong> — Get 2 vials for $90 &nbsp;·&nbsp; <span style={{ color: "#4ade80" }}>$45 each</span> &nbsp;→
-        </a>
-      )}
+      {/* BOGO Banner — shown on all single-unit product pages that have a 2-pack */}
+      {(() => {
+        const bogoMap: Record<string, { twoPackSlug: string; perUnit: string }> = {
+          "pl-rt": { twoPackSlug: "purpose-labs-3rt-2-pack", perUnit: "$45" },
+          "bpc-157-10mg": { twoPackSlug: "bpc-157-10mg-2-pack", perUnit: "$40" },
+          "tb-500-10mg": { twoPackSlug: "tb-500-10mg-2-pack", perUnit: "$40" },
+          "cjc-1295-no-dac-ipamorelin": { twoPackSlug: "cjc-1295-ipamorelin-2-pack", perUnit: "$50" },
+          "mt-2": { twoPackSlug: "mt-2-2-pack", perUnit: "$30" },
+          "selank-10mg": { twoPackSlug: "selank-10mg-2-pack", perUnit: "$40" },
+          "semax-10mg": { twoPackSlug: "semax-10mg-2-pack", perUnit: "$40" },
+          "mots-c-10mg": { twoPackSlug: "mots-c-10mg-2-pack", perUnit: "$40" },
+          "nad-600mg": { twoPackSlug: "nad-600mg-2-pack", perUnit: "$40" },
+          "l-carnitine-6000mg": { twoPackSlug: "l-carnitine-600-mg-ml-2-pack", perUnit: "$40" },
+          "klow-80mg": { twoPackSlug: "klow-80mg-2-pack", perUnit: "$71" },
+          "pl-tesa": { twoPackSlug: "pl-tesa-2-pack", perUnit: "$50" },
+          "igf-1-lr3-1mg": { twoPackSlug: "igf-1-lr3-1mg-2-pack", perUnit: "$60" },
+          "pl-tz": { twoPackSlug: "pl-tz-2-pack", perUnit: "$55" },
+          "pink-korean-gluta-1200mg": { twoPackSlug: "gluta-2-pack", perUnit: "$50" },
+          "wolverine-stack-bpc-157-tb-500": { twoPackSlug: "bpc-157-tb-500-stack-2-pack", perUnit: "$60" },
+        };
+        const bogo = bogoMap[slug];
+        if (!bogo) return null;
+        return (
+          <a
+            href={`/products/${bogo.twoPackSlug}`}
+            className="block w-full text-center py-4 px-6 font-semibold text-sm uppercase tracking-widest transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(90deg, #1B2A4A 0%, #243760 50%, #1B2A4A 100%)",
+              color: "var(--pl-ivory)",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              letterSpacing: "0.12em",
+            }}
+          >
+            <strong>BOGO</strong> — Buy One Get One &nbsp;·&nbsp; <span style={{ color: "#4ade80" }}>{bogo.perUnit} per unit</span> &nbsp;→
+          </a>
+        );
+      })()}
 
       <section
         className="mx-auto max-w-3xl px-6 py-16"
