@@ -75,6 +75,25 @@ export function HomeHero() {
               </div>
             </Reveal>
 
+            <Reveal delay={380}>
+              <Link
+                href="/products/purpose-labs-3rt-2-pack"
+                className="mb-4 inline-flex items-center gap-4 rounded-full border px-6 py-3 transition-all duration-300 hover:bg-[#14274E] hover:text-[#F1F6F9] group"
+                style={{
+                  borderColor: "var(--pl-navy)",
+                  color: "var(--pl-navy)",
+                  fontFamily: "var(--pl-font-body)",
+                }}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Limited Offer</span>
+                <span className="h-3 w-px bg-current opacity-30" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em]">
+                  PURPOSE LABS 3RT — Buy One Get One · <span style={{ color: "#2563eb" }} className="group-hover:text-[#93c5fd]">$45 / vial</span>
+                </span>
+                <span className="text-xs opacity-60">→</span>
+              </Link>
+            </Reveal>
+
             <Reveal delay={400}>
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
                 <Link

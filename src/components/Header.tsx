@@ -15,8 +15,10 @@ const NAV_LINKS = [
 ];
 
 const TICKER_ITEMS = [
+  "PURPOSE LABS 3RT — Buy One, Get One · Two Vials for $90",
   "Same-Day Shipping on Orders Placed by 2PM EST",
   "Veteran Owned · U.S. Based · Research Use Only",
+  "PURPOSE LABS 3RT — $45 Per Vial · Limited Offer",
   "Third-Party Tested — COA Available for Every Batch",
   "≥99% Purity · Batch-Verified by Independent Labs",
 ];
