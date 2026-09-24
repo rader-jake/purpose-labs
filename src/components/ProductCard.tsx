@@ -138,6 +138,24 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         )}
 
+        {/* Luxury BOGO badge */}
+        <div
+          className="flex items-center gap-2 rounded-lg px-3 py-2"
+          style={{
+            background: "linear-gradient(135deg, rgba(212,175,55,0.07) 0%, rgba(212,175,55,0.02) 100%)",
+            border: "1px solid rgba(212,175,55,0.3)",
+          }}
+        >
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: "rgba(212,175,55,0.75)" }}>
+              Exclusive Offer
+            </p>
+            <p className="text-[10px] mt-0.5 font-light tracking-wide" style={{ color: "rgba(255,255,255,0.7)" }}>
+              Buy one, <span style={{ color: "rgba(212,175,55,0.9)" }}>receive a second complimentary</span>
+            </p>
+          </div>
+        </div>
+
         <CoaButton productSlug={product.slug} />
 
         {product.type === "variable" ? (

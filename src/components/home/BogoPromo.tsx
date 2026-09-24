@@ -1,39 +1,75 @@
 "use client";
 
-import { useEffect } from "react";
-
 /**
- * BOGO promo banner — sits directly below the hero bouncing vials.
- * Auto-applies coupon BOGOFREE to the WooCommerce cart when clicked.
+ * BOGO promo banner — luxury redesign.
+ * Positioned directly below the hero.
  */
 export function BogoPromo() {
   return (
-    <div className="w-full bg-[#14274E] py-4 px-4 flex items-center justify-center gap-4 flex-wrap">
-      {/* Left badge */}
-      <span className="flex items-center gap-2">
-        <span className="text-yellow-400 text-lg font-black">★</span>
-        <span className="text-white text-sm font-bold uppercase tracking-widest">
-          Limited Deal
-        </span>
-        <span className="text-yellow-400 text-lg font-black">★</span>
+    <div
+      className="w-full py-5 px-6 flex items-center justify-center gap-6 flex-wrap relative overflow-hidden"
+      style={{
+        background: "linear-gradient(90deg, #0B1728 0%, #162340 50%, #0B1728 100%)",
+        borderTop: "1px solid rgba(212,175,55,0.2)",
+        borderBottom: "1px solid rgba(212,175,55,0.2)",
+      }}
+    >
+      {/* Subtle shimmer line top */}
+      <div
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)" }}
+      />
+
+      {/* Left — label */}
+      <span
+        className="text-[10px] font-semibold uppercase tracking-[0.25em]"
+        style={{ color: "rgba(212,175,55,0.7)" }}
+      >
+        Exclusive Offer
       </span>
 
+      {/* Divider */}
+      <span style={{ color: "rgba(212,175,55,0.3)" }}>|</span>
+
       {/* Main copy */}
-      <span className="text-white text-base sm:text-lg font-extrabold uppercase tracking-wide text-center">
-        Buy 1, Get 1{" "}
-        <span className="text-yellow-400">FREE</span>
-        <span className="text-white/70 text-xs font-normal normal-case tracking-normal ml-2">
-          — automatically applied at checkout
+      <span className="text-center">
+        <span
+          className="text-sm sm:text-base font-light tracking-[0.15em] uppercase"
+          style={{ color: "rgba(255,255,255,0.9)" }}
+        >
+          Purchase one vial,{" "}
+        </span>
+        <span
+          className="text-sm sm:text-base font-semibold tracking-[0.15em] uppercase"
+          style={{ color: "rgba(212,175,55,0.95)" }}
+        >
+          receive a second complimentary
+        </span>
+        <span
+          className="text-xs font-light tracking-wide ml-2"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          — applied automatically
         </span>
       </span>
+
+      {/* Divider */}
+      <span style={{ color: "rgba(212,175,55,0.3)" }}>|</span>
 
       {/* CTA */}
       <a
         href="/products"
-        className="shrink-0 rounded-full bg-yellow-400 hover:bg-yellow-300 text-[#14274E] text-xs font-black uppercase tracking-widest px-5 py-2 transition-colors duration-200"
+        className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.2em] transition-colors duration-200"
+        style={{ color: "rgba(212,175,55,0.85)" }}
       >
         Shop Now →
       </a>
+
+      {/* Subtle shimmer line bottom */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent)" }}
+      />
     </div>
   );
 }
