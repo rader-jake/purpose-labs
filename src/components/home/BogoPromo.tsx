@@ -1,23 +1,27 @@
 "use client";
 
-/**
- * BOGO promo announcement bar — bold and loud.
- */
 export function BogoPromo() {
   return (
     <div
       className="w-full py-3 px-4 flex items-center justify-center gap-3 flex-wrap"
-      style={{ background: "#e8a020" }}
+      style={{
+        background: "linear-gradient(90deg, #0B1728 0%, #1B2A4A 40%, #2E4A8A 70%, #4A6FBF 100%)",
+      }}
     >
       <span className="text-white text-sm sm:text-base font-black uppercase tracking-widest text-center">
-        🎁 Buy One, Get One <span className="underline underline-offset-2">FREE</span>!
+        BUY 1 + GET 1 FREE
       </span>
-      <span className="text-white/80 text-xs font-medium">
+      <span className="text-white/60 text-xs font-medium hidden sm:inline">
         — Free vial added automatically at checkout
       </span>
       <a
         href="/products"
-        className="shrink-0 rounded-full bg-white text-[#e8a020] text-xs font-black uppercase tracking-widest px-4 py-1.5 hover:bg-yellow-50 transition-colors duration-200"
+        className="shrink-0 rounded-full text-xs font-black uppercase tracking-widest px-4 py-1.5 transition-colors duration-200"
+        style={{
+          background: "rgba(255,255,255,0.15)",
+          color: "#fff",
+          border: "1px solid rgba(255,255,255,0.3)",
+        }}
       >
         Shop Now →
       </a>

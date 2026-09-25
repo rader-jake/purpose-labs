@@ -30,7 +30,21 @@ export function HomeHero() {
               </span>
             </Reveal>
 
-            <Reveal delay={180}>
+            <Reveal delay={150}>
+              {/* Gradient pill badge */}
+              <div
+                className="mb-4 inline-flex items-center rounded-full px-5 py-2"
+                style={{
+                  background: "linear-gradient(90deg, #0B1728 0%, #1B2A4A 40%, #2E4A8A 70%, #4A6FBF 100%)",
+                }}
+              >
+                <span className="text-white text-xs font-black uppercase tracking-[0.22em]">
+                  BUY 1 + GET 1 FREE
+                </span>
+              </div>
+            </Reveal>
+
+            <Reveal delay={200}>
               <h1 
                 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight mb-3"
                 style={{ 
@@ -39,8 +53,12 @@ export function HomeHero() {
                   lineHeight: 1.0
                 }}
               >
-                Buy One,<br />
-                <span style={{ color: "#e8a020" }}>Get One FREE!</span>
+                Research-Grade<br />
+                <span style={{
+                  background: "linear-gradient(90deg, #1B2A4A 0%, #4A6FBF 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}>Peptides.</span>
               </h1>
             </Reveal>
 
@@ -52,21 +70,30 @@ export function HomeHero() {
 
             {/* Box callout */}
             <Reveal delay={320}>
-              <div className="flex items-center gap-4 mb-6 rounded-2xl px-4 py-3 w-full max-w-md"
-                style={{ background: "rgba(27,42,74,0.06)", border: "1px solid rgba(27,42,74,0.12)" }}>
+              <div className="flex items-center gap-4 mb-6 rounded-2xl overflow-hidden w-full max-w-md"
+                style={{
+                  background: "linear-gradient(135deg, rgba(11,23,40,0.07) 0%, rgba(74,111,191,0.08) 100%)",
+                  border: "1px solid rgba(27,42,74,0.15)",
+                }}>
                 <Image
                   src="/images/pl-box.jpg"
                   alt="Purpose Labs box"
-                  width={72}
-                  height={72}
-                  className="rounded-xl object-cover flex-shrink-0"
+                  width={90}
+                  height={90}
+                  className="object-cover flex-shrink-0 h-full"
+                  style={{ minHeight: "90px" }}
                 />
-                <div>
-                  <p className="text-xs font-black uppercase tracking-widest mb-0.5" style={{ color: "var(--pl-navy)" }}>
-                    🎁 Ships in your order
+                <div className="py-3 pr-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] mb-1"
+                    style={{
+                      background: "linear-gradient(90deg, #1B2A4A, #4A6FBF)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}>
+                    Included In Every Order
                   </p>
                   <p className="text-xs leading-relaxed" style={{ color: "var(--pl-slate)" }}>
-                    Your free vial arrives in the same Purpose Labs box — no extra shipment, no hassle.
+                    Your complimentary vial ships in the same Purpose Labs box — professionally packaged, same-day fulfilled.
                   </p>
                 </div>
               </div>
@@ -76,8 +103,8 @@ export function HomeHero() {
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <Link
                   href="/products"
-                  className="rounded-full h-12 px-10 text-sm font-black uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300"
-                  style={{ background: "#e8a020", color: "#fff" }}
+                  className="rounded-full h-12 px-10 text-sm font-black uppercase tracking-[0.12em] flex items-center justify-center transition-all duration-300 text-white"
+                  style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
                 >
                   Claim Your Free Vial →
                 </Link>

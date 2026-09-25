@@ -148,10 +148,10 @@ export function ProductBuyBox({
       {/* BOGO Banner */}
       <div
         className="mb-4 sm:mb-6 rounded-xl px-5 py-4 text-center"
-        style={{ background: "#e8a020" }}
+        style={{ background: "linear-gradient(90deg, #0B1728 0%, #1B2A4A 40%, #2E4A8A 100%)" }}
       >
-        <p className="text-white text-base font-black uppercase tracking-widest">🎁 Buy One, Get One FREE!</p>
-        <p className="text-white/80 text-xs mt-1">Get any vial free — applied automatically at checkout</p>
+        <p className="text-white text-base font-black uppercase tracking-[0.18em]">BUY 1 + GET 1 FREE</p>
+        <p className="text-white/60 text-xs mt-1">Your complimentary vial is added automatically at checkout</p>
       </div>
 
       {hasVariations && (
