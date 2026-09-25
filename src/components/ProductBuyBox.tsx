@@ -145,6 +145,15 @@ export function ProductBuyBox({
         )}
       </div>
 
+      {/* BOGO Banner */}
+      <div
+        className="mb-4 sm:mb-6 rounded-xl px-5 py-4 text-center"
+        style={{ background: "#e8a020" }}
+      >
+        <p className="text-white text-base font-black uppercase tracking-widest">🎁 Buy One, Get One FREE!</p>
+        <p className="text-white/80 text-xs mt-1">Get any vial free — applied automatically at checkout</p>
+      </div>
+
       {hasVariations && (
         <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
           {sortedVariations.map((variation) => {
