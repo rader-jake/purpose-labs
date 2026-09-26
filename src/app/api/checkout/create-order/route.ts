@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
               ...item,
               subtotal: "0",
               total: "0",
-              meta_data: [{ key: "Promotion", value: "B1G1 Free" }],
+              meta_data: [{ key: "Promotion", value: "B2G1 Free" }],
             };
           }
           return item;

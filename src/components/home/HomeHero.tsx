@@ -39,7 +39,7 @@ export function HomeHero() {
                 }}
               >
                 <span className="text-white text-xs font-black uppercase tracking-[0.22em]">
-                  BUY 1 + GET 1 FREE
+                  BUY 2 + GET 1 FREE
                 </span>
               </div>
             </Reveal>
