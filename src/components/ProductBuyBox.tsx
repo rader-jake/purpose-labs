@@ -151,7 +151,7 @@ export function ProductBuyBox({
         style={{ background: "linear-gradient(90deg, #0B1728 0%, #1B2A4A 40%, #2E4A8A 100%)" }}
       >
         <p className="text-white text-base font-black uppercase tracking-[0.18em]">BUY 2 + GET 1 FREE</p>
-        <p className="text-white/60 text-xs mt-1">Add any 2 vials — free reconstitution solution added automatically</p>
+        <p className="text-white/60 text-xs mt-1">Buy 2 of the same vial — get a 3rd free automatically</p>
       </div>
 
       {hasVariations && (

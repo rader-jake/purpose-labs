@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { addCartItem, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
 import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
+import { syncBogoPromo } from "@/lib/cart/bogoPromo";
 import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
@@ -18,9 +19,15 @@ export async function POST(request: NextRequest) {
     const { data, tokens: nextTokens } = await addCartItem(tokens, id, quantity);
 
     // Auto-apply free recon solution promo after adding an item
-    const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
+    const { cart: bacCart, tokens: bacTokens } = await syncBacWaterPromo(
       data as Cart,
       nextTokens
+    );
+
+    // Buy 2 Get 1 Free: sync free vials for qualifying paid items
+    const { cart: finalCart, tokens: finalTokens } = await syncBogoPromo(
+      bacCart,
+      bacTokens
     );
 
     await writeTokens(finalTokens);
