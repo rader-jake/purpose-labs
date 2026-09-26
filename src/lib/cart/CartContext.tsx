@@ -74,10 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    // Clear stale WC session first, then load a fresh cart
-    fetch("/api/cart/clear-session", { method: "POST" })
-      .catch(() => {})
-      .then(() => fetch("/api/cart"))
+    fetch("/api/cart")
       .then(parseCartResponse)
       .then((data) => {
         if (!cancelled) {
