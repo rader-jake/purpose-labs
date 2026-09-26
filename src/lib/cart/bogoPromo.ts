@@ -27,11 +27,20 @@ function isPaidBogoItem(item: CartItem): boolean {
 }
 
 /**
- * After every cart mutation, ensure each qualifying paid item
- * has exactly one free duplicate in the cart.
+ * Buy 2 Get 1 Free — same product.
  *
- * - Adds free items for paid items that don't have one
- * - Removes orphaned free items whose paid counterpart is gone
+ * For each qualifying paid product, the number of free units earned is:
+ *   freeQty = Math.floor(paidQuantity / 2)
+ *
+ * Examples:
+ *   qty 1 → 0 free
+ *   qty 2 → 1 free
+ *   qty 3 → 1 free
+ *   qty 4 → 2 free
+ *
+ * - Adds free items (with correct quantity) when earned
+ * - Removes or re-adds free items when quantity changes
+ * - Removes orphaned free items when paid item is removed
  */
 export async function syncBogoPromo(
   cart: Cart,
@@ -50,10 +59,18 @@ export async function syncBogoPromo(
       freeByProductId.set(item.id, item);
     }
 
-    // Remove orphaned free items (product not in paid items anymore)
-    const paidProductIds = new Set(paidItems.map((i) => i.id));
+    // Build a map of product_id -> paid quantity
+    const paidQtyById = new Map<number, number>();
+    for (const item of paidItems) {
+      paidQtyById.set(item.id, (paidQtyById.get(item.id) ?? 0) + item.quantity);
+    }
+
+    // Remove orphaned or excess free items
     for (const [pid, freeItem] of freeByProductId) {
-      if (!paidProductIds.has(pid)) {
+      const paidQty = paidQtyById.get(pid) ?? 0;
+      const earnedFreeQty = Math.floor(paidQty / 2);
+      // Remove if no free items earned, or quantity mismatch (will re-add below)
+      if (earnedFreeQty === 0 || freeItem.quantity !== earnedFreeQty) {
         try {
           const result = await removeCartItem(currentTokens, freeItem.key);
           currentCart = result.data as Cart;
@@ -61,27 +78,26 @@ export async function syncBogoPromo(
           freeByProductId.delete(pid);
         } catch (err) {
           if (err instanceof StoreApiError) {
-            console.warn("[bogoPromo] failed to remove orphaned free item:", err.message);
+            console.warn("[bogoPromo] failed to remove free item:", err.message);
           }
         }
       }
     }
 
-    // Add free items for paid items that don't have one
-    for (const paidItem of paidItems) {
-      if (!freeByProductId.has(paidItem.id)) {
-        try {
-          const result = await addCartItem(currentTokens, paidItem.id, paidItem.quantity);
-          currentCart = result.data as Cart;
-          currentTokens = result.tokens;
-          // The PHP snippet on WP side will mark it as pl_free and zero the price.
-          // If PHP hook fires, we're done. If not (Store API bypass), the item
-          // will be added at full price — we can't zero it client-side here.
-          // The PHP snippet handles zeroing via woocommerce_before_calculate_totals.
-        } catch (err) {
-          if (err instanceof StoreApiError) {
-            console.warn("[bogoPromo] failed to add free item for product", paidItem.id, ":", err.message);
-          }
+    // Add free items where earned and not already present (with correct qty)
+    for (const [pid, paidQty] of paidQtyById) {
+      const earnedFreeQty = Math.floor(paidQty / 2);
+      if (earnedFreeQty === 0) continue;
+      if (freeByProductId.has(pid)) continue; // already correct (wasn't removed above)
+
+      try {
+        const result = await addCartItem(currentTokens, pid, earnedFreeQty);
+        currentCart = result.data as Cart;
+        currentTokens = result.tokens;
+        // PHP hook (woocommerce_before_calculate_totals) zeros the price on the WP side.
+      } catch (err) {
+        if (err instanceof StoreApiError) {
+          console.warn("[bogoPromo] failed to add free item for product", pid, ":", err.message);
         }
       }
     }
