@@ -138,9 +138,9 @@ export function ProductBuyBox({
         {hasDiscount && (
           <span
             className="rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide"
-            style={{ backgroundColor: "#4ade80", color: "#0d1b3e" }}
+            style={{ backgroundColor: "#1B2A4A", color: "#ffffff" }}
           >
-            30% OFF
+            25% OFF
           </span>
         )}
       </div>

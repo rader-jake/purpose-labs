@@ -105,8 +105,8 @@ export function ProductCard({ product }: ProductCardProps) {
           </p>
           {product.sale_price && product.regular_price &&
            parseFloat(product.regular_price) > parseFloat(product.sale_price) && (
-            <span className="text-xs font-bold" style={{ color: "#16a34a" }}>
-              30% OFF
+            <span className="text-xs font-bold" style={{ color: "#1B2A4A" }}>
+              25% OFF
             </span>
           )}
         </div>
