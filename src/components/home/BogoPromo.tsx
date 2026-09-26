@@ -9,10 +9,10 @@ export function BogoPromo() {
       }}
     >
       <span className="text-white text-sm sm:text-base font-black uppercase tracking-widest text-center">
-        BUY 2 + GET 1 FREE
+        BUY 1 + GET 1 FREE
       </span>
       <span className="text-white/60 text-xs font-medium hidden sm:inline">
-        — Buy 2 of the same vial, get a 3rd one free
+        — Free vial added automatically at checkout
       </span>
       <a
         href="/products"

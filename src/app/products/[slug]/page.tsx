@@ -162,7 +162,7 @@ export default async function ProductPage({
               letterSpacing: "0.12em",
             }}
           >
-            <strong>B2G1</strong> — Buy 2 Get 1 Free &nbsp;·&nbsp; <span style={{ color: "#4ade80" }}>{bogo.perUnit} per unit</span> &nbsp;→
+            <strong>BOGO</strong> — Buy One Get One &nbsp;·&nbsp; <span style={{ color: "#4ade80" }}>{bogo.perUnit} per unit</span> &nbsp;→
           </a>
         );
       })()}

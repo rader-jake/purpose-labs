@@ -15,10 +15,10 @@ const NAV_LINKS = [
 ];
 
 const TICKER_ITEMS = [
-  "Buy 2 Get 1 Free — All Products · Free Vial Added Automatically",
+  "Buy One Get One — All Products · 50% Off Your Second Unit",
   "Same-Day Shipping on Orders Placed by 2PM EST",
   "Veteran Owned · U.S. Based · Research Use Only",
-  "B2G1 Now Live — Buy Any 2, Get 1 Free · Shop the Catalog",
+  "BOGO Now Live — Stock Up & Save · Shop the Catalog",
   "Third-Party Tested — COA Available for Every Batch",
   "≥99% Purity · Batch-Verified by Independent Labs",
 ];
