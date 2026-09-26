@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { addCartItem, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
 import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
-import { syncBogoPromo } from "@/lib/cart/bogoPromo";
+
 import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
@@ -21,10 +21,9 @@ export async function POST(request: NextRequest) {
     // Auto-apply free recon solution promo
     const { cart: bacCart, tokens: bacTokens } = await syncBacWaterPromo(data as Cart, nextTokens);
 
-    const { cart: finalCart, tokens: finalTokens } = await syncBogoPromo(bacCart, bacTokens);
-    await writeTokens(finalTokens);
-    const res = NextResponse.json(finalCart);
-    if (finalTokens.cartToken) res.headers.set("x-cart-token", finalTokens.cartToken);
+    await writeTokens(bacTokens);
+    const res = NextResponse.json(bacCart);
+    if (bacTokens.cartToken) res.headers.set("x-cart-token", bacTokens.cartToken);
     return res;
   } catch (error) {
     if (error instanceof StoreApiError) {
