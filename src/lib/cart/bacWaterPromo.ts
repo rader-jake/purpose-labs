@@ -21,9 +21,11 @@ export async function syncBacWaterPromo(
   cart: Cart,
   tokens: CartTokens
 ): Promise<{ cart: Cart; tokens: CartTokens }> {
-  const hasQualifyingItem = cart.items.some(
-    (item) => item.id !== BAC_WATER_ID && !EXCLUDED_IDS.has(item.id)
-  );
+  // Buy 2 Get 1 Free recon solution: requires at least 2 qualifying items total
+  const qualifyingCount = cart.items
+    .filter((item) => !EXCLUDED_IDS.has(item.id))
+    .reduce((sum, item) => sum + item.quantity, 0);
+  const hasQualifyingItem = qualifyingCount >= 2;
 
   const promoAlreadyApplied = cart.coupons.some((c) => c.code === PROMO_COUPON);
 

@@ -12,7 +12,7 @@ export function BogoPromo() {
         BUY 2 + GET 1 FREE
       </span>
       <span className="text-white/60 text-xs font-medium hidden sm:inline">
-        — Buy any 2 vials, get a 3rd free at checkout
+        — Buy any 2 vials, get free reconstitution solution
       </span>
       <a
         href="/products"
