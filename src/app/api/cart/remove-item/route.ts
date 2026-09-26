@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { removeCartItem, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
 import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
-
+import { syncBogoPromo } from "@/lib/cart/bogoPromo";
 import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
@@ -16,13 +16,13 @@ export async function POST(request: NextRequest) {
     const { data, tokens: nextTokens } = await removeCartItem(tokens, key);
 
     // Auto-remove free recon solution promo if no qualifying items remain
-    const { cart: bacCart, tokens: bacTokens } = await syncBacWaterPromo(
-      data as Cart,
-      nextTokens
-    );
+    const { cart: bacCart, tokens: bacTokens } = await syncBacWaterPromo(data as Cart, nextTokens);
 
-    await writeTokens(bacTokens);
-    return NextResponse.json(bacCart);
+    // Auto-remove B2G1 discount if qty drops below 2
+    const { cart: finalCart, tokens: finalTokens } = await syncBogoPromo(bacCart, bacTokens);
+
+    await writeTokens(finalTokens);
+    return NextResponse.json(finalCart);
   } catch (error) {
     if (error instanceof StoreApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
