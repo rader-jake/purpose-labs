@@ -8,6 +8,7 @@ import { AgeGate } from "@/components/AgeGate";
 import { DiscountAutoApply } from "@/components/DiscountAutoApply";
 import { Suspense } from "react";
 import { AuthProvider } from "@/components/AuthProvider";
+import { PromoPopup } from "@/components/PromoPopup";
 import "./globals.css";
 
 // Prevents a flash of the age gate for already-verified returning
@@ -95,6 +96,7 @@ gtag('config', 'AW-18395672517');
             render normally (server-rendered, present in the DOM) for
             SEO. The gate is purely a visual/interactive overlay. */}
         <AgeGate />
+        <PromoPopup />
         {/* Tidio Live Chat */}
         <script async src="//code.tidio.co/irlvsqw5w3wlpqee1ighdosq96kpjfov.js" />
       </body>
