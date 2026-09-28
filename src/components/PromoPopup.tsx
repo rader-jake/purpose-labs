@@ -6,11 +6,11 @@ const STORAGE_KEY = "pl_promo_popup_dismissed";
 
 export function PromoPopup() {
   const [visible, setVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const dismissed = localStorage.getItem(STORAGE_KEY);
     if (!dismissed) {
-      // Show after 3 seconds
       const t = setTimeout(() => setVisible(true), 3000);
       return () => clearTimeout(t);
     }
@@ -19,6 +19,13 @@ export function PromoPopup() {
   function dismiss() {
     localStorage.setItem(STORAGE_KEY, "1");
     setVisible(false);
+  }
+
+  function copyCode() {
+    navigator.clipboard.writeText("PURPOSE").then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
   }
 
   if (!visible) return null;
@@ -50,6 +57,26 @@ export function PromoPopup() {
           alt="Take 10% off with code PURPOSE"
           className="w-full block"
         />
+
+        {/* Copy code button */}
+        <div
+          className="flex items-center justify-center gap-3 py-4 px-6"
+          style={{ backgroundColor: "#0d1b3e" }}
+        >
+          <span className="text-white text-sm tracking-widest uppercase font-light">
+            Use code
+          </span>
+          <button
+            onClick={copyCode}
+            className="flex items-center gap-2 rounded-full px-6 py-2 text-sm font-bold uppercase tracking-widest transition-all duration-200"
+            style={{
+              backgroundColor: copied ? "#2a7a4b" : "#ffffff",
+              color: copied ? "#ffffff" : "#0d1b3e",
+            }}
+          >
+            {copied ? "✓ Copied!" : "PURPOSE — Tap to Copy"}
+          </button>
+        </div>
       </div>
     </div>
   );
