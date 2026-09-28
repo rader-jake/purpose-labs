@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { WooProduct } from "@/lib/woocommerce";
-import { FeaturedProductCard } from "./FeaturedProductCard";
+import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { Reveal } from "./Reveal";
 
@@ -39,7 +39,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featuredList.map((product, idx) => (
             <Reveal key={product.id} delay={idx * 100}>
-              <FeaturedProductCard product={product} />
+              <ProductCard product={product} />
             </Reveal>
           ))}
         </div>
