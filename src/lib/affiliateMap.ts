@@ -66,6 +66,7 @@ export const AFFILIATE_COUPON_MAP: Record<string, string> = {
   "74": "eddy10",      // edward
   "75": "ramis",       // Ramis
   "76": "swrv",        // SWRV
+  "87": "rpep",        // RPEP
   "77": "habibi_zeegt", // Zeid najjar
   "78": "odalys",      // Odalys
   "79": "fear",        // Feroze Khan
