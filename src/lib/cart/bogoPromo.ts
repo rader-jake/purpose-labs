@@ -7,9 +7,8 @@ import type { Cart, CartItem } from "./types";
  * Product IDs excluded from BOGO:
  * - 94: Recon Water (bac water)
  * - 837, 840, 842, 846, 848: bundles
- * - 801, 806: spray products
  */
-const BOGO_EXCLUDED_IDS = new Set([94, 837, 840, 842, 846, 848, 801, 806]);
+const BOGO_EXCLUDED_IDS = new Set([94, 837, 840, 842, 846, 848]);
 
 /**
  * Item data key used to mark a free BOGO item.
