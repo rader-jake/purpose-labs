@@ -56,8 +56,16 @@ export async function POST(request: NextRequest) {
         phone: shipping_address.phone ?? "",
       } : undefined,
       line_items: (() => {
+        // Products excluded from B1G1 dedup:
+        // - 94: Recon Water (bac water) — handled separately by pl-auto-bacwater coupon
+        // - 837, 840, 842, 846, 848: bundles
+        const BOGO_DEDUP_EXCLUDED = new Set([94, 837, 840, 842, 846, 848]);
         const seenProductIds = new Set<number>();
         return (line_items ?? []).map((item) => {
+          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) {
+            // Never auto-zero these — their pricing is handled elsewhere
+            return item;
+          }
           const isDuplicate = seenProductIds.has(item.product_id);
           seenProductIds.add(item.product_id);
           if (isDuplicate) {
