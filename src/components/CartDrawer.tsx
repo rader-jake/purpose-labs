@@ -87,9 +87,17 @@ export function CartDrawer() {
 
           {cart && cart.items.length > 0 && (
             <ul className="flex flex-col gap-5">
-              {cart.items.map((item) => (
-                <CartLineItem key={item.key} item={item} />
-              ))}
+              {cart.items.map((item) => {
+                const hasBacWaterPromo = cart.coupons.some(
+                  (c) => c.code === "pl-auto-bacwater"
+                );
+                if (item.id === 94 && hasBacWaterPromo) {
+                  return (
+                    <BacWaterLineItems key={item.key} item={item} />
+                  );
+                }
+                return <CartLineItem key={item.key} item={item} />;
+              })}
             </ul>
           )}
 
@@ -244,29 +252,31 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3 border-t pt-4" style={{ borderColor: "var(--pl-border)" }}>
-      {coupons.map((coupon) => (
-        <div
-          key={coupon.code}
-          className="flex items-center justify-between text-sm"
-          style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
-        >
-          <span>
-            Coupon{" "}
-            <strong style={{ color: "var(--pl-navy)" }}>{coupon.code.toUpperCase()}</strong>
-          </span>
-          <div className="flex items-center gap-3">
-            <span>-{formatMoney(coupon.totals.total_discount)}</span>
-            <button
-              onClick={() => handleRemove(coupon.code)}
-              disabled={isPending}
-              className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
-              style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}
-            >
-              Remove
-            </button>
+      {coupons
+        .filter((coupon) => coupon.code !== "pl-auto-bacwater") // hidden — shown as FREE badge on the line item
+        .map((coupon) => (
+          <div
+            key={coupon.code}
+            className="flex items-center justify-between text-sm"
+            style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}
+          >
+            <span>
+              Coupon{" "}
+              <strong style={{ color: "var(--pl-navy)" }}>{coupon.code.toUpperCase()}</strong>
+            </span>
+            <div className="flex items-center gap-3">
+              <span>-{formatMoney(coupon.totals.total_discount)}</span>
+              <button
+                onClick={() => handleRemove(coupon.code)}
+                disabled={isPending}
+                className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}
+              >
+                Remove
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
       <form onSubmit={handleApply} className="flex gap-2">
         <input
@@ -287,6 +297,105 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
         </button>
       </form>
     </div>
+  );
+}
+
+/**
+ * Splits bac water into two visual rows when the pl-auto-bacwater coupon is active:
+ * - Row 1: FREE (qty 1)
+ * - Row 2: $9.99 per additional unit (qty - 1), only shown if qty > 1
+ */
+function BacWaterLineItems({ item }: { item: CartItem }) {
+  const { removeItem, updateItem } = useCart();
+  const [isPending, setIsPending] = useState(false);
+  const image = item.images[0];
+  const paidQty = item.quantity - 1;
+
+  async function handleRemoveFree() {
+    // Removing the free one: reduce qty by 1 (or remove if qty === 1)
+    if (item.quantity <= 1) {
+      setIsPending(true);
+      try { await removeItem(item.key); } finally { setIsPending(false); }
+    } else {
+      setIsPending(true);
+      try { await updateItem(item.key, item.quantity - 1); } finally { setIsPending(false); }
+    }
+  }
+
+  async function handlePaidQtyChange(next: number) {
+    const newTotal = Math.max(1, next + 1); // keep at least 1 (the free one)
+    setIsPending(true);
+    try { await updateItem(item.key, newTotal); } finally { setIsPending(false); }
+  }
+
+  async function handleRemovePaid() {
+    // Remove paid units — leave qty 1 (the free one)
+    setIsPending(true);
+    try { await updateItem(item.key, 1); } finally { setIsPending(false); }
+  }
+
+  const ItemImage = () => image ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={image.src} alt={image.alt || item.name} className="h-16 w-16 object-contain" />
+  ) : null;
+
+  return (
+    <>
+      {/* Row 1: FREE unit */}
+      <li className="flex gap-4">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "var(--pl-ivory-soft)" }}>
+          <ItemImage />
+        </div>
+        <div className="flex flex-1 flex-col gap-1">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-sm font-medium leading-tight" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}>
+              {decodeHtmlEntities(item.name)}
+            </p>
+            <span className="shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]" style={{ backgroundColor: "var(--pl-navy)", color: "var(--pl-ivory)" }}>
+              Free
+            </span>
+          </div>
+          <p className="text-xs" style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}>$0.00</p>
+          <div className="mt-2 flex items-center gap-3">
+            <div className="flex items-center rounded-full border" style={{ borderColor: "var(--pl-border)" }}>
+              <button disabled className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>−</button>
+              <span className="w-6 text-center text-xs" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}>1</span>
+              <button disabled className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>+</button>
+            </div>
+            <button onClick={handleRemoveFree} disabled={isPending} className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
+              Remove
+            </button>
+          </div>
+        </div>
+      </li>
+
+      {/* Row 2: Paid units (only shown if qty > 1) */}
+      {paidQty > 0 && (
+        <li className="flex gap-4">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "var(--pl-ivory-soft)" }}>
+            <ItemImage />
+          </div>
+          <div className="flex flex-1 flex-col gap-1">
+            <p className="text-sm font-medium leading-tight" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}>
+              {decodeHtmlEntities(item.name)}
+            </p>
+            <p className="text-xs" style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}>
+              {formatMoney(String(Number(item.prices.price) * paidQty))}
+            </p>
+            <div className="mt-2 flex items-center gap-3">
+              <div className="flex items-center rounded-full border" style={{ borderColor: "var(--pl-border)" }}>
+                <button onClick={() => handlePaidQtyChange(paidQty - 1)} disabled={isPending} aria-label="Decrease quantity" className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>−</button>
+                <span className="w-6 text-center text-xs" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}>{paidQty}</span>
+                <button onClick={() => handlePaidQtyChange(paidQty + 1)} disabled={isPending} aria-label="Increase quantity" className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>+</button>
+              </div>
+              <button onClick={handleRemovePaid} disabled={isPending} className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
+                Remove
+              </button>
+            </div>
+          </div>
+        </li>
+      )}
+    </>
   );
 }
 
