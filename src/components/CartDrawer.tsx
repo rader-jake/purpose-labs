@@ -360,7 +360,7 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
             <div className="flex items-center rounded-full border" style={{ borderColor: "var(--pl-border)" }}>
               <button disabled className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>−</button>
               <span className="w-6 text-center text-xs" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}>1</span>
-              <button disabled className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>+</button>
+              <button onClick={() => handlePaidQtyChange(paidQty + 1)} disabled={isPending} aria-label="Add another" className="flex h-7 w-7 items-center justify-center text-sm disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-navy)" }}>+</button>
             </div>
             <button onClick={handleRemoveFree} disabled={isPending} className="text-xs underline-offset-2 transition-opacity duration-200 hover:opacity-70 disabled:cursor-not-allowed disabled:opacity-40" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
               Remove
