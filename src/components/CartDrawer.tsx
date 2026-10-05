@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
+import { BOGO_PRODUCTS, BOGO_PRODUCT_IDS, getBogoEligibleFreeProducts, type BogoProduct } from "@/lib/cart/bogoProducts";
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
@@ -84,6 +85,8 @@ export function CartDrawer() {
               Your cart is empty.
             </p>
           )}
+
+          {cart && cart.items.length > 0 && <BogoBanner cart={cart} />}
 
           {cart && cart.items.length > 0 && (
             <ul className="flex flex-col gap-5">
@@ -163,6 +166,123 @@ export function CartDrawer() {
         )}
       </aside>
     </>
+  );
+}
+
+function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
+  const [open, setOpen] = useState(false);
+  const [adding, setAdding] = useState<number | null>(null);
+  const [added, setAdded] = useState<number | null>(null);
+  const { addItem } = useCart();
+
+  // Find first qualifying paid item in cart
+  const qualifyingItem = cart.items.find(
+    (item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item)
+  );
+  if (!qualifyingItem) return null;
+
+  // Check if a free vial already picked (price 0)
+  const alreadyHasFreeVial = cart.items.some(
+    (item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item)
+  );
+  if (alreadyHasFreeVial) return null;
+
+  const eligibleProducts = getBogoEligibleFreeProducts(qualifyingItem.id);
+  if (eligibleProducts.length === 0) return null;
+
+  const handlePick = async (product: BogoProduct) => {
+    setAdding(product.id);
+    try {
+      await addItem(product.id, 1);
+      setAdded(product.id);
+      setOpen(false);
+    } catch {
+      // silently fail — cart will show error if needed
+    } finally {
+      setAdding(null);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#0d5c34",
+        color: "white",
+        borderRadius: 12,
+        padding: 16,
+        margin: "0 0 16px 0",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 18 }}>✅</span>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>1 free BOGO vial available</span>
+        </div>
+        <span style={{ fontSize: 12, opacity: 0.85 }}>1 ready to choose</span>
+      </div>
+      <p style={{ fontSize: 12, opacity: 0.8, margin: "6px 0 10px", lineHeight: 1.4 }}>
+        Choose a vial from the same group and add it for $0.00.
+      </p>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          background: "rgba(255,255,255,0.15)",
+          border: "1px solid rgba(255,255,255,0.35)",
+          borderRadius: 8,
+          color: "white",
+          padding: "6px 14px",
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: "pointer",
+          width: "100%",
+        }}
+      >
+        Choose BOGO vial {open ? "▲" : "▼"}
+      </button>
+
+      {open && (
+        <div
+          style={{
+            marginTop: 12,
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 8,
+          }}
+        >
+          {eligibleProducts.map((product) => (
+            <button
+              key={product.id}
+              onClick={() => handlePick(product)}
+              disabled={adding === product.id}
+              style={{
+                background: "white",
+                border: added === product.id ? "2px solid #14273e" : "1px solid #ddd",
+                borderRadius: 10,
+                padding: 8,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                textAlign: "left",
+                opacity: adding === product.id ? 0.6 : 1,
+              }}
+            >
+              <img
+                src={product.image}
+                alt={product.name}
+                style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
+              />
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: "#14273e", lineHeight: 1.3 }}>
+                  {product.name}
+                </div>
+                <div style={{ fontSize: 11, color: "#666" }}>${product.price.toFixed(2)}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
