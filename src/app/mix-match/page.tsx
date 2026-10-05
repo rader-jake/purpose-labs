@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { MixMatchPage } from "@/components/MixMatchPage";
+import MixMatchPage from "@/components/MixMatchPage";
 
 export const metadata: Metadata = {
   title: "Mix & Match BOGO | Purpose Labs",

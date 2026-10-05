@@ -1,330 +1,273 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
-import { BogoModal, type MixMatchProduct } from "@/components/BogoModal";
 
-// ─── Product Data ────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Tier {
-  number: number;
+interface Product {
+  name: string;
   price: number;
-  label: string;
-  products: MixMatchProduct[];
+  wooProductId: number;
+  img: string;
 }
 
-const TIERS: Tier[] = [
+interface Group {
+  label: string;
+  sublabel: string;
+  products: Product[];
+}
+
+// ─── Product Data ─────────────────────────────────────────────────────────────
+
+const GROUPS: Group[] = [
   {
-    number: 1,
-    price: 49.99,
-    label: "Tier 1 — $49.99 each",
+    label: "Group 1",
+    sublabel: "$30 – $75",
     products: [
-      { name: "Glutathione", price: 49.99, wooProductId: 2060 },
-      { name: "MT2 (Melanotan II)", price: 49.99, wooProductId: 102 },
-      { name: "GHK-Cu 50mg", price: 49.99, wooProductId: 831 },
-      { name: "Selank Vial", price: 49.99, wooProductId: 799 },
-      { name: "Semax Vial", price: 49.99, wooProductId: 796 },
-      { name: "L-Carnitine", price: 49.99, wooProductId: 1271 },
+      { name: "Glutathione", price: 49.99, wooProductId: 2060, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/08/C3B859D1-19E0-4A7A-AC40-0A866C70C6E0.png" },
+      { name: "MT2 / Melanotan II", price: 30.00, wooProductId: 102, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-06_12_43-PM.png" },
+      { name: "GHK-Cu 50mg", price: 45.00, wooProductId: 831, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-23-2026-06_26_43-PM.png" },
+      { name: "Selank Vial", price: 75.00, wooProductId: 799, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-23-2026-05_51_10-PM.png" },
+      { name: "Semax Vial", price: 75.00, wooProductId: 796, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-23-2026-05_45_50-PM.png" },
+      { name: "L-Carnitine", price: 39.99, wooProductId: 1271, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/06/L-Carnitine.png" },
     ],
   },
   {
-    number: 2,
-    price: 75,
-    label: "Tier 2 — $75 each",
+    label: "Group 2",
+    sublabel: "$55 – $75",
     products: [
-      { name: "NAD+", price: 75, wooProductId: 1188 },
-      { name: "MOTS-C", price: 75, wooProductId: 1187 },
-      { name: "Selank Spray", price: 75, wooProductId: 801 },
-      { name: "Semax Spray", price: 75, wooProductId: 806 },
-      { name: "GHK-Cu 100mg", price: 75, wooProductId: 832 },
+      { name: "NAD+ 600mg", price: 70.00, wooProductId: 1188, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/06/ChatGPT-Image-Jul-23-2026-06_03_09-PM.png" },
+      { name: "MOTS-C 10mg", price: 65.00, wooProductId: 1187, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/06/ChatGPT-Image-Jul-23-2026-06_00_23-PM.png" },
+      { name: "Selank Spray", price: 75.00, wooProductId: 801, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-24-2026-01_27_20-PM.png" },
+      { name: "Semax Spray", price: 75.00, wooProductId: 806, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-24-2026-01_29_53-PM.png" },
+      { name: "GHK-Cu 100mg", price: 55.00, wooProductId: 832, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-23-2026-06_26_43-PM.png" },
     ],
   },
   {
-    number: 3,
-    price: 90,
-    label: "Tier 3 — $90 each",
+    label: "Group 3",
+    sublabel: "$70 – $120",
     products: [
-      { name: "GLP-3RT", price: 90, wooProductId: 100 },
-      { name: "BPC-157", price: 90, wooProductId: 95 },
-      { name: "TB-500", price: 90, wooProductId: 103 },
-      { name: "BPC-157 + TB-500 Stack", price: 90, wooProductId: 2069 },
-      { name: "CJC-1295 + Ipamorelin", price: 90, wooProductId: 97 },
-      { name: "KLOW 80mg", price: 90, wooProductId: 1421 },
-      { name: "PL TZ (Tirzepatide)", price: 90, wooProductId: 1936 },
-      { name: "PL TESA (Tesamorelin)", price: 90, wooProductId: 1546 },
-      { name: "IGF-1 LR3", price: 90, wooProductId: 1931 },
-      { name: "GHK-Cu 50mg x3", price: 90, wooProductId: 831 },
+      { name: "GLP-3RT", price: 90.00, wooProductId: 100, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/09/PL-RT-original.png" },
+      { name: "BPC-157 10mg", price: 80.00, wooProductId: 95, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-06_06_05-PM.png" },
+      { name: "TB-500 10mg", price: 80.00, wooProductId: 103, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-06_18_14-PM.png" },
+      { name: "BPC-157 + TB-500 Stack", price: 100.00, wooProductId: 2069, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/08/3145B71D-B2EB-4BE9-BFB5-6F8F3DBDA33F.png" },
+      { name: "CJC-1295 + Ipamorelin", price: 85.00, wooProductId: 97, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/02/ChatGPT-Image-Jul-23-2026-05_57_26-PM.png" },
+      { name: "KLOW 80mg", price: 120.00, wooProductId: 1421, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/07/ChatGPT-Image-Jul-23-2026-06_37_58-PM.png" },
+      { name: "PL TZ / Tirzepatide", price: 80.00, wooProductId: 1936, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/07/PL-TZ-1.png" },
+      { name: "PL TESA / Tesamorelin", price: 70.00, wooProductId: 1546, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/07/PL-TESA.png" },
+      { name: "IGF-1 LR3", price: 100.00, wooProductId: 1931, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/07/ChatGPT-Image-Jul-23-2026-06_32_54-PM.png" },
+      { name: "GHK-Cu 50mg ×3", price: 45.00, wooProductId: 831, img: "https://joshuar120.sg-host.com/wp-content/uploads/2026/04/ChatGPT-Image-Jul-23-2026-06_26_43-PM.png" },
     ],
   },
 ];
-
-const CART_URL = "https://joshuar120.sg-host.com/cart";
-const API_BASE = "https://joshuar120.sg-host.com/wp-json/wc/store/v1/cart/add-item";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-async function addToCart(productId: number, quantity = 1) {
-  const res = await fetch(API_BASE, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ id: productId, quantity }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message ?? "Failed to add to cart");
-  }
-}
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 
-interface ProductCardProps {
-  product: MixMatchProduct;
-  onAddToCart: (product: MixMatchProduct) => void;
-  isLoading: boolean;
-}
+function ProductCard({ product }: { product: Product }) {
+  const [loading, setLoading] = useState(false);
+  const [added, setAdded] = useState(false);
 
-function MixMatchCard({ product, onAddToCart, isLoading }: ProductCardProps) {
-  const [hovered, setHovered] = useState(false);
-  const unavailable = product.wooProductId === null;
+  async function addToCart() {
+    setLoading(true);
+    try {
+      await fetch("https://joshuar120.sg-host.com/wp-json/wc/store/v1/cart/add-item", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ id: product.wooProductId, quantity: 1 }),
+      });
+      setAdded(true);
+      setTimeout(() => {
+        window.location.href = "https://joshuar120.sg-host.com/cart";
+      }, 400);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  }
 
   return (
     <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className="flex flex-col overflow-hidden rounded-xl transition-all duration-200"
       style={{
-        backgroundColor: "var(--pl-white)",
-        border: `1px solid ${hovered ? "var(--pl-border-strong)" : "var(--pl-border)"}`,
-        boxShadow: hovered ? "var(--pl-shadow-hover)" : "var(--pl-shadow-subtle)",
-        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        background: "#fff",
+        border: "1px solid var(--pl-border, #e5e7eb)",
+        borderRadius: "1rem",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        transition: "box-shadow 0.2s, transform 0.2s",
+        boxShadow: "0 1px 4px rgba(27,42,74,0.07)",
+      }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 24px rgba(27,42,74,0.14)";
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 1px 4px rgba(27,42,74,0.07)";
+        (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
       }}
     >
-      {/* Image placeholder */}
-      <div
-        className="flex h-40 items-center justify-center"
-        style={{ backgroundColor: "var(--pl-ivory-soft)" }}
-      >
-        <span className="text-5xl">🧪</span>
+      {/* Image */}
+      <div style={{ background: "var(--pl-ivory, #f8f7f4)", height: 200, position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Image
+          src={product.img}
+          alt={product.name}
+          fill
+          unoptimized
+          style={{ objectFit: "contain", padding: "12px" }}
+        />
+        {/* BOGO Badge */}
+        <span style={{
+          position: "absolute",
+          top: 10,
+          left: 10,
+          background: "var(--pl-navy, #1B2A4A)",
+          color: "#fff",
+          fontSize: "0.6rem",
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          padding: "3px 8px",
+          borderRadius: "999px",
+          textTransform: "uppercase",
+        }}>
+          Buy One Get One Free
+        </span>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <h3
-          className="text-base leading-tight font-medium"
-          style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)" }}
-        >
+      {/* Body */}
+      <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: 6, flexGrow: 1 }}>
+        <p style={{ fontWeight: 700, fontSize: "0.92rem", color: "var(--pl-navy, #1B2A4A)", margin: 0, lineHeight: 1.3 }}>
           {product.name}
-        </h3>
-        <p className="text-sm" style={{ color: "var(--pl-slate)", fontFamily: "var(--pl-font-body)" }}>
+        </p>
+        <p style={{ fontSize: "0.72rem", color: "var(--pl-slate, #6b7280)", margin: 0 }}>
+          For controlled research use.
+        </p>
+        <p style={{ fontWeight: 700, fontSize: "1rem", color: "var(--pl-navy, #1B2A4A)", margin: "4px 0 0" }}>
           ${product.price.toFixed(2)}
         </p>
 
-        <div className="mt-auto">
-          {unavailable ? (
-            <div
-              className="w-full rounded-full py-3 text-center text-xs font-semibold uppercase tracking-[0.1em]"
-              style={{
-                backgroundColor: "var(--pl-border)",
-                color: "var(--pl-muted)",
-                fontFamily: "var(--pl-font-body)",
-              }}
-            >
-              Coming Soon
-            </div>
-          ) : (
-            <button
-              onClick={() => onAddToCart(product)}
-              disabled={isLoading}
-              className="w-full rounded-full py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: "var(--pl-navy)",
-                color: "var(--pl-ivory)",
-                fontFamily: "var(--pl-font-body)",
-              }}
-              onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--pl-navy)"; }}
-            >
-              {isLoading ? "Adding…" : "Add to Cart"}
-            </button>
-          )}
-        </div>
+        <button
+          onClick={addToCart}
+          disabled={loading || added}
+          style={{
+            marginTop: "auto",
+            paddingTop: 10,
+            background: added ? "#4ade80" : "var(--pl-navy, #1B2A4A)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "999px",
+            padding: "10px 0",
+            fontWeight: 700,
+            fontSize: "0.72rem",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            cursor: loading || added ? "default" : "pointer",
+            width: "100%",
+            transition: "background 0.2s, opacity 0.2s",
+            opacity: loading ? 0.7 : 1,
+          }}
+        >
+          {added ? "Added! Redirecting…" : loading ? "Adding…" : "Add to Cart"}
+        </button>
       </div>
     </div>
   );
 }
 
-// ─── Step Explainer ───────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { number: "1", label: "Choose your tier", desc: "Three price points — pick the one that fits." },
-  { number: "2", label: "Pick your product", desc: "Select the product you want to buy." },
-  { number: "3", label: "Select your free vial", desc: "Choose any product from the same tier — free." },
-];
-
-function StepExplainer() {
+export default function MixMatchPage() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
-      {STEPS.map((step, i) => (
-        <div key={step.number} className="flex flex-col md:flex-row items-start md:items-center gap-4">
-          <div
-            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl font-black"
-            style={{ background: "linear-gradient(135deg, #0B1728 0%, #2E4A8A 100%)", color: "white" }}
-          >
-            {step.number}
-          </div>
-          <div className="flex-1">
-            <div className="font-semibold text-sm" style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-display)" }}>
-              {step.label}
-            </div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--pl-text-secondary)" }}>
-              {step.desc}
-            </div>
-          </div>
-          {i < STEPS.length - 1 && (
-            <div className="hidden md:block text-gray-300 text-2xl font-light ml-2">→</div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
+    <main style={{ minHeight: "100vh", background: "var(--pl-ivory, #f8f7f4)" }}>
 
-// ─── Main Page Component ──────────────────────────────────────────────────────
-
-interface ModalState {
-  tier: Tier;
-  paidProduct: MixMatchProduct;
-}
-
-export function MixMatchPage() {
-  const [modalState, setModalState] = useState<ModalState | null>(null);
-  const [isAdding, setIsAdding] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  function handleAddToCart(tier: Tier, product: MixMatchProduct) {
-    setError(null);
-    setModalState({ tier, paidProduct: product });
-  }
-
-  async function handleConfirmFreeVial(freeProduct: MixMatchProduct) {
-    if (!modalState) return;
-    const { paidProduct } = modalState;
-
-    // Both must have real IDs (free vial is also checked because modal only shows available products,
-    // but the paid product was already checked before modal opened)
-    if (!paidProduct.wooProductId || !freeProduct.wooProductId) {
-      setError("One or more products is not yet available. Please check back soon.");
-      return;
-    }
-
-    setIsAdding(true);
-    setError(null);
-
-    try {
-      await addToCart(paidProduct.wooProductId, 1);
-      await addToCart(freeProduct.wooProductId, 1);
-      window.location.href = CART_URL;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Couldn't add to cart. Please try again.");
-      setIsAdding(false);
-    }
-  }
-
-  return (
-    <main className="min-h-screen" style={{ backgroundColor: "var(--pl-background)" }}>
       {/* Hero */}
-      <section
-        className="py-16 px-4 text-center"
-        style={{ background: "linear-gradient(135deg, #0B1728 0%, #1B2A4A 60%, #2E4A8A 100%)" }}
-      >
-        <div className="max-w-3xl mx-auto">
-          <div
-            className="inline-block rounded-full px-5 py-1.5 mb-5 text-xs font-black uppercase tracking-[0.2em]"
-            style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.85)" }}
-          >
-            Limited Promotion
-          </div>
-          <h1
-            className="text-4xl md:text-6xl font-semibold mb-4 text-white"
-            style={{ fontFamily: "var(--pl-font-display)", letterSpacing: "-0.02em" }}
-          >
-            Mix &amp; Match BOGO
-          </h1>
-          <p className="text-lg md:text-xl mb-2" style={{ color: "rgba(255,255,255,0.75)", fontFamily: "var(--pl-font-body)" }}>
-            Buy one, get one free — within any tier.
-          </p>
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Mix any two products from the same tier. No codes needed.
-          </p>
+      <section style={{
+        background: "var(--pl-navy, #1B2A4A)",
+        color: "#fff",
+        textAlign: "center",
+        padding: "64px 24px 56px",
+      }}>
+        <p style={{ fontSize: "0.75rem", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.6, marginBottom: 12 }}>
+          Limited Offer
+        </p>
+        <h1 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 800, margin: "0 0 16px", lineHeight: 1.15 }}>
+          Buy One, Get One FREE
+        </h1>
+        <p style={{ fontSize: "1rem", opacity: 0.75, maxWidth: 480, margin: "0 auto 40px", lineHeight: 1.6 }}>
+          Mix &amp; match any two products from the same group. Your free vial is applied automatically at checkout.
+        </p>
+
+        {/* 3-step explainer */}
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "24px",
+          justifyContent: "center",
+          maxWidth: 720,
+          margin: "0 auto",
+        }}>
+          {[
+            { step: "01", action: "Choose", desc: "Pick your product" },
+            { step: "02", action: "Build", desc: "Review your cart" },
+            { step: "03", action: "Reward", desc: "Free vial unlocks" },
+          ].map(({ step, action, desc }) => (
+            <div key={step} style={{
+              background: "rgba(255,255,255,0.08)",
+              borderRadius: "0.75rem",
+              padding: "20px 28px",
+              minWidth: 160,
+              flex: "1 1 160px",
+            }}>
+              <p style={{ fontSize: "0.65rem", letterSpacing: "0.2em", opacity: 0.5, margin: "0 0 6px" }}>{step}</p>
+              <p style={{ fontWeight: 700, fontSize: "1rem", margin: "0 0 4px" }}>{action}</p>
+              <p style={{ fontSize: "0.8rem", opacity: 0.65, margin: 0 }}>{desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Body */}
-      <div className="max-w-6xl mx-auto px-4 pb-20">
-        {/* Steps */}
-        <StepExplainer />
-
-        {error && (
-          <div className="mb-8 p-4 rounded-xl text-sm text-red-700 bg-red-50 border border-red-200">
-            {error}
-          </div>
-        )}
-
-        {/* Tier sections */}
-        {TIERS.map((tier) => (
-          <section key={tier.number} className="mb-14">
-            {/* Tier header */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-              <div
-                className="inline-flex items-center gap-3 rounded-full px-5 py-2"
-                style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
-              >
-                <span className="text-white font-black text-sm uppercase tracking-[0.15em]">
-                  Tier {tier.number}
+      {/* Product Groups */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "60px 24px" }}>
+        {GROUPS.map((group) => (
+          <section key={group.label} style={{ marginBottom: 64 }}>
+            {/* Group Header */}
+            <div style={{ marginBottom: 28, display: "flex", alignItems: "center", gap: 16 }}>
+              <div>
+                <span style={{
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--pl-slate, #6b7280)",
+                }}>
+                  {group.sublabel}
                 </span>
-                <span
-                  className="rounded-full px-3 py-0.5 text-xs font-bold"
-                  style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "white" }}
-                >
-                  ${tier.price % 1 === 0 ? tier.price.toFixed(0) : tier.price.toFixed(2)} each
-                </span>
+                <h2 style={{
+                  fontSize: "1.4rem",
+                  fontWeight: 800,
+                  color: "var(--pl-navy, #1B2A4A)",
+                  margin: "2px 0 0",
+                }}>
+                  {group.label}
+                </h2>
               </div>
-              <p className="text-sm" style={{ color: "var(--pl-text-secondary)" }}>
-                Buy any product below → get one free from this tier
-              </p>
+              <div style={{ flex: 1, height: 1, background: "var(--pl-border, #e5e7eb)" }} />
             </div>
 
-            {/* Product grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {tier.products.map((product) => (
-                <MixMatchCard
-                  key={product.name}
-                  product={product}
-                  onAddToCart={(p) => handleAddToCart(tier, p)}
-                  isLoading={isAdding}
-                />
+            {/* Grid */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+              gap: "20px",
+            }}>
+              {group.products.map((product) => (
+                <ProductCard key={`${product.wooProductId}-${product.name}`} product={product} />
               ))}
             </div>
           </section>
         ))}
-
-        {/* Fine print */}
-        <p className="text-center text-xs" style={{ color: "var(--pl-muted)" }}>
-          * Free vial must be from the same tier as the purchased product. One free vial per transaction. While supplies last.
-        </p>
       </div>
-
-      {/* Modal */}
-      {modalState && (
-        <BogoModal
-          tier={modalState.tier.number}
-          tierPrice={modalState.tier.price}
-          products={modalState.tier.products}
-          onConfirm={handleConfirmFreeVial}
-          onClose={() => { if (!isAdding) setModalState(null); }}
-          isAdding={isAdding}
-        />
-      )}
     </main>
   );
 }
