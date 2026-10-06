@@ -173,7 +173,7 @@ export function CartDrawer() {
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const { addItem } = useCart();
+  const { refreshCart } = useCart();
 
   // Find first qualifying paid item in cart
   const qualifyingItem = cart.items.find(
@@ -193,7 +193,13 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
     try {
-      await addItem(product.id, 1);
+      const res = await fetch("/api/cart/bogo-free", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id }),
+      });
+      if (!res.ok) throw new Error("Failed to add free vial");
+      await refreshCart();
       setModalOpen(false);
     } catch {
       // silently fail

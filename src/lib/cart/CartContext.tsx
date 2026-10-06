@@ -29,6 +29,7 @@ interface CartContextValue {
   }) => Promise<void>;
   applyCoupon: (code: string) => Promise<void>;
   removeCoupon: (code: string) => Promise<void>;
+  refreshCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -224,6 +225,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
 
+  const refreshCart = useCallback(async () => {
+    try {
+      const res = await fetch("/api/cart");
+      const data = await parseCartResponse(res);
+      setCart(data);
+    } catch {
+      // silent
+    }
+  }, []);
+
   const value = useMemo(
     () => ({
       cart,
@@ -238,6 +249,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateCustomerAddress,
       applyCoupon,
       removeCoupon,
+      refreshCart,
     }),
     [
       cart,
@@ -252,6 +264,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       updateCustomerAddress,
       applyCoupon,
       removeCoupon,
+      refreshCart,
     ]
   );
 
