@@ -224,99 +224,76 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
     <>
       <div
         style={{
-          background: "linear-gradient(135deg, #1B2A4A 0%, #243560 100%)",
-          color: "white",
-          borderRadius: 16,
+          background: "#F8F6F1",
+          border: "1px solid #E8E2D9",
+          borderRadius: 14,
           padding: "16px 18px",
           margin: "0 0 16px 0",
-          boxShadow: "0 4px 16px rgba(27,42,74,0.25)",
         }}
       >
-        {/* Row 1: checkmark + label + ready count */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-            <span
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                background: "#22c55e",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 13,
-                fontWeight: 800,
-                flexShrink: 0,
-                boxShadow: "0 0 0 3px rgba(34,197,94,0.2)",
-              }}
-            >
-              ✓
-            </span>
-            <span style={{ fontWeight: 700, fontSize: 14, letterSpacing: "-0.01em" }}>
-              {freeRemaining} free BOGO vial{freeRemaining > 1 ? "s" : ""} available
+        {/* Row 1: label + count pill */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{
+              width: 6, height: 6, borderRadius: "50%",
+              background: "#1B2A4A", display: "inline-block", flexShrink: 0,
+            }} />
+            <span style={{
+              fontWeight: 700, fontSize: 13, color: "#1B2A4A",
+              letterSpacing: "0.04em", textTransform: "uppercase",
+              fontFamily: "var(--pl-font-body)",
+            }}>
+              Complimentary Vial Unlocked
             </span>
           </div>
           <span style={{
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 20,
-            padding: "3px 8px",
-            whiteSpace: "nowrap",
+            fontSize: 10, fontWeight: 600, letterSpacing: "0.08em",
+            textTransform: "uppercase", color: "#1B2A4A",
+            border: "1px solid #C8BFB0", borderRadius: 20,
+            padding: "3px 9px", whiteSpace: "nowrap",
           }}>
-            {freeRemaining} to choose
+            {freeRemaining} available
           </span>
         </div>
 
-        {/* Row 2: thumbnails + count */}
+        {/* Row 2: thumbnails */}
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
           {previewProducts.map((p) => (
-            <div
-              key={`${p.id}-${p.name}`}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: "rgba(255,255,255,0.12)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                overflow: "hidden",
-                flexShrink: 0,
-              }}
-            >
-              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 2 }} />
+            <div key={`${p.id}-${p.name}`} style={{
+              width: 38, height: 38, borderRadius: 8,
+              background: "#fff", border: "1px solid #E8E2D9",
+              overflow: "hidden", flexShrink: 0,
+            }}>
+              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 3 }} />
             </div>
           ))}
           {extraCount > 0 && (
-            <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 4, fontStyle: "italic" }}>+{extraCount} more eligible</span>
+            <span style={{ fontSize: 11, color: "#9B8F7A", marginLeft: 4 }}>+{extraCount} more</span>
           )}
         </div>
 
-        {/* Row 3: Choose button */}
+        {/* Row 3: CTA button */}
         <button
           onClick={() => setModalOpen(true)}
           style={{
-            background: "rgba(255,255,255,0.15)",
-            border: "1.5px solid rgba(255,255,255,0.3)",
+            background: "#1B2A4A",
+            border: "none",
             borderRadius: 10,
-            color: "white",
+            color: "#F8F6F1",
             padding: "11px 16px",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 700,
             cursor: "pointer",
             width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-            letterSpacing: "0.02em",
-            transition: "background 0.15s",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            fontFamily: "var(--pl-font-body)",
+            transition: "opacity 0.15s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
         >
-          🎁 Choose your free vial
+          Select Your Free Vial
         </button>
       </div>
 
