@@ -7,7 +7,7 @@ import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
-import { BOGO_PRODUCT_IDS, getBogoEligibleFreeProducts, type BogoProduct } from "@/lib/cart/bogoProducts";
+import { BOGO_PRODUCT_IDS, BOGO_PRODUCTS, getBogoGroup, type BogoProduct } from "@/lib/cart/bogoProducts";
 import BogoPickerModal from "@/components/BogoPickerModal";
 
 export function CartDrawer() {
@@ -175,28 +175,35 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [isAdding, setIsAdding] = useState(false);
   const { refreshCart } = useCart();
 
-  // Count paid BOGO items (by quantity) and free BOGO items
-  const paidBogoQty = cart.items
-    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item))
-    .reduce((sum, item) => sum + item.quantity, 0);
+  // Per-tier accounting: find the highest tier that still has unclaimed free vials
+  // Rules: 1 paid item = 1 free vial from same or lower tier
+  const tierCounts: Record<1 | 2 | 3, { paid: number; free: number }> = {
+    1: { paid: 0, free: 0 },
+    2: { paid: 0, free: 0 },
+    3: { paid: 0, free: 0 },
+  };
 
-  const freeBogoQty = cart.items
-    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item))
-    .reduce((sum, item) => sum + item.quantity, 0);
+  for (const item of cart.items) {
+    const group = getBogoGroup(item.id);
+    if (!group) continue;
+    if (isFreeItem(item)) {
+      tierCounts[group].free += item.quantity;
+    } else {
+      tierCounts[group].paid += item.quantity;
+    }
+  }
 
-  // Banner shows as long as paid > free (1 free per paid item)
-  if (paidBogoQty === 0 || freeBogoQty >= paidBogoQty) return null;
-
-  // Use first paid BOGO item to determine eligible tier
-  const qualifyingItem = cart.items.find(
-    (item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item)
+  // Find highest tier where paid > free (needs a pick)
+  const qualifyingTier = ([3, 2, 1] as const).find(
+    (t) => tierCounts[t].paid > tierCounts[t].free
   );
-  if (!qualifyingItem) return null;
+  if (!qualifyingTier) return null;
 
-  const eligibleProducts = getBogoEligibleFreeProducts(qualifyingItem.id);
+  const freeRemaining = tierCounts[qualifyingTier].paid - tierCounts[qualifyingTier].free;
+
+  // Eligible = same tier and below (equal or lesser value)
+  const eligibleProducts = BOGO_PRODUCTS.filter((p) => p.group <= qualifyingTier);
   if (eligibleProducts.length === 0) return null;
-
-  const freeRemaining = paidBogoQty - freeBogoQty;
 
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
