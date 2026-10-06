@@ -58,7 +58,7 @@ export function ProductBuyBox({
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
-  const { addItem } = useCart();
+  const { addItem, openDrawer } = useCart();
 
   // Fire ViewContent on mount
   useEffect(() => {
@@ -93,6 +93,7 @@ export function ProductBuyBox({
     setAddError(null);
     try {
       await addItem(effectiveId, quantity);
+      openDrawer();
       await trackAddToCart({
         contentId: String(effectiveId),
         contentName: name,

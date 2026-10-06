@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
-  const { addItem } = useCart();
+  const { addItem, openDrawer } = useCart();
 
   const image = product.images?.[0];
   const outOfStock = product.stock_status === "outofstock";
@@ -27,6 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
     setAddError(null);
     try {
       await addItem(product.id, quantity);
+      openDrawer();
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
     } finally {
