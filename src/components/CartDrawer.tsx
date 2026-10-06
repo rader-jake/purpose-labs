@@ -194,16 +194,9 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
   const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
 
-  // RPEP / FREEGHK: GHK-Cu is auto-added free — counts as 1 claimed pick
-  const hasGhkSpecialCoupon = cart.coupons.some((c) => c.code.toLowerCase() === "rpep" || c.code.toLowerCase() === "freeghk");
-  const ghkAutoAdded = hasGhkSpecialCoupon && cart.items.some(
-    (item) => item.id === 831 && (isFreeItem(item) || item.totals.line_total === "0")
-  );
-  const effectiveBogoCouponCount = bogoCouponCount + (ghkAutoAdded ? 1 : 0);
+  if (totalPaid === 0 || bogoCouponCount >= totalPaid) return null;
 
-  if (totalPaid === 0 || effectiveBogoCouponCount >= totalPaid) return null;
-
-  const freeRemaining = totalPaid - effectiveBogoCouponCount;
+  const freeRemaining = totalPaid - bogoCouponCount;
 
   // Find highest-tier paid item to determine eligible products
   const highestPaidTier = ([3, 2, 1] as const).find((t) =>
