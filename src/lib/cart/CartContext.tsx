@@ -73,6 +73,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const affiliateCouponAttempted = useRef(false);
   const research25Attempted = useRef(false);
+  const rpepGhkAttempted = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -130,6 +131,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
                   .catch(() => {/* silent */});
               }
             } catch {/* localStorage unavailable */}
+          }
+          // RPEP affiliate: auto-add free GHK-Cu 50mg (ID 831) when rpep coupon is applied
+          if (!rpepGhkAttempted.current) {
+            const hasRpep = data.coupons?.some(
+              (c: { code: string }) => c.code.toLowerCase() === "rpep"
+            );
+            const hasGhkFree = data.items?.some(
+              (item: { id: number; prices?: { price: string } }) =>
+                item.id === 831 && parseFloat(item.prices?.price ?? "1") === 0
+            );
+            if (hasRpep && !hasGhkFree) {
+              rpepGhkAttempted.current = true;
+              fetch("/api/cart/bogo-free", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: 831 }),
+              })
+                .then(parseCartResponse)
+                .then((updated) => { if (!cancelled) setCart(updated); })
+                .catch(() => {/* silent */});
+            }
           }
         }
       })
