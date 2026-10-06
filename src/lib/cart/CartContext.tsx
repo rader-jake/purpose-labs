@@ -132,10 +132,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
               }
             } catch {/* localStorage unavailable */}
           }
-          // RPEP affiliate: auto-add free GHK-Cu 50mg (ID 831) when rpep coupon is applied
+          // RPEP / FREEGHK: auto-add free GHK-Cu 50mg (ID 831) when either coupon is applied
           if (!rpepGhkAttempted.current) {
             const hasRpep = data.coupons?.some(
-              (c: { code: string }) => c.code.toLowerCase() === "rpep"
+              (c: { code: string }) => c.code.toLowerCase() === "rpep" || c.code.toLowerCase() === "freeghk"
             );
             const hasGhkFree = data.items?.some(
               (item: { id: number; prices?: { price: string } }) =>
@@ -232,8 +232,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const data = await parseCartResponse(response);
       setCart(data);
 
-      // RPEP: auto-add free GHK-Cu 50mg when RPEP coupon is manually applied
-      if (code.toLowerCase() === "rpep") {
+      // RPEP / FREEGHK: auto-add free GHK-Cu 50mg when either coupon is manually applied
+      if (code.toLowerCase() === "rpep" || code.toLowerCase() === "freeghk") {
         const hasGhkFree = data.items?.some(
           (item: { id: number; prices?: { price: string } }) =>
             item.id === 831 && parseFloat(item.prices?.price ?? "1") === 0

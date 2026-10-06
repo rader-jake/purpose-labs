@@ -194,9 +194,9 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
   const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
 
-  // Suppress BOGO banner entirely for RPEP affiliate — they get GHK-Cu auto-added instead
-  const hasRpepCoupon = cart.coupons.some((c) => c.code.toLowerCase() === "rpep");
-  if (hasRpepCoupon) return null;
+  // Suppress BOGO banner for RPEP / FREEGHK — they get GHK-Cu auto-added instead
+  const hasGhkSpecialCoupon = cart.coupons.some((c) => c.code.toLowerCase() === "rpep" || c.code.toLowerCase() === "freeghk");
+  if (hasGhkSpecialCoupon) return null;
 
   if (totalPaid === 0 || bogoCouponCount >= totalPaid) return null;
 
