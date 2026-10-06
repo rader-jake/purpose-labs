@@ -570,9 +570,9 @@ function CartLineItem({ item }: { item: CartItem }) {
     }
   }
 
-  // Allow increasing quantity even on free items (extra units are charged full price via coupon limit)
   const decreaseDisabled = free || !item.quantity_limits.editable || isPending;
-  const increaseDisabled = !item.quantity_limits.editable || isPending;
+  // Free items (BOGO): lock both + and - to prevent quantity manipulation
+  const increaseDisabled = free || !item.quantity_limits.editable || isPending;
   const controlsDisabled = decreaseDisabled;
 
   return (
