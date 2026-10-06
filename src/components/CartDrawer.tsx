@@ -175,34 +175,30 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [isAdding, setIsAdding] = useState(false);
   const { refreshCart } = useCart();
 
-  // Per-tier accounting: find the highest tier that still has unclaimed free vials
-  // Rules: 1 paid item = 1 free vial from same or lower tier
-  const tierCounts: Record<1 | 2 | 3, { paid: number; free: number }> = {
-    1: { paid: 0, free: 0 },
-    2: { paid: 0, free: 0 },
-    3: { paid: 0, free: 0 },
-  };
+  // Count total paid and free BOGO items across all tiers
+  const totalPaid = cart.items
+    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item))
+    .reduce((sum, item) => sum + item.quantity, 0);
 
-  for (const item of cart.items) {
-    const group = getBogoGroup(item.id);
-    if (!group) continue;
-    if (isFreeItem(item)) {
-      tierCounts[group].free += item.quantity;
-    } else {
-      tierCounts[group].paid += item.quantity;
-    }
-  }
+  const totalFree = cart.items
+    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item))
+    .reduce((sum, item) => sum + item.quantity, 0);
 
-  // Find highest tier where paid > free (needs a pick)
-  const qualifyingTier = ([3, 2, 1] as const).find(
-    (t) => tierCounts[t].paid > tierCounts[t].free
+  if (totalPaid === 0 || totalFree >= totalPaid) return null;
+
+  const freeRemaining = totalPaid - totalFree;
+
+  // Find highest-tier paid item to determine eligible products
+  const highestPaidTier = ([3, 2, 1] as const).find((t) =>
+    cart.items.some((item) => {
+      const g = getBogoGroup(item.id);
+      return g === t && !isFreeItem(item);
+    })
   );
-  if (!qualifyingTier) return null;
-
-  const freeRemaining = tierCounts[qualifyingTier].paid - tierCounts[qualifyingTier].free;
+  if (!highestPaidTier) return null;
 
   // Eligible = same tier and below (equal or lesser value)
-  const eligibleProducts = BOGO_PRODUCTS.filter((p) => p.group <= qualifyingTier);
+  const eligibleProducts = BOGO_PRODUCTS.filter((p) => p.group <= highestPaidTier);
   if (eligibleProducts.length === 0) return null;
 
   const handleSelect = async (product: BogoProduct) => {
