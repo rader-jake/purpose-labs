@@ -7,7 +7,8 @@ import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
-import { BOGO_PRODUCTS, BOGO_PRODUCT_IDS, getBogoEligibleFreeProducts, type BogoProduct } from "@/lib/cart/bogoProducts";
+import { BOGO_PRODUCT_IDS, getBogoEligibleFreeProducts, type BogoProduct } from "@/lib/cart/bogoProducts";
+import BogoPickerModal from "@/components/BogoPickerModal";
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
@@ -170,9 +171,8 @@ export function CartDrawer() {
 }
 
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
-  const [open, setOpen] = useState(false);
-  const [adding, setAdding] = useState<number | null>(null);
-  const [added, setAdded] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const { addItem } = useCart();
 
   // Find first qualifying paid item in cart
@@ -190,99 +190,111 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const eligibleProducts = getBogoEligibleFreeProducts(qualifyingItem.id);
   if (eligibleProducts.length === 0) return null;
 
-  const handlePick = async (product: BogoProduct) => {
-    setAdding(product.id);
+  const handleSelect = async (product: BogoProduct) => {
+    setIsAdding(true);
     try {
       await addItem(product.id, 1);
-      setAdded(product.id);
-      setOpen(false);
+      setModalOpen(false);
     } catch {
-      // silently fail — cart will show error if needed
+      // silently fail
     } finally {
-      setAdding(null);
+      setIsAdding(false);
     }
   };
 
+  // Show up to 3 thumbnail previews
+  const previewProducts = eligibleProducts.slice(0, 3);
+  const extraCount = eligibleProducts.length - previewProducts.length;
+
   return (
-    <div
-      style={{
-        backgroundColor: "#0d5c34",
-        color: "white",
-        borderRadius: 12,
-        padding: 16,
-        margin: "0 0 16px 0",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 18 }}>✅</span>
-          <span style={{ fontWeight: 700, fontSize: 15 }}>1 free BOGO vial available</span>
-        </div>
-        <span style={{ fontSize: 12, opacity: 0.85 }}>1 ready to choose</span>
-      </div>
-      <p style={{ fontSize: 12, opacity: 0.8, margin: "6px 0 10px", lineHeight: 1.4 }}>
-        Choose a vial from the same group and add it for $0.00.
-      </p>
-      <button
-        onClick={() => setOpen((o) => !o)}
+    <>
+      <div
         style={{
-          background: "rgba(255,255,255,0.15)",
-          border: "1px solid rgba(255,255,255,0.35)",
-          borderRadius: 8,
+          backgroundColor: "#1B2A4A",
           color: "white",
-          padding: "6px 14px",
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: "pointer",
-          width: "100%",
+          borderRadius: 14,
+          padding: 16,
+          margin: "0 0 16px 0",
         }}
       >
-        Choose BOGO vial {open ? "▲" : "▼"}
-      </button>
+        {/* Row 1: checkmark + label + ready count */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                background: "#16a34a",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 12,
+                fontWeight: 700,
+                flexShrink: 0,
+              }}
+            >
+              ✓
+            </span>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>1 free BOGO vial available</span>
+          </div>
+          <span style={{ fontSize: 11, opacity: 0.65, whiteSpace: "nowrap", marginLeft: 8 }}>1 ready to choose</span>
+        </div>
 
-      {open && (
-        <div
+        {/* Row 2: thumbnails + count */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+          {previewProducts.map((p) => (
+            <div
+              key={`${p.id}-${p.name}`}
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                background: "#F8F6F1",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}
+            >
+              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+            </div>
+          ))}
+          {extraCount > 0 && (
+            <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 2 }}>+{extraCount} eligible options</span>
+          )}
+        </div>
+
+        {/* Row 3: Choose button */}
+        <button
+          onClick={() => setModalOpen(true)}
           style={{
-            marginTop: 12,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            background: "#1B2A4A",
+            border: "1.5px solid rgba(255,255,255,0.35)",
+            borderRadius: 10,
+            color: "white",
+            padding: "10px 16px",
+            fontSize: 14,
+            fontWeight: 700,
+            cursor: "pointer",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             gap: 8,
           }}
         >
-          {eligibleProducts.map((product) => (
-            <button
-              key={product.id}
-              onClick={() => handlePick(product)}
-              disabled={adding === product.id}
-              style={{
-                background: "white",
-                border: added === product.id ? "2px solid #14273e" : "1px solid #ddd",
-                borderRadius: 10,
-                padding: 8,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                textAlign: "left",
-                opacity: adding === product.id ? 0.6 : 1,
-              }}
-            >
-              <img
-                src={product.image}
-                alt={product.name}
-                style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
-              />
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: "#14273e", lineHeight: 1.3 }}>
-                  {product.name}
-                </div>
-                <div style={{ fontSize: 11, color: "#666" }}>${product.price.toFixed(2)}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+          Choose BOGO vial ▼
+        </button>
+      </div>
+
+      {modalOpen && (
+        <BogoPickerModal
+          products={eligibleProducts}
+          onSelect={handleSelect}
+          onClose={() => setModalOpen(false)}
+          isAdding={isAdding}
+        />
       )}
-    </div>
+    </>
   );
 }
 
