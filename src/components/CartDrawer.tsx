@@ -180,13 +180,12 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
     .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item))
     .reduce((sum, item) => sum + item.quantity, 0);
 
-  const totalFree = cart.items
-    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item))
-    .reduce((sum, item) => sum + item.quantity, 0);
+  // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
+  const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
 
-  if (totalPaid === 0 || totalFree >= totalPaid) return null;
+  if (totalPaid === 0 || bogoCouponCount >= totalPaid) return null;
 
-  const freeRemaining = totalPaid - totalFree;
+  const freeRemaining = totalPaid - bogoCouponCount;
 
   // Find highest-tier paid item to determine eligible products
   const highestPaidTier = ([3, 2, 1] as const).find((t) =>
