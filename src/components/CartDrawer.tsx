@@ -376,7 +376,8 @@ function FreeShippingProgress({
 
 function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
   const { applyCoupon, removeCoupon } = useCart();
-  const [code, setCode] = useState("");
+  const hasResearch25 = coupons.some((c) => c.code.toLowerCase() === "research25");
+  const [code, setCode] = useState(!hasResearch25 ? "RESEARCH25" : "");
   const [isPending, setIsPending] = useState(false);
 
   async function handleApply(e: React.FormEvent) {
@@ -440,8 +441,13 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
           onChange={(e) => setCode(e.target.value)}
           placeholder="Coupon code"
           disabled={isPending}
-          className="flex-1 rounded border px-3 py-2 text-sm"
-          style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
+          className="flex-1 rounded border px-3 py-2 text-sm font-semibold"
+          style={{
+            borderColor: code === "RESEARCH25" ? "var(--pl-navy)" : "var(--pl-border)",
+            color: "var(--pl-navy)",
+            fontFamily: "var(--pl-font-body)",
+            backgroundColor: code === "RESEARCH25" ? "rgba(27,42,74,0.06)" : undefined,
+          }}
         />
         <button
           type="submit"
