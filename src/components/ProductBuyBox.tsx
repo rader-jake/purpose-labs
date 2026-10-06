@@ -146,13 +146,39 @@ export function ProductBuyBox({
         )}
       </div>
 
-      {/* BOGO Banner */}
+      {/* BOGO Callout — Sunday style */}
       <div
-        className="mb-4 sm:mb-6 rounded-xl px-5 py-4 text-center"
-        style={{ background: "linear-gradient(90deg, #0B1728 0%, #1B2A4A 40%, #2E4A8A 100%)" }}
+        className="mb-4 sm:mb-6 rounded-xl px-5 py-4"
+        style={{
+          background: "#F8F6F1",
+          border: "1px solid #E0D9CE",
+        }}
       >
-        <p className="text-white text-base font-black uppercase tracking-[0.18em]">BUY 1 + GET 1 FREE</p>
-        <p className="text-white/60 text-xs mt-1">Your complimentary vial is added automatically at checkout</p>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+            background: "#EAE6DF", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="8" width="18" height="13" rx="2" />
+              <path d="M12 8v13" />
+              <path d="M19 8H5a2 2 0 0 1 0-4h.5" />
+              <path d="M12 4c0-1.1.9-2 2-2s2 .9 2 2-2 4-2 4" />
+              <path d="M12 4c0-1.1-.9-2-2-2s-2 .9-2 2 2 4 2 4" />
+            </svg>
+          </div>
+          <div>
+            <p style={{ fontWeight: 800, fontSize: 13, color: "#1B2A4A", letterSpacing: "0.02em", marginBottom: 4, fontFamily: "var(--pl-font-body)" }}>
+              BUY 1, GET 1 FREE
+            </p>
+            <p style={{ fontSize: 12, color: "#6B6258", lineHeight: 1.5, fontFamily: "var(--pl-font-body)" }}>
+              Add an eligible product and choose your free vial of equal or lesser value.
+            </p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", marginTop: 4, fontFamily: "var(--pl-font-body)" }}>
+              No code needed. Choose your free vial in the cart.
+            </p>
+          </div>
+        </div>
       </div>
 
       {hasVariations && (
