@@ -104,9 +104,9 @@ export function HowToClaimFreeVial() {
                 src="/pl-research-kit-box.jpg"
                 alt="Purpose Labs Research Supply Kit"
                 width={580}
-                height={340}
-                className="h-auto w-full rounded-xl object-cover"
-                style={{ maxWidth: 520 }}
+                height={440}
+                className="h-auto w-full object-contain"
+                style={{ maxWidth: 520, mixBlendMode: "multiply" }}
                 priority={false}
               />
             </div>
