@@ -1,6 +1,7 @@
 import { getBestSellers } from "@/lib/woocommerce";
 import { HomeHero } from "@/components/home/HomeHero";
 import { Research25Banner } from "@/components/home/Research25Banner";
+import { HowToClaimFreeVial } from "@/components/home/HowToClaimFreeVial";
 import { BogoPromo } from "@/components/home/BogoPromo";
 import { TrustStats } from "@/components/home/TrustStats";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
@@ -17,6 +18,7 @@ export default async function HomePage() {
   return (
     <main className="flex-1 bg-[#F1F6F9]">
       <HomeHero />
+      <HowToClaimFreeVial />
       <Research25Banner />
       <BogoPromo />
       <TrustStats />
