@@ -72,6 +72,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const affiliateCouponAttempted = useRef(false);
+  const research25Attempted = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +101,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
                     .then((updated) => { if (!cancelled) setCart(updated); })
                     .catch(() => {/* silent — don't surface affiliate coupon errors to user */});
                 }
+              }
+            } catch {/* localStorage unavailable */}
+          }
+          // Auto-apply RESEARCH25 if no affiliate coupon is active
+          if (!research25Attempted.current) {
+            research25Attempted.current = true;
+            try {
+              const affId = localStorage.getItem("pl_aff_id");
+              const affiliateCoupon = getCouponForAffiliate(affId);
+              const hasAffiliateCoupon = affiliateCoupon
+                ? data.coupons?.some(
+                    (c: { code: string }) => c.code.toLowerCase() === affiliateCoupon.toLowerCase()
+                  )
+                : false;
+              const hasResearch25 = data.coupons?.some(
+                (c: { code: string }) => c.code.toLowerCase() === "research25"
+              );
+              const hasItems = data.items && data.items.length > 0;
+              if (!hasResearch25 && !hasAffiliateCoupon && hasItems) {
+                fetch("/api/cart/apply-coupon", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ code: "RESEARCH25" }),
+                })
+                  .then(parseCartResponse)
+                  .then((updated) => { if (!cancelled) setCart(updated); })
+                  .catch(() => {/* silent */});
               }
             } catch {/* localStorage unavailable */}
           }
