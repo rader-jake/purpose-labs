@@ -224,56 +224,72 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
     <>
       <div
         style={{
-          backgroundColor: "#1B2A4A",
+          background: "linear-gradient(135deg, #1B2A4A 0%, #243560 100%)",
           color: "white",
-          borderRadius: 14,
-          padding: 16,
+          borderRadius: 16,
+          padding: "16px 18px",
           margin: "0 0 16px 0",
+          boxShadow: "0 4px 16px rgba(27,42,74,0.25)",
         }}
       >
         {/* Row 1: checkmark + label + ready count */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
             <span
               style={{
-                width: 22,
-                height: 22,
+                width: 24,
+                height: 24,
                 borderRadius: "50%",
-                background: "#16a34a",
+                background: "#22c55e",
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 12,
-                fontWeight: 700,
+                fontSize: 13,
+                fontWeight: 800,
                 flexShrink: 0,
+                boxShadow: "0 0 0 3px rgba(34,197,94,0.2)",
               }}
             >
               ✓
             </span>
-            <span style={{ fontWeight: 700, fontSize: 14 }}>{freeRemaining} free BOGO vial{freeRemaining > 1 ? "s" : ""} available</span>
+            <span style={{ fontWeight: 700, fontSize: 14, letterSpacing: "-0.01em" }}>
+              {freeRemaining} free BOGO vial{freeRemaining > 1 ? "s" : ""} available
+            </span>
           </div>
-          <span style={{ fontSize: 11, opacity: 0.65, whiteSpace: "nowrap", marginLeft: 8 }}>{freeRemaining} ready to choose</span>
+          <span style={{
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            background: "rgba(255,255,255,0.12)",
+            borderRadius: 20,
+            padding: "3px 8px",
+            whiteSpace: "nowrap",
+          }}>
+            {freeRemaining} to choose
+          </span>
         </div>
 
         {/* Row 2: thumbnails + count */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
           {previewProducts.map((p) => (
             <div
               key={`${p.id}-${p.name}`}
               style={{
-                width: 32,
-                height: 32,
-                borderRadius: 6,
-                background: "#F8F6F1",
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.12)",
+                border: "1px solid rgba(255,255,255,0.15)",
                 overflow: "hidden",
                 flexShrink: 0,
               }}
             >
-              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 2 }} />
             </div>
           ))}
           {extraCount > 0 && (
-            <span style={{ fontSize: 11, opacity: 0.7, marginLeft: 2 }}>+{extraCount} eligible options</span>
+            <span style={{ fontSize: 11, opacity: 0.6, marginLeft: 4, fontStyle: "italic" }}>+{extraCount} more eligible</span>
           )}
         </div>
 
@@ -281,12 +297,12 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
         <button
           onClick={() => setModalOpen(true)}
           style={{
-            background: "#1B2A4A",
-            border: "1.5px solid rgba(255,255,255,0.35)",
+            background: "rgba(255,255,255,0.15)",
+            border: "1.5px solid rgba(255,255,255,0.3)",
             borderRadius: 10,
             color: "white",
-            padding: "10px 16px",
-            fontSize: 14,
+            padding: "11px 16px",
+            fontSize: 13,
             fontWeight: 700,
             cursor: "pointer",
             width: "100%",
@@ -294,9 +310,13 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
             alignItems: "center",
             justifyContent: "center",
             gap: 8,
+            letterSpacing: "0.02em",
+            transition: "background 0.15s",
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.22)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; }}
         >
-          Choose BOGO vial ▼
+          🎁 Choose your free vial
         </button>
       </div>
 
@@ -399,7 +419,7 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
   return (
     <div className="mt-6 flex flex-col gap-3 border-t pt-4" style={{ borderColor: "var(--pl-border)" }}>
       {coupons
-        .filter((coupon) => coupon.code !== "pl-auto-bacwater") // hidden — shown as FREE badge on the line item
+        .filter((coupon) => coupon.code !== "pl-auto-bacwater" && !coupon.code.startsWith("pl-bogo-")) // hidden — shown as FREE badge on line items
         .map((coupon) => (
           <div
             key={coupon.code}
