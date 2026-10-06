@@ -12,7 +12,12 @@ import { ResearchAccessCTA } from "@/components/home/ResearchAccessCTA";
 export default async function HomePage() {
   // Fetch best seller products from WooCommerce server-side
   // Fall back to empty array if the API is unreachable — never crash the page
-  const products = await getBestSellers(4).catch((e) => { console.error("getBestSellers failed:", e); return []; });
+  // Curated featured products: PL 3RT, KLOW, IGF-1 LR3, BPC-157
+  const { getProducts } = await import("@/lib/woocommerce");
+  const products = await getProducts({ include: [100, 1421, 1931, 95] }).catch(() => []);
+  // Sort to match requested order
+  const order = [100, 1421, 1931, 95];
+  products.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
 
   return (
     <main className="flex-1 bg-[#F1F6F9]">
