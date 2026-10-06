@@ -192,7 +192,7 @@ export const NON_MERCHANDISABLE_PRODUCT_IDS = [1057];
 export async function getBestSellers(limit = 8): Promise<WooProduct[]> {
   return getProducts({
     perPage: limit,
-    orderby: "popularity",
+    orderby: "date",
     exclude: NON_MERCHANDISABLE_PRODUCT_IDS,
   });
 }
