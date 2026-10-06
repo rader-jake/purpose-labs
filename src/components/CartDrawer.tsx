@@ -61,7 +61,12 @@ export function CartDrawer() {
 
         {cart?.needs_shipping && (
           <FreeShippingProgress
-            totalItemsCents={Number(cart.totals.total_items)}
+            totalItemsCents={
+              // Only count paid items — exclude free BOGO/promo items (line_total=0)
+              cart.items
+                .filter((item) => item.totals.line_total !== "0")
+                .reduce((sum, item) => sum + Number(item.totals.line_subtotal), 0)
+            }
             hasFreeShippingRate={cart.shipping_rates.some((pkg) =>
               pkg.shipping_rates.some((rate) => rate.method_id === "free_shipping")
             )}
