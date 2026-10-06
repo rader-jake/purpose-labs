@@ -79,11 +79,18 @@ export function ProductBuyBox({
   const effectivePrice = selectedVariation ? selectedVariation.price : price;
   const effectiveRegularPrice = selectedVariation ? selectedVariation.regular_price : regularPrice;
   const effectiveSalePrice = selectedVariation ? null : salePrice;
-  // Show strikethrough if there's a sale: regular > sale
-  const hasDiscount =
-    effectiveRegularPrice &&
-    effectiveSalePrice &&
-    parseFloat(effectiveRegularPrice) > parseFloat(effectiveSalePrice);
+
+  // RESEARCH25: always show 25% off on product pages
+  // Compute display price as 75% of regular price (or current price if no regular)
+  const research25BasePrice = parseFloat(effectiveRegularPrice || effectivePrice || "0");
+  const research25DisplayPrice = research25BasePrice > 0
+    ? (research25BasePrice * 0.75).toFixed(2)
+    : null;
+  // Use RESEARCH25 display if no existing sale price
+  const hasDiscount = research25DisplayPrice !== null;
+  const displayedRegularPrice = effectiveRegularPrice || effectivePrice;
+  const displayedSalePrice = effectiveSalePrice || research25DisplayPrice;
+
   const effectiveOutOfStock = selectedVariation
     ? selectedVariation.stock_status !== "instock"
     : outOfStock;
@@ -127,14 +134,14 @@ export function ProductBuyBox({
             className="text-lg line-through opacity-50"
             style={{ color: "var(--pl-ivory)" }}
           >
-            ${effectiveRegularPrice}
+            ${displayedRegularPrice}
           </span>
         )}
         <p
           className="text-xl font-semibold sm:text-2xl"
           style={{ color: hasDiscount ? "#4ade80" : "var(--pl-ivory)" }}
         >
-          ${effectiveSalePrice || effectivePrice}
+          ${displayedSalePrice || effectivePrice}
         </p>
         {hasDiscount && (
           <span

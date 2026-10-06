@@ -92,24 +92,28 @@ export function ProductCard({ product }: ProductCardProps) {
           className="flex items-baseline gap-2"
           style={{ fontFamily: "var(--pl-font-body)" }}
         >
-          {product.sale_price && product.regular_price &&
-           parseFloat(product.regular_price) > parseFloat(product.sale_price) && (
-            <span className="text-xs line-through opacity-40" style={{ color: "var(--pl-slate)" }}>
-              ${product.regular_price}
-            </span>
-          )}
-          <p
-            className="text-sm font-medium"
-            style={{ color: "var(--pl-slate)" }}
-          >
-            ${product.sale_price || product.price}
-          </p>
-          {product.sale_price && product.regular_price &&
-           parseFloat(product.regular_price) > parseFloat(product.sale_price) && (
-            <span className="text-xs font-bold" style={{ color: "#1B2A4A" }}>
-              25% OFF
-            </span>
-          )}
+          {/* RESEARCH25: always show 25% off — cross out regular, show discounted */}
+          {(() => {
+            const base = parseFloat(product.regular_price || product.price || "0");
+            const discounted = base > 0 ? (base * 0.75).toFixed(2) : null;
+            return discounted ? (
+              <>
+                <span className="text-xs line-through opacity-40" style={{ color: "var(--pl-slate)" }}>
+                  ${product.regular_price || product.price}
+                </span>
+                <p className="text-sm font-medium" style={{ color: "var(--pl-slate)" }}>
+                  ${discounted}
+                </p>
+                <span className="text-xs font-bold" style={{ color: "#1B2A4A" }}>
+                  25% OFF
+                </span>
+              </>
+            ) : (
+              <p className="text-sm font-medium" style={{ color: "var(--pl-slate)" }}>
+                ${product.price}
+              </p>
+            );
+          })()}
         </div>
 
         {product.short_description && (
