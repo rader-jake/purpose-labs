@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useCart } from "@/lib/cart/CartContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,22 +68,19 @@ const GROUPS: Group[] = [
 function ProductCard({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
+  const { addItem, openDrawer } = useCart();
 
   async function addToCart() {
+    if (!product.wooProductId) return;
     setLoading(true);
     try {
-      await fetch("https://joshuar120.sg-host.com/wp-json/wc/store/v1/cart/add-item", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ id: product.wooProductId, quantity: 1 }),
-      });
+      await addItem(product.wooProductId, 1);
       setAdded(true);
-      setTimeout(() => {
-        window.location.href = "https://joshuar120.sg-host.com/cart";
-      }, 400);
+      openDrawer();
+      setTimeout(() => setAdded(false), 2000);
     } catch (err) {
       console.error(err);
+    } finally {
       setLoading(false);
     }
   }
