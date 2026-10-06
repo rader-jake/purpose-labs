@@ -381,6 +381,11 @@ function FreeShippingProgress({
 function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
   const { applyCoupon, removeCoupon } = useCart();
   const hasResearch25 = coupons.some((c) => c.code.toLowerCase() === "research25");
+  // Hide RESEARCH25 banner if any non-bogo, non-bacwater, non-research25 coupon is applied (i.e. affiliate code)
+  const hasAffiliateCoupon = coupons.some((c) => {
+    const code = c.code.toLowerCase();
+    return code !== "research25" && code !== "pl-auto-bacwater" && !code.startsWith("pl-bogo-");
+  });
   const [code, setCode] = useState(!hasResearch25 ? "RESEARCH25" : "");
   const [isPending, setIsPending] = useState(false);
 
@@ -440,8 +445,8 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
           </div>
         ))}
 
-      {/* RESEARCH25 promo banner — shown when not yet applied */}
-      {!hasResearch25 && (
+      {/* RESEARCH25 promo banner — shown when not yet applied and no affiliate code active */}
+      {!hasResearch25 && !hasAffiliateCoupon && (
         <div
           className="flex items-center gap-3 rounded-xl px-4 py-3"
           style={{ backgroundColor: "#1B2A4A" }}
