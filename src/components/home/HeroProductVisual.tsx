@@ -52,6 +52,34 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
         .glow-breathe { animation: glow-breathe  6s   ease-in-out 0s    infinite; }
       `}</style>
 
+      {/* BOGO Announcement Badge */}
+      <div
+        style={{
+          position: "absolute",
+          top: 18,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 20,
+          background: "#1B2A4A",
+          color: "#F8F6F1",
+          borderRadius: 100,
+          padding: "7px 18px",
+          fontSize: 10,
+          fontWeight: 700,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          whiteSpace: "nowrap",
+          fontFamily: "var(--pl-font-body)",
+          boxShadow: "0 4px 20px rgba(27,42,74,0.25)",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block", flexShrink: 0 }} />
+        Buy One Get One Free — Mix &amp; Match · Limited Time
+      </div>
+
       {/* Background glow */}
       <div
         className={`absolute inset-0 pointer-events-none ${!reducedMotion ? "glow-breathe" : ""}`}
