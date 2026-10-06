@@ -185,8 +185,8 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
     .filter((item) => {
       if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
       if (isFreeItem(item)) return false;
-      // If a free promo coupon is applied and this item is GHK-Cu (added by promo), skip it
-      if (cartHasFreeProm && (item.id === 831 || item.id === 832 || item.id === 94)) return false;
+      // If this is the auto-added free GHK-Cu (line_total=0), skip it as a paid qualifier
+      if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
       return true;
     })
     .reduce((sum, item) => sum + item.quantity, 0);
