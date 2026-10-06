@@ -231,6 +231,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
       const data = await parseCartResponse(response);
       setCart(data);
+
+      // RPEP: auto-add free GHK-Cu 50mg when RPEP coupon is manually applied
+      if (code.toLowerCase() === "rpep") {
+        const hasGhkFree = data.items?.some(
+          (item: { id: number; prices?: { price: string } }) =>
+            item.id === 831 && parseFloat(item.prices?.price ?? "1") === 0
+        );
+        if (!hasGhkFree) {
+          fetch("/api/cart/bogo-free", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId: 831 }),
+          })
+            .then(parseCartResponse)
+            .then((updated) => setCart(updated))
+            .catch(() => {/* silent */});
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to apply coupon");
       throw err;
