@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 const VIALS = [
-  { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157", width: 110, rotate: "-6deg", floatClass: "float-left",  pb: 28 },
-  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C",  width: 148, rotate: "0deg",  floatClass: "float-center", pb: 0  },
-  { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500",  width: 110, rotate: "6deg",  floatClass: "float-right",  pb: 28 },
+  { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157", width: 155, floatClass: "float-left",  pb: 48 },
+  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C",  width: 210, floatClass: "float-center", pb: 0  },
+  { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500",  width: 155, floatClass: "float-right",  pb: 48 },
 ];
 
 export function HeroProductVisual() {
@@ -22,7 +22,7 @@ export function HeroProductVisual() {
   return (
     <div
       className="relative mx-auto select-none"
-      style={{ width: "100%", maxWidth: 420, height: 380 }}
+      style={{ width: "100%", maxWidth: 520, height: 480 }}
     >
       <style>{`
         @keyframes float-left {
@@ -82,28 +82,28 @@ export function HeroProductVisual() {
         }}
       />
 
-      {/* FREE badge */}
+      {/* Elegant BOGO label — top center */}
       <div
-        className={`absolute ${!reducedMotion ? "free-float" : ""}`}
         style={{
-          top: 10,
-          right: 24,
+          position: "absolute",
+          top: 16,
+          left: "50%",
+          transform: "translateX(-50%)",
           zIndex: 30,
-          background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-          color: "#fff",
+          background: "rgba(27,42,74,0.07)",
+          border: "1px solid rgba(27,42,74,0.14)",
           borderRadius: 100,
-          padding: "7px 16px",
-          fontSize: 11,
-          fontWeight: 900,
-          letterSpacing: "0.18em",
+          padding: "6px 20px",
+          fontSize: 9,
+          fontWeight: 800,
+          letterSpacing: "0.24em",
           textTransform: "uppercase",
           whiteSpace: "nowrap",
           fontFamily: "var(--pl-font-body)",
-          boxShadow: "0 6px 22px rgba(34,197,94,0.5)",
-          transform: "rotate(-3deg)",
+          color: "var(--pl-navy)",
         }}
       >
-        🎁 GET ONE FREE
+        Buy One · Get One Free
       </div>
 
       {/* Vials */}
@@ -167,25 +167,7 @@ export function HeroProductVisual() {
         ))}
       </div>
 
-      {/* Mix & match hint */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 4,
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontSize: 9,
-          fontWeight: 700,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: "var(--pl-navy)",
-          opacity: 0.28,
-          whiteSpace: "nowrap",
-          fontFamily: "var(--pl-font-body)",
-        }}
-      >
-        Mix &amp; match — any peptide, any combo
-      </div>
+
     </div>
   );
 }
