@@ -60,12 +60,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           ${product.price}
         </p>
 
-        {/* BOGO pricing callout for 3RT */}
-        {product.id === 100 && (
-          <p className="text-xs font-semibold" style={{ color: "#2a7a4b" }}>
-            $45 each — Buy 1, Get 1 Free
-          </p>
-        )}
+
 
         {/* Scientific Metadata */}
         <div 
