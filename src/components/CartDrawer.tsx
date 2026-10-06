@@ -189,9 +189,7 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
       if (cartHasFreeProm && (item.id === 831 || item.id === 832 || item.id === 94)) return false;
       return true;
     })
-    // Each line item counts as 1 free pick regardless of quantity — prevents
-    // adding qty 2 of the same item from showing as 2 free picks
-    .reduce((sum, _item) => sum + 1, 0);
+    .reduce((sum, item) => sum + item.quantity, 0);
 
   // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
   const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
