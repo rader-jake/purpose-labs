@@ -93,7 +93,7 @@ export function HeroProductVisual() {
       </div>
 
       {/* Vials row */}
-      <div className="flex items-end justify-center pt-16 pb-10" style={{ gap: 0 }}>
+      <div className="flex items-end justify-center pt-16 pb-4" style={{ gap: 0 }}>
         {/* Left */}
         <div className={`flex flex-col items-center pb-12 z-[5] -mr-10 ${!reducedMotion ? "float-left" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -123,6 +123,17 @@ export function HeroProductVisual() {
             {VIALS[2].label}
           </span>
         </div>
+      </div>
+
+      {/* Claim Free Vial CTA */}
+      <div className="flex justify-center pb-6">
+        <a
+          href="/products"
+          className="flex items-center gap-2 rounded-full px-8 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition-opacity duration-200 hover:opacity-85"
+          style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
+        >
+          Claim Your Free Vial →
+        </a>
       </div>
     </div>
   );
