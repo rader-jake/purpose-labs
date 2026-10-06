@@ -197,7 +197,7 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   // RPEP / FREEGHK: GHK-Cu is auto-added free — counts as 1 claimed pick
   const hasGhkSpecialCoupon = cart.coupons.some((c) => c.code.toLowerCase() === "rpep" || c.code.toLowerCase() === "freeghk");
   const ghkAutoAdded = hasGhkSpecialCoupon && cart.items.some(
-    (item) => item.id === 831 && isFreeItem(item)
+    (item) => item.id === 831 && (isFreeItem(item) || item.totals.line_total === "0")
   );
   const effectiveBogoCouponCount = bogoCouponCount + (ghkAutoAdded ? 1 : 0);
 
