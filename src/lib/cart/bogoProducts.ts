@@ -42,5 +42,6 @@ export function getBogoGroup(productId: number): 1 | 2 | 3 | null {
 export function getBogoEligibleFreeProducts(purchasedProductId: number): BogoProduct[] {
   const group = getBogoGroup(purchasedProductId);
   if (!group) return [];
-  return BOGO_PRODUCTS.filter((p) => p.group === group);
+  // Equal or lesser value: can pick from purchased tier and any lower tier
+  return BOGO_PRODUCTS.filter((p) => p.group <= group);
 }
