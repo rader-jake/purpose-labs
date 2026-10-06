@@ -176,8 +176,19 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const { refreshCart } = useCart();
 
   // Count total paid and free BOGO items across all tiers
+  // Free promo coupons that auto-add items — don't count those items as paid BOGO qualifiers
+  const FREE_PROMO_CODES = ["freeghk", "rpep", "pl-auto-bacwater", "swrv"];
+  const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
+  const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
+
   const totalPaid = cart.items
-    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item))
+    .filter((item) => {
+      if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
+      if (isFreeItem(item)) return false;
+      // If a free promo coupon is applied and this item is GHK-Cu (added by promo), skip it
+      if (cartHasFreeProm && (item.id === 831 || item.id === 832 || item.id === 94)) return false;
+      return true;
+    })
     .reduce((sum, item) => sum + item.quantity, 0);
 
   // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
