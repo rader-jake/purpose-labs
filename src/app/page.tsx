@@ -19,8 +19,8 @@ export default async function HomePage() {
       <HomeHero />
       <HowToClaimFreeVial />
       <BogoPromo />
-      <TrustStats />
       <FeaturedProducts products={products} />
+      <TrustStats />
       <QualityProof />
       <EditorialStory />
       <CategoryDiscovery />
