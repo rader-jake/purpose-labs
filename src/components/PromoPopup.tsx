@@ -22,7 +22,7 @@ export function PromoPopup() {
   }
 
   function copyCode() {
-    navigator.clipboard.writeText("PURPOSE").then(() => {
+    navigator.clipboard.writeText("RESEARCH25").then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
@@ -74,7 +74,7 @@ export function PromoPopup() {
               color: copied ? "#ffffff" : "#0d1b3e",
             }}
           >
-            {copied ? "✓ Copied!" : "PURPOSE — Tap to Copy"}
+            {copied ? "✓ Copied!" : "RESEARCH25 — Tap to Copy"}
           </button>
         </div>
       </div>
