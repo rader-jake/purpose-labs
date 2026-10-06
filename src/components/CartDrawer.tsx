@@ -175,20 +175,28 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [isAdding, setIsAdding] = useState(false);
   const { refreshCart } = useCart();
 
-  // Find first qualifying paid item in cart
+  // Count paid BOGO items (by quantity) and free BOGO items
+  const paidBogoQty = cart.items
+    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item))
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const freeBogoQty = cart.items
+    .filter((item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item))
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  // Banner shows as long as paid > free (1 free per paid item)
+  if (paidBogoQty === 0 || freeBogoQty >= paidBogoQty) return null;
+
+  // Use first paid BOGO item to determine eligible tier
   const qualifyingItem = cart.items.find(
     (item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item)
   );
   if (!qualifyingItem) return null;
 
-  // Check if a free vial already picked (price 0)
-  const alreadyHasFreeVial = cart.items.some(
-    (item) => BOGO_PRODUCT_IDS.has(item.id) && isFreeItem(item)
-  );
-  if (alreadyHasFreeVial) return null;
-
   const eligibleProducts = getBogoEligibleFreeProducts(qualifyingItem.id);
   if (eligibleProducts.length === 0) return null;
+
+  const freeRemaining = paidBogoQty - freeBogoQty;
 
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
@@ -242,9 +250,9 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
             >
               ✓
             </span>
-            <span style={{ fontWeight: 700, fontSize: 14 }}>1 free BOGO vial available</span>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>{freeRemaining} free BOGO vial{freeRemaining > 1 ? "s" : ""} available</span>
           </div>
-          <span style={{ fontSize: 11, opacity: 0.65, whiteSpace: "nowrap", marginLeft: 8 }}>1 ready to choose</span>
+          <span style={{ fontSize: 11, opacity: 0.65, whiteSpace: "nowrap", marginLeft: 8 }}>{freeRemaining} ready to choose</span>
         </div>
 
         {/* Row 2: thumbnails + count */}
