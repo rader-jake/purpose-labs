@@ -2,18 +2,26 @@
 
 import { useEffect, useState } from "react";
 
-const VIALS = [
+const LEFT_VIALS = [
   { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157" },
-  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C"  },
   { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500"  },
 ];
 
-type HeroProductVisualProps = {
-  imageSrc?: string;
-  imageAlt?: string;
-};
+const RIGHT_VIALS = [
+  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C"  },
+  { src: "/hero-tb500.png",  alt: "GLP-3 10MG",   label: "GLP-3"   },
+];
 
-export function HeroProductVisual(_props: HeroProductVisualProps) {
+const SPARKLE_POSITIONS = [
+  { top: "12%", left: "8%",  size: 18, delay: "0s",    dur: "3.1s" },
+  { top: "20%", left: "85%", size: 14, delay: "0.6s",  dur: "2.7s" },
+  { top: "55%", left: "4%",  size: 10, delay: "1.2s",  dur: "3.4s" },
+  { top: "65%", left: "90%", size: 16, delay: "0.3s",  dur: "2.9s" },
+  { top: "80%", left: "22%", size: 12, delay: "1.8s",  dur: "3.2s" },
+  { top: "78%", left: "72%", size: 9,  delay: "0.9s",  dur: "2.6s" },
+];
+
+export function HeroProductVisual() {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -27,97 +35,316 @@ export function HeroProductVisual(_props: HeroProductVisualProps) {
   return (
     <div
       className="relative mx-auto select-none"
-      style={{ width: "100%", maxWidth: 480, height: 360, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 24 }}
+      style={{ width: "100%", maxWidth: 560, height: 420 }}
     >
       <style>{`
-        @keyframes float-left {
-          0%,100% { transform: translateY(0px) rotate(-1.5deg); }
-          50%      { transform: translateY(-16px) rotate(1deg); }
+        @keyframes float-a { 0%,100%{transform:translateY(0px) rotate(-2deg)} 50%{transform:translateY(-18px) rotate(1.5deg)} }
+        @keyframes float-b { 0%,100%{transform:translateY(0px) rotate(1deg)}  50%{transform:translateY(-24px) rotate(-1deg)} }
+        @keyframes float-c { 0%,100%{transform:translateY(0px) rotate(2deg)}  50%{transform:translateY(-14px) rotate(-2deg)} }
+        @keyframes float-d { 0%,100%{transform:translateY(0px) rotate(-1deg)} 50%{transform:translateY(-20px) rotate(1.5deg)} }
+        @keyframes glow    { 0%,100%{opacity:0.5} 50%{opacity:0.85} }
+        @keyframes sparkle {
+          0%  { transform: scale(0) rotate(0deg);   opacity:0; }
+          40% { transform: scale(1) rotate(80deg);  opacity:1; }
+          80% { transform: scale(0.8) rotate(140deg); opacity:0.6; }
+          100%{ transform: scale(0) rotate(200deg); opacity:0; }
         }
-        @keyframes float-center {
-          0%,100% { transform: translateY(0px) rotate(0.5deg); }
-          50%      { transform: translateY(-22px) rotate(-0.5deg); }
+        @keyframes free-bounce {
+          0%,100% { transform: translateY(0px) rotate(-4deg); }
+          50%     { transform: translateY(-10px) rotate(-4deg); }
         }
-        @keyframes float-right {
-          0%,100% { transform: translateY(0px) rotate(1.5deg); }
-          50%      { transform: translateY(-14px) rotate(-1.2deg); }
+        @keyframes plus-pulse {
+          0%,100% { transform: scale(1);   opacity:0.9; }
+          50%     { transform: scale(1.15); opacity:1; }
         }
-        @keyframes glow-breathe {
-          0%,100% { opacity: 0.6; }
-          50%      { opacity: 0.9; }
-        }
-        .float-left   { animation: float-left   5.5s ease-in-out 0s    infinite; }
-        .float-center { animation: float-center  6.2s ease-in-out 0.7s  infinite; }
-        .float-right  { animation: float-right   4.9s ease-in-out 1.4s  infinite; }
-        .glow-breathe { animation: glow-breathe  6s   ease-in-out 0s    infinite; }
+        .float-a { animation: float-a 5.5s ease-in-out 0s   infinite; }
+        .float-b { animation: float-b 6.2s ease-in-out 0.8s infinite; }
+        .float-c { animation: float-c 4.9s ease-in-out 1.4s infinite; }
+        .float-d { animation: float-d 5.8s ease-in-out 0.4s infinite; }
+        .glow    { animation: glow    6s   ease-in-out 0s   infinite; }
+        .sparkle { animation: sparkle 3s   ease-in-out both infinite; }
+        .free-bounce { animation: free-bounce 3.5s ease-in-out infinite; }
+        .plus-pulse  { animation: plus-pulse  2s   ease-in-out infinite; }
       `}</style>
-
-      {/* BOGO Announcement Badge */}
-      <div
-        style={{
-          position: "absolute",
-          top: 18,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 20,
-          background: "#1B2A4A",
-          color: "#F8F6F1",
-          borderRadius: 100,
-          padding: "7px 18px",
-          fontSize: 10,
-          fontWeight: 700,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          whiteSpace: "nowrap",
-          fontFamily: "var(--pl-font-body)",
-          boxShadow: "0 4px 20px rgba(27,42,74,0.25)",
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block", flexShrink: 0 }} />
-        Buy One Get One Free — Mix &amp; Match · Limited Time
-      </div>
 
       {/* Background glow */}
       <div
-        className={`absolute inset-0 pointer-events-none ${!reducedMotion ? "glow-breathe" : ""}`}
+        className={`absolute inset-0 pointer-events-none ${!reducedMotion ? "glow" : ""}`}
         style={{
-          background: "radial-gradient(ellipse at 50% 85%, rgba(255,255,255,0.95) 0%, rgba(155,164,180,0.15) 50%, transparent 72%)",
-          filter: "blur(32px)",
+          background:
+            "radial-gradient(ellipse at 50% 90%, rgba(255,255,255,0.9) 0%, rgba(155,164,180,0.1) 50%, transparent 72%)",
+          filter: "blur(36px)",
         }}
       />
 
-      {/* Left vial */}
-      <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-left" : ""}`} style={{ zIndex: 5 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false}
-          style={{ width: 115, height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.14))", pointerEvents: "none" }} />
-        <span style={{ marginTop: 8, fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--pl-navy)", opacity: 0.5, fontFamily: "var(--pl-font-body)" }}>
-          {VIALS[0].label}
-        </span>
+      {/* Sparkles */}
+      {!reducedMotion &&
+        SPARKLE_POSITIONS.map((s, i) => (
+          <div
+            key={i}
+            className="sparkle pointer-events-none absolute"
+            style={{
+              top: s.top,
+              left: s.left,
+              width: s.size,
+              height: s.size,
+              animationDelay: s.delay,
+              animationDuration: s.dur,
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" width={s.size} height={s.size}>
+              <path
+                d="M12 2L13.5 9.5L21 12L13.5 14.5L12 22L10.5 14.5L3 12L10.5 9.5Z"
+                fill="#4A6FBF"
+                opacity="0.7"
+              />
+            </svg>
+          </div>
+        ))}
+
+      {/* ===== LEFT SIDE — "BUY" vials ===== */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          bottom: 0,
+          width: "42%",
+          height: "100%",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+          gap: 16,
+          paddingBottom: 40,
+        }}
+      >
+        {/* BUY label */}
+        <div
+          style={{
+            position: "absolute",
+            top: 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "#1B2A4A",
+            color: "#fff",
+            borderRadius: 100,
+            padding: "5px 16px",
+            fontSize: 9,
+            fontWeight: 800,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            fontFamily: "var(--pl-font-body)",
+          }}
+        >
+          YOUR PICK
+        </div>
+
+        <div className={`flex flex-col items-center justify-end ${!reducedMotion ? "float-a" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={LEFT_VIALS[0].src}
+            alt={LEFT_VIALS[0].alt}
+            draggable={false}
+            style={{
+              width: 105,
+              height: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.15))",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            style={{
+              marginTop: 8,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--pl-navy)",
+              opacity: 0.5,
+              fontFamily: "var(--pl-font-body)",
+            }}
+          >
+            {LEFT_VIALS[0].label}
+          </span>
+        </div>
+
+        <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-b" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={LEFT_VIALS[1].src}
+            alt={LEFT_VIALS[1].alt}
+            draggable={false}
+            style={{
+              width: 85,
+              height: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 10px 22px rgba(20,39,78,0.12))",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            style={{
+              marginTop: 8,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--pl-navy)",
+              opacity: 0.4,
+              fontFamily: "var(--pl-font-body)",
+            }}
+          >
+            {LEFT_VIALS[1].label}
+          </span>
+        </div>
       </div>
 
-      {/* Center vial — largest */}
-      <div className={`relative flex flex-col items-center justify-end pb-4 ${!reducedMotion ? "float-center" : ""}`} style={{ zIndex: 10 }}>
-        <div style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: 130, height: 130, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,255,255,0.85) 0%, transparent 70%)", filter: "blur(18px)", zIndex: -1 }} />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={VIALS[1].src} alt={VIALS[1].alt} draggable={false}
-          style={{ width: 168, height: "auto", objectFit: "contain", filter: "drop-shadow(0 20px 40px rgba(20,39,78,0.2))", pointerEvents: "none" }} />
-        <span style={{ marginTop: 10, fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--pl-navy)", opacity: 0.55, fontFamily: "var(--pl-font-body)" }}>
-          {VIALS[1].label}
-        </span>
+      {/* ===== CENTER — "+" ===== */}
+      <div
+        className={`absolute ${!reducedMotion ? "plus-pulse" : ""}`}
+        style={{
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 20,
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, #1B2A4A 0%, #4A6FBF 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 6px 24px rgba(27,42,74,0.4)",
+          color: "#fff",
+          fontSize: 26,
+          fontWeight: 900,
+          lineHeight: 1,
+          fontFamily: "var(--pl-font-display)",
+        }}
+      >
+        +
       </div>
 
-      {/* Right vial */}
-      <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-right" : ""}`} style={{ zIndex: 5 }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false}
-          style={{ width: 115, height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.14))", pointerEvents: "none" }} />
-        <span style={{ marginTop: 8, fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--pl-navy)", opacity: 0.5, fontFamily: "var(--pl-font-body)" }}>
-          {VIALS[2].label}
-        </span>
+      {/* ===== RIGHT SIDE — "FREE" vials ===== */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0,
+          width: "42%",
+          height: "100%",
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "center",
+          gap: 16,
+          paddingBottom: 40,
+        }}
+      >
+        {/* FREE badge — floating above */}
+        <div
+          className={`${!reducedMotion ? "free-bounce" : ""}`}
+          style={{
+            position: "absolute",
+            top: 16,
+            left: "50%",
+            transform: "translateX(-50%) rotate(-4deg)",
+            background: "linear-gradient(90deg, #22c55e, #16a34a)",
+            color: "#fff",
+            borderRadius: 100,
+            padding: "6px 18px",
+            fontSize: 11,
+            fontWeight: 900,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            fontFamily: "var(--pl-font-body)",
+            boxShadow: "0 6px 20px rgba(34,197,94,0.45)",
+            zIndex: 10,
+          }}
+        >
+          🎁 FREE
+        </div>
+
+        <div className={`flex flex-col items-center justify-end pb-8 ${!reducedMotion ? "float-c" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={RIGHT_VIALS[0].src}
+            alt={RIGHT_VIALS[0].alt}
+            draggable={false}
+            style={{
+              width: 85,
+              height: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 10px 22px rgba(20,39,78,0.12))",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            style={{
+              marginTop: 8,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--pl-navy)",
+              opacity: 0.4,
+              fontFamily: "var(--pl-font-body)",
+            }}
+          >
+            {RIGHT_VIALS[0].label}
+          </span>
+        </div>
+
+        <div className={`flex flex-col items-center justify-end ${!reducedMotion ? "float-d" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={RIGHT_VIALS[1].src}
+            alt={RIGHT_VIALS[1].alt}
+            draggable={false}
+            style={{
+              width: 105,
+              height: "auto",
+              objectFit: "contain",
+              filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.15))",
+              pointerEvents: "none",
+            }}
+          />
+          <span
+            style={{
+              marginTop: 8,
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--pl-navy)",
+              opacity: 0.5,
+              fontFamily: "var(--pl-font-body)",
+            }}
+          >
+            {RIGHT_VIALS[1].label}
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom hint */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 8,
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontSize: 9,
+          fontWeight: 700,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          color: "var(--pl-navy)",
+          opacity: 0.3,
+          whiteSpace: "nowrap",
+          fontFamily: "var(--pl-font-body)",
+        }}
+      >
+        Pick any peptide — it ships free
       </div>
     </div>
   );
