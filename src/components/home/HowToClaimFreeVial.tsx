@@ -87,29 +87,29 @@ export function HowToClaimFreeVial() {
 
           {/* Right — Floating box image */}
           <div className="relative flex flex-1 items-center justify-center">
-            <div
-              className="relative"
-              style={{
-                animation: "box-float 6s ease-in-out infinite",
-                filter: "drop-shadow(0 24px 48px rgba(27,42,74,0.18))",
-              }}
-            >
-              <style>{`
-                @keyframes box-float {
-                  0%, 100% { transform: translateY(0px); }
-                  50%       { transform: translateY(-16px); }
-                }
-              `}</style>
-              <Image
-                src="/pl-research-kit-box.jpg"
-                alt="Purpose Labs Research Supply Kit"
-                width={580}
-                height={440}
-                className="h-auto w-full object-contain"
-                style={{ maxWidth: 520, mixBlendMode: "multiply" }}
-                priority={false}
-              />
-            </div>
+            <style>{`
+              @keyframes box-float {
+                0%, 100% { transform: translateY(0px); }
+                50%       { transform: translateY(-16px); }
+              }
+              .kit-box-img {
+                animation: box-float 6s ease-in-out infinite;
+                mix-blend-mode: multiply;
+                filter: drop-shadow(0 20px 40px rgba(27,42,74,0.12));
+                max-width: 480px;
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+              }
+            `}</style>
+            <Image
+              src="/pl-research-kit-box.jpg"
+              alt="Purpose Labs Research Supply Kit"
+              width={580}
+              height={440}
+              className="kit-box-img"
+              priority={false}
+            />
           </div>
 
         </div>
