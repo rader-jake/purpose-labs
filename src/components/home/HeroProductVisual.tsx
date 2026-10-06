@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 const VIALS = [
-  { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157", width: 155, floatClass: "float-left",  pb: 48 },
-  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C",  width: 210, floatClass: "float-center", pb: 0  },
-  { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500",  width: 155, floatClass: "float-right",  pb: 48 },
+  { src: "/hero-bpc157.png", alt: "BPC-157 10MG", label: "BPC-157", width: 200, floatClass: "float-left",  pb: 60, mx: -30 },
+  { src: "/hero-motsc.png",  alt: "MOTS-C 10MG",  label: "MOTS-C",  width: 270, floatClass: "float-center", pb: 0,  mx: 0  },
+  { src: "/hero-tb500.png",  alt: "TB-500 10MG",  label: "TB-500",  width: 200, floatClass: "float-right",  pb: 60, mx: -30 },
 ];
 
 export function HeroProductVisual() {
@@ -22,7 +22,7 @@ export function HeroProductVisual() {
   return (
     <div
       className="relative mx-auto select-none"
-      style={{ width: "100%", maxWidth: 520, height: 480 }}
+      style={{ width: "100%", maxWidth: 600, height: 540 }}
     >
       <style>{`
         @keyframes float-left {
@@ -117,6 +117,7 @@ export function HeroProductVisual() {
           alignItems: "flex-end",
           justifyContent: "center",
           gap: 0,
+
         }}
       >
         {VIALS.map((v) => (
@@ -128,8 +129,8 @@ export function HeroProductVisual() {
               flexDirection: "column",
               alignItems: "center",
               paddingBottom: v.pb,
-              marginLeft: v.label === "MOTS-C" ? -10 : 0,
-              marginRight: v.label === "MOTS-C" ? -10 : 0,
+              marginLeft: v.label === "BPC-157" ? 0 : v.mx,
+              marginRight: v.label === "TB-500" ? 0 : v.mx,
               zIndex: v.label === "MOTS-C" ? 10 : 5,
             }}
           >
