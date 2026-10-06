@@ -144,14 +144,14 @@ export function AgeGate() {
       aria-labelledby="age-gate-heading"
       tabIndex={-1}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 py-12"
-      style={{ background: "linear-gradient(135deg, #c8d8f0 0%, #dce8f5 40%, #bdd0eb 100%)" }}
+      style={{ background: "#0D1B2E" }}
     >
       {/* Floating vials */}
       {VIALS.map((v, i) => (
         <div
           key={i}
           className="pointer-events-none absolute"
-          style={{ top: v.top, left: v.left, transform: `rotate(${v.rotate}) scale(${v.scale})`, opacity: 0.7 }}
+          style={{ top: v.top, left: v.left, transform: `rotate(${v.rotate}) scale(${v.scale})`, opacity: 0.15 }}
         >
           <VialSVG />
         </div>
@@ -159,28 +159,28 @@ export function AgeGate() {
 
       {/* Brand name */}
       <p
-        className="mb-6 text-sm font-semibold uppercase tracking-[0.3em]"
-        style={{ color: "rgba(30, 60, 110, 0.6)", fontFamily: "var(--pl-font-body)" }}
+        className="mb-6 text-xs font-semibold uppercase tracking-[0.35em]"
+        style={{ color: "rgba(255,255,255,0.35)", fontFamily: "var(--pl-font-body)" }}
       >
         Purpose Labs
       </p>
 
       {/* Card */}
       <div
-        className="relative w-full max-w-md rounded-2xl p-8 shadow-xl"
-        style={{ backgroundColor: "rgba(255,255,255,0.92)", backdropFilter: "blur(12px)" }}
+        className="relative w-full max-w-md rounded-2xl p-8"
+        style={{ backgroundColor: "#1B2A4A", border: "1px solid rgba(255,255,255,0.08)" }}
       >
         {!declined ? (
           <>
             <h1
               id="age-gate-heading"
               className="mb-3 text-2xl font-bold"
-              style={{ color: "#1a2e50", fontFamily: "var(--pl-font-body)" }}
+              style={{ color: "#F8F6F1", fontFamily: "var(--pl-font-body)" }}
             >
               Researcher{" "}
-              <span style={{ color: "#4a7fd4" }}>Verification</span>
+              <span style={{ color: "#7BA7D4" }}>Verification</span>
             </h1>
-            <p className="mb-6 text-sm leading-relaxed" style={{ color: "#4a5568" }}>
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: "rgba(248,246,241,0.55)" }}>
               Purpose Labs sells research peptides exclusively to qualified
               researchers and laboratories for in vitro and laboratory use.
               Please confirm before continuing.
@@ -190,18 +190,18 @@ export function AgeGate() {
             <label
               className="mb-3 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
               style={{
-                borderColor: ageChecked ? "#4a7fd4" : "#e2e8f0",
-                backgroundColor: ageChecked ? "rgba(74,127,212,0.06)" : "rgba(248,250,252,0.8)",
+                borderColor: ageChecked ? "rgba(123,167,212,0.5)" : "rgba(255,255,255,0.1)",
+                backgroundColor: ageChecked ? "rgba(123,167,212,0.08)" : "rgba(255,255,255,0.04)",
               }}
             >
               <input
                 type="checkbox"
                 checked={ageChecked}
                 onChange={(e) => setAgeChecked(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-blue-500"
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
               />
-              <span className="text-sm" style={{ color: "#2d3748" }}>
-                I am at least <strong>21 years of age</strong>.
+              <span className="text-sm" style={{ color: "rgba(248,246,241,0.8)" }}>
+                I am at least <strong style={{ color: "#F8F6F1" }}>21 years of age</strong>.
               </span>
             </label>
 
@@ -209,19 +209,19 @@ export function AgeGate() {
             <label
               className="mb-6 flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors"
               style={{
-                borderColor: researcherChecked ? "#4a7fd4" : "#e2e8f0",
-                backgroundColor: researcherChecked ? "rgba(74,127,212,0.06)" : "rgba(248,250,252,0.8)",
+                borderColor: researcherChecked ? "rgba(123,167,212,0.5)" : "rgba(255,255,255,0.1)",
+                backgroundColor: researcherChecked ? "rgba(123,167,212,0.08)" : "rgba(255,255,255,0.04)",
               }}
             >
               <input
                 type="checkbox"
                 checked={researcherChecked}
                 onChange={(e) => setResearcherChecked(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-blue-500"
+                className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer"
               />
-              <span className="text-sm leading-relaxed" style={{ color: "#2d3748" }}>
-                I confirm I am a <strong>qualified researcher</strong> purchasing for{" "}
-                <strong>in vitro / laboratory research</strong> only — not for human or
+              <span className="text-sm leading-relaxed" style={{ color: "rgba(248,246,241,0.8)" }}>
+                I confirm I am a <strong style={{ color: "#F8F6F1" }}>qualified researcher</strong> purchasing for{" "}
+                <strong style={{ color: "#F8F6F1" }}>in vitro / laboratory research</strong> only — not for human or
                 veterinary use.
               </span>
             </label>
@@ -233,16 +233,17 @@ export function AgeGate() {
               disabled={!canEnter}
               className="flex w-full items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold transition-all duration-200"
               style={{
-                backgroundColor: canEnter ? "#4a7fd4" : "#e2e8f0",
-                color: canEnter ? "#ffffff" : "#a0aec0",
+                backgroundColor: canEnter ? "#F8F6F1" : "rgba(255,255,255,0.1)",
+                color: canEnter ? "#1B2A4A" : "rgba(255,255,255,0.25)",
                 cursor: canEnter ? "pointer" : "not-allowed",
+                letterSpacing: "0.04em",
               }}
             >
               Enter Purpose Labs →
             </button>
 
             {/* Fine print */}
-            <p className="mt-5 text-center text-[11px] leading-relaxed" style={{ color: "#718096" }}>
+            <p className="mt-5 text-center text-[11px] leading-relaxed" style={{ color: "rgba(248,246,241,0.3)" }}>
               By proceeding you affirm the statements above are true. Products are not for
               human or veterinary use, not for use in diagnostic procedures, and have not
               been evaluated by the U.S. Food and Drug Administration.
@@ -253,11 +254,11 @@ export function AgeGate() {
             <h1
               id="age-gate-heading"
               className="mb-4 text-2xl font-bold"
-              style={{ color: "#1a2e50", fontFamily: "var(--pl-font-body)" }}
+              style={{ color: "#F8F6F1", fontFamily: "var(--pl-font-body)" }}
             >
               Access Restricted
             </h1>
-            <p className="text-sm leading-relaxed" style={{ color: "#4a5568" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(248,246,241,0.55)" }}>
               You must be 21 or older and a qualified researcher to access this site.
             </p>
           </>
@@ -266,12 +267,12 @@ export function AgeGate() {
 
       {/* Exit link */}
       {!declined && (
-        <p className="mt-5 text-sm" style={{ color: "rgba(30,60,110,0.6)" }}>
+        <p className="mt-5 text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>
           Not a researcher?{" "}
           <button
             onClick={handleDecline}
-            className="underline transition-colors hover:opacity-80"
-            style={{ color: "#4a7fd4", background: "none", border: "none", cursor: "pointer" }}
+            className="underline transition-opacity hover:opacity-70"
+            style={{ color: "rgba(255,255,255,0.5)", background: "none", border: "none", cursor: "pointer" }}
           >
             Exit
           </button>
