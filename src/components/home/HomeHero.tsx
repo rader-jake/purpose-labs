@@ -82,19 +82,7 @@ export function HomeHero() {
               </p>
             </Reveal>
 
-            {/* CTA */}
-            <Reveal delay={280}>
-              <Link
-                href="/products"
-                className="rounded-full h-14 px-10 text-sm font-black uppercase tracking-[0.14em] flex items-center justify-center transition-all duration-300 text-white"
-                style={{
-                  background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)",
-                  boxShadow: "0 8px 32px rgba(27,42,74,0.35)",
-                }}
-              >
-                Claim Your Free Vial →
-              </Link>
-            </Reveal>
+
 
             {/* Trust line */}
             <Reveal delay={340}>
