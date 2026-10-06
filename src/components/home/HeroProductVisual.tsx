@@ -43,8 +43,8 @@ export function HeroProductVisual() {
         .float-right  { animation: float-right   5.1s ease-in-out 1.1s infinite; }
         .glow-breathe { animation: glow-breathe  6s   ease-in-out 0s   infinite; }
 
-        .vial-side   { width: clamp(110px, 26vw, 195px); }
-        .vial-center { width: clamp(150px, 34vw, 260px); }
+        .vial-side   { width: clamp(140px, 32vw, 240px); }
+        .vial-center { width: clamp(190px, 42vw, 320px); }
       `}</style>
 
       {/* Glow beneath vials */}
@@ -95,7 +95,7 @@ export function HeroProductVisual() {
       {/* Vials row */}
       <div className="flex items-end justify-center pt-16 pb-10" style={{ gap: 0 }}>
         {/* Left */}
-        <div className={`flex flex-col items-center pb-12 z-[5] -mr-6 ${!reducedMotion ? "float-left" : ""}`}>
+        <div className={`flex flex-col items-center pb-12 z-[5] -mr-10 ${!reducedMotion ? "float-left" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false} className="vial-side"
             style={{ height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.18))", pointerEvents: "none" }} />
@@ -115,7 +115,7 @@ export function HeroProductVisual() {
         </div>
 
         {/* Right */}
-        <div className={`flex flex-col items-center pb-12 z-[5] -ml-6 ${!reducedMotion ? "float-right" : ""}`}>
+        <div className={`flex flex-col items-center pb-12 z-[5] -ml-10 ${!reducedMotion ? "float-right" : ""}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false} className="vial-side"
             style={{ height: "auto", objectFit: "contain", filter: "drop-shadow(0 12px 28px rgba(20,39,78,0.18))", pointerEvents: "none" }} />
