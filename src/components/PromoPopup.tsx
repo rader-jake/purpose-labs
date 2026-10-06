@@ -53,8 +53,8 @@ export function PromoPopup() {
         {/* Promo image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="https://joshuar120.sg-host.com/wp-content/uploads/2026/10/pl-promo-banner.jpg"
-          alt="Take 10% off with code PURPOSE"
+          src="https://joshuar120.sg-host.com/wp-content/uploads/2026/10/pl-promo-banner-research25.png"
+          alt="Take 25% off with code RESEARCH25"
           className="w-full block"
         />
 
