@@ -9,10 +9,10 @@ export function BogoPromo() {
       }}
     >
       <span className="text-white text-sm sm:text-base font-black uppercase tracking-widest text-center">
-        BUY 1 + GET 1 FREE
+        Buy 1 + Get 1 Free
       </span>
-      <span className="text-white/60 text-xs font-medium hidden sm:inline">
-        — Free vial added automatically at checkout
+      <span className="text-white/50 text-xs font-medium hidden sm:inline" style={{ letterSpacing: "0.06em" }}>
+        — Mix &amp; Match Any Vial of Equal or Lesser Value · Limited Time
       </span>
       <a
         href="/products"

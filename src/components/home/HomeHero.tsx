@@ -39,7 +39,10 @@ export function HomeHero() {
                 }}
               >
                 <span className="text-white text-xs font-black uppercase tracking-[0.22em]">
-                  BUY 1 + GET 1 FREE
+                  Buy 1 + Get 1 Free
+                </span>
+                <span className="text-white/50 text-xs font-medium ml-2 hidden sm:inline" style={{ letterSpacing: "0.08em" }}>
+                  · Mix &amp; Match Any Vial
                 </span>
               </div>
             </Reveal>
