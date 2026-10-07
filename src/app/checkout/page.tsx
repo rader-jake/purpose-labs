@@ -350,12 +350,11 @@ export default function CheckoutPage() {
                 <span style={{ color: "var(--pl-slate)", flex: 1 }}>
                   {item.name} × {item.quantity}
                 </span>
-                {/* Pre-discount, matching "Subtotal" below — line_total is
-                    post-coupon and would visibly disagree with a Subtotal
-                    that's the pre-discount total_items sum. The coupon's
-                    own effect is shown separately as its own Discount
-                    line instead. */}
-                <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>
+                {item.totals.line_total === "0" ? (
+                  <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>
+                ) : (
+                  <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>
+                )}
               </li>
             ))}
           </ul>
