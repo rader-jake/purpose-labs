@@ -71,6 +71,7 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-CEQNESY8XS');
 gtag('config', 'AW-18395672517');
+gtag('config', 'AW-18463912185');
         ` }} />
 
         {/* TikTok Pixel — DA6C3A3C77U6GHRTDDBG */}
