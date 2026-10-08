@@ -203,13 +203,15 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
   const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
 
-  const totalPaid = cart.items.filter((item) => {
+  const totalPaid = cart.items
+    .filter((item) => {
       if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
       if (isFreeItem(item)) return false;
-      if (bogoFreeKeys[item.key]) return false; // already claimed as free
+      if (bogoFreeKeys[item.key]) return false;
       if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
       return true;
-    }).length;
+    })
+    .reduce((sum, item) => sum + item.quantity, 0);
 
   // Count claimed free picks from cookie
   const bogoClaimed = Object.keys(bogoFreeKeys).filter(k =>
