@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
@@ -10,8 +10,22 @@ import { decodeHtmlEntities } from "@/lib/utils";
 import { BOGO_PRODUCT_IDS, BOGO_PRODUCTS, getBogoGroup, type BogoProduct } from "@/lib/cart/bogoProducts";
 import BogoPickerModal from "@/components/BogoPickerModal";
 
+const BOGO_FREE_COOKIE = "pl_bogo_free_items";
+
+function readBogoFreeCookie(): Record<string, number> {
+  if (typeof document === "undefined") return {};
+  const match = document.cookie.match(new RegExp(`(?:^|; )${BOGO_FREE_COOKIE}=([^;]*)`));
+  if (!match) return {};
+  try { return JSON.parse(decodeURIComponent(match[1])); } catch { return {}; }
+}
+
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
+  const [bogoFreeKeys, setBogoFreeKeys] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setBogoFreeKeys(readBogoFreeCookie());
+  }, [cart]);
 
   return (
     <>
@@ -105,7 +119,8 @@ export function CartDrawer() {
                     <BacWaterLineItems key={item.key} item={item} />
                   );
                 }
-                return <CartLineItem key={item.key} item={item} />;
+                const isBogoFree = !!bogoFreeKeys[item.key];
+                return <CartLineItem key={item.key} item={item} isBogoFree={isBogoFree} />;
               })}
             </ul>
           )}
@@ -146,7 +161,11 @@ export function CartDrawer() {
                 }}
               >
                 {formatMoney(String(Math.max(0,
-                  Number(cart.totals.total_items) - Number(cart.totals.total_discount)
+                  Number(cart.totals.total_items)
+                  - Number(cart.totals.total_discount)
+                  - cart.items
+                    .filter(item => !!bogoFreeKeys[item.key])
+                    .reduce((sum, item) => sum + Number(item.totals.line_subtotal), 0)
                 )))}
               </span>
             </div>
@@ -172,30 +191,34 @@ export function CartDrawer() {
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [bogoFreeKeys, setBogoFreeKeys] = useState<Record<string, number>>({});
   const { setCart } = useCart();
 
-  // Count total paid and free BOGO items across all tiers
-  // Free promo coupons that auto-add items — don't count those items as paid BOGO qualifiers
+  useEffect(() => {
+    setBogoFreeKeys(readBogoFreeCookie());
+  }, [cart]);
+
+  // Count total paid qualifying items (distinct line items, not qty)
   const FREE_PROMO_CODES = ["freeghk", "rpep", "pl-auto-bacwater", "swrv"];
   const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
   const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
 
-  const totalPaid = cart.items
-    .filter((item) => {
+  const totalPaid = cart.items.filter((item) => {
       if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
       if (isFreeItem(item)) return false;
-      // If this is the auto-added free GHK-Cu (line_total=0), skip it as a paid qualifier
+      if (bogoFreeKeys[item.key]) return false; // already claimed as free
       if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
       return true;
-    })
-    .reduce((sum, item) => sum + item.quantity, 0);
+    }).length;
 
-  // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
-  const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
+  // Count claimed free picks from cookie
+  const bogoClaimed = Object.keys(bogoFreeKeys).filter(k =>
+    cart.items.some(i => i.key === k)
+  ).length;
 
-  if (totalPaid === 0 || bogoCouponCount >= totalPaid) return null;
+  if (totalPaid === 0 || bogoClaimed >= totalPaid) return null;
 
-  const freeRemaining = totalPaid - bogoCouponCount;
+  const freeRemaining = totalPaid - bogoClaimed;
 
   // Find highest-tier paid item to determine eligible products
   const highestPaidTier = ([3, 2, 1] as const).find((t) =>
@@ -605,10 +628,10 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
   );
 }
 
-function CartLineItem({ item }: { item: CartItem }) {
+function CartLineItem({ item, isBogoFree = false }: { item: CartItem; isBogoFree?: boolean }) {
   const { updateItem, removeItem } = useCart();
   const [isPending, setIsPending] = useState(false);
-  const free = isFreeItem(item);
+  const free = isBogoFree || isFreeItem(item);
   const image = item.images[0];
 
   async function handleQuantityChange(nextQuantity: number) {
@@ -677,7 +700,9 @@ function CartLineItem({ item }: { item: CartItem }) {
           className="text-xs"
           style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}
         >
-          {formatMoney(item.totals.line_total)}
+          {free
+            ? <span style={{ color: "var(--pl-navy)", fontWeight: 600 }}>FREE</span>
+            : formatMoney(item.totals.line_total)}
         </p>
 
         <div className="mt-2 flex items-center gap-3">
