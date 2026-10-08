@@ -119,8 +119,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
               const hasResearch25 = data.coupons?.some(
                 (c: { code: string }) => c.code.toLowerCase() === "research25"
               );
+              // Don't auto-apply RESEARCH25 if ANY manual discount code is present
+              const hasAnyDiscountCode = data.coupons?.some(
+                (c: { code: string }) => {
+                  const code = c.code.toLowerCase();
+                  return code !== "research25" && code !== "pl-auto-bacwater" && !code.startsWith("pl-bogo-");
+                }
+              );
               const hasItems = data.items && data.items.length > 0;
-              if (!hasResearch25 && !hasAffiliateCoupon && hasItems) {
+              if (!hasResearch25 && !hasAffiliateCoupon && !hasAnyDiscountCode && hasItems) {
                 fetch("/api/cart/apply-coupon", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },

@@ -145,8 +145,9 @@ export function CartDrawer() {
                   fontWeight: 500,
                 }}
               >
-                {formatMoney(String(Math.max(0, Number(cart.totals.total_items) - Number(cart.totals.total_discount))))}
-
+                {formatMoney(String(Math.max(0,
+                  Number(cart.totals.total_items) - Number(cart.totals.total_discount)
+                )))}
               </span>
             </div>
             <Link
