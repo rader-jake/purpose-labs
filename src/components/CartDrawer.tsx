@@ -20,12 +20,60 @@ function readBogoFreeCookie(): Record<string, number> {
 }
 
 export function CartDrawer() {
-  const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
+  const { cart, isLoading, error, isDrawerOpen, closeDrawer, removeItem } = useCart();
   const [bogoFreeKeys, setBogoFreeKeys] = useState<Record<string, number>>({});
 
   useEffect(() => {
     setBogoFreeKeys(readBogoFreeCookie());
   }, [cart]);
+
+  // Reconcile localStorage free picks against live cart — remove excess free picks
+  // and auto-remove orphaned free items (no paid item backing them)
+  useEffect(() => {
+    if (!cart) return;
+    try {
+      const stored = localStorage.getItem("pl_bogo_free_ids");
+      if (!stored) return;
+      const freeIds: number[] = JSON.parse(stored);
+      if (!freeIds.length) return;
+
+      // Count paid qty per product in cart
+      const paidQty = new Map<number, number>();
+      cart.items.forEach(item => {
+        if (!isFreeItem(item)) {
+          paidQty.set(item.id, (paidQty.get(item.id) ?? 0) + item.quantity);
+        }
+      });
+
+      // Rebuild free IDs — only keep as many free picks as paid qty allows
+      const newFreeIds: number[] = [];
+      const freeCount = new Map<number, number>();
+      for (const id of freeIds) {
+        const paid = paidQty.get(id) ?? 0;
+        const claimed = freeCount.get(id) ?? 0;
+        if (claimed < paid) {
+          newFreeIds.push(id);
+          freeCount.set(id, claimed + 1);
+        }
+        // else: excess free pick — drop it and remove item from cart
+      }
+
+      // Remove free cart items that lost their paid backing
+      cart.items.forEach(item => {
+        if (!isFreeItem(item)) return;
+        const pid = item.id;
+        const paid = paidQty.get(pid) ?? 0;
+        if (paid === 0) {
+          // No paid item — remove the free one
+          removeItem(item.key).catch(() => {});
+        }
+      });
+
+      if (newFreeIds.length !== freeIds.length) {
+        localStorage.setItem("pl_bogo_free_ids", JSON.stringify(newFreeIds));
+      }
+    } catch { /* ignore */ }
+  }, [cart, removeItem]);
 
   return (
     <>
