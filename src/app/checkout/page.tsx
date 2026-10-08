@@ -45,10 +45,10 @@ export default function CheckoutPage() {
   const [bogoFreeIds, setBogoFreeIds] = useState<number[]>([]);
 
   useEffect(() => {
-    // Read BOGO free picks from cookie
+    // Read BOGO free picks from localStorage (written by CartDrawer on free pick)
     try {
-      const match = document.cookie.match(/(?:^|; )pl_bogo_free_ids=([^;]*)/);
-      if (match) setBogoFreeIds(JSON.parse(decodeURIComponent(match[1])));
+      const ls = localStorage.getItem("pl_bogo_free_ids");
+      if (ls) setBogoFreeIds(JSON.parse(ls));
     } catch { /* ignore */ }
   }, []);
 

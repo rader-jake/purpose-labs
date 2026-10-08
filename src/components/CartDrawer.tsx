@@ -246,6 +246,13 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? "Failed to add free vial");
       const data = await res.json() as import("@/lib/cart/types").Cart;
       setCart(data);
+      // Persist free pick to localStorage so checkout page can read it
+      // Store as array of productIds for checkout page consumption
+      try {
+        const existing = JSON.parse(localStorage.getItem("pl_bogo_free_ids") ?? "[]") as number[];
+        existing.push(product.id);
+        localStorage.setItem("pl_bogo_free_ids", JSON.stringify(existing));
+      } catch { /* ignore */ }
       setModalOpen(false);
     } catch (err) {
       alert("Could not add free vial: " + (err instanceof Error ? err.message : "Unknown error"));
