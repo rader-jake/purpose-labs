@@ -138,10 +138,10 @@ export function getCart(tokens: CartTokens) {
  * Mutating endpoints require a valid Nonce. Callers must ensure `tokens`
  * came from a prior getCart()/mutation response, not passed in empty.
  */
-export function addCartItem(tokens: CartTokens, id: number, quantity: number) {
+export function addCartItem(tokens: CartTokens, id: number, quantity: number, itemData?: Record<string, string>) {
   return storeApiFetch("/cart/add-item", tokens, {
     method: "POST",
-    body: JSON.stringify({ id, quantity }),
+    body: JSON.stringify({ id, quantity, ...(itemData ? { item_data: itemData } : {}) }),
   });
 }
 

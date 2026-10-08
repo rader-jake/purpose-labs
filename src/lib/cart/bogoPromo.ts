@@ -70,7 +70,7 @@ export async function syncBogoPromo(
     for (const paidItem of paidItems) {
       if (!freeByProductId.has(paidItem.id)) {
         try {
-          const result = await addCartItem(currentTokens, paidItem.id, paidItem.quantity);
+          const result = await addCartItem(currentTokens, paidItem.id, paidItem.quantity, { pl_bogo_free: "1" });
           currentCart = result.data as Cart;
           currentTokens = result.tokens;
           // The PHP snippet on WP side will mark it as pl_free and zero the price.
