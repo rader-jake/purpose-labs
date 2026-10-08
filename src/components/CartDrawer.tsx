@@ -105,7 +105,11 @@ export function CartDrawer() {
                     <BacWaterLineItems key={item.key} item={item} />
                   );
                 }
-                return <CartLineItem key={item.key} item={item} />;
+                // Detect BOGO free items: a pl-bogo-{id} coupon covers this product
+                const isBogoFree = cart.coupons.some((c) =>
+                  c.code.startsWith(`pl-bogo-${item.id}-`)
+                );
+                return <CartLineItem key={item.key} item={item} isBogoFree={isBogoFree} />;
               })}
             </ul>
           )}
@@ -180,15 +184,13 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
   const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
 
-  const totalPaid = cart.items
-    .filter((item) => {
+  // Count distinct paid line items (not quantity) — 1 paid item = 1 free pick, regardless of qty
+  const totalPaid = cart.items.filter((item) => {
       if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
       if (isFreeItem(item)) return false;
-      // If this is the auto-added free GHK-Cu (line_total=0), skip it as a paid qualifier
       if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
       return true;
-    })
-    .reduce((sum, item) => sum + item.quantity, 0);
+    }).length;
 
   // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
   const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
@@ -604,10 +606,10 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
   );
 }
 
-function CartLineItem({ item }: { item: CartItem }) {
+function CartLineItem({ item, isBogoFree = false }: { item: CartItem; isBogoFree?: boolean }) {
   const { updateItem, removeItem } = useCart();
   const [isPending, setIsPending] = useState(false);
-  const free = isFreeItem(item);
+  const free = isBogoFree || isFreeItem(item);
   const image = item.images[0];
 
   async function handleQuantityChange(nextQuantity: number) {
@@ -676,7 +678,7 @@ function CartLineItem({ item }: { item: CartItem }) {
           className="text-xs"
           style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}
         >
-          {formatMoney(item.totals.line_total)}
+          {free ? <span style={{ color: "var(--pl-navy)", fontWeight: 600 }}>FREE</span> : formatMoney(item.totals.line_total)}
         </p>
 
         <div className="mt-2 flex items-center gap-3">
