@@ -246,14 +246,29 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
     try {
+      // Step 1: Add item + get coupon code back
       const res = await fetch("/api/cart/bogo-free", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: product.id }),
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? "Failed to add free vial");
-      const data = await res.json() as import("@/lib/cart/types").Cart;
-      setCart(data);
+      const { cart: updatedCart, couponCode } = await res.json() as { cart: import("@/lib/cart/types").Cart; couponCode: string };
+      setCart(updatedCart);
+
+      // Step 2: Apply the coupon separately — gives WC time to register it
+      if (couponCode) {
+        await new Promise(r => setTimeout(r, 500)); // small delay for WC cache
+        const couponRes = await fetch("/api/cart/apply-coupon", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: couponCode }),
+        });
+        if (couponRes.ok) {
+          const finalCart = await couponRes.json() as import("@/lib/cart/types").Cart;
+          setCart(finalCart);
+        }
+      }
       setModalOpen(false);
     } catch (err) {
       alert("Could not add free vial: " + (err instanceof Error ? err.message : "Unknown error"));
