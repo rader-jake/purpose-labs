@@ -29,8 +29,6 @@ export async function POST(request: NextRequest) {
         amount: "100",
         product_ids: [productId],
         usage_limit: 1,
-        usage_limit_per_user: 1,
-        limit_usage_to_x_items: 1,
         individual_use: false,
       }),
     });

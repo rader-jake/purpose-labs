@@ -221,8 +221,8 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
       if (!res.ok) throw new Error("Failed to add free vial");
       await refreshCart();
       setModalOpen(false);
-    } catch {
-      // silently fail
+    } catch (err) {
+      alert("Could not add free vial: " + (err instanceof Error ? err.message : "Unknown error"));
     } finally {
       setIsAdding(false);
     }
