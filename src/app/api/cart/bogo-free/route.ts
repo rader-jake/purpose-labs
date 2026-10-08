@@ -46,7 +46,17 @@ export async function POST(request: NextRequest) {
     tokens = afterAddTokens;
 
     // 3. Apply the coupon
-    const { data, tokens: afterCouponTokens } = await applyCoupon(tokens, coupon.code);
+    let applyData, afterCouponTokens;
+    try {
+      const result = await applyCoupon(tokens, coupon.code);
+      applyData = result.data;
+      afterCouponTokens = result.tokens;
+    } catch (applyError) {
+      const msg = applyError instanceof StoreApiError ? applyError.message : String(applyError);
+      console.error("[bogo-free] applyCoupon failed:", msg, "coupon:", coupon.code, "productId:", productId);
+      return NextResponse.json({ message: `Coupon apply failed: ${msg}` }, { status: 500 });
+    }
+    const data = applyData;
     tokens = afterCouponTokens;
 
     // 4. Sync bac water promo
