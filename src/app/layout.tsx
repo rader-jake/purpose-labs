@@ -61,6 +61,8 @@ export default function RootLayout({
         <style>{`html.pl-age-ok #age-gate-root { display: none; }`}</style>
         <script dangerouslySetInnerHTML={{ __html: AGE_GATE_NO_FLASH_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var u=new URLSearchParams(window.location.search).get('aff');if(u){localStorage.setItem('pl_aff_id',u);}}catch(e){}})();` }} />
+        {/* Google Tag Manager */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TJ2TPZN8');` }} />
         {/* Google Tag (gtag.js) — GA4 + Google Ads */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CEQNESY8XS" />
         <script dangerouslySetInnerHTML={{ __html: `
@@ -83,6 +85,8 @@ gtag('config', 'AW-18395672517');
         <script async src="https://static.affiliatly.com/v3/affiliatly.js?affiliatly_code=AF-1074151" />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* Google Tag Manager (noscript) */}
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJ2TPZN8" height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe></noscript>
         <AuthProvider>
         <CartProvider>
           <Header />
