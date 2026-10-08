@@ -1,31 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
-import { BOGO_PRODUCT_IDS, BOGO_PRODUCTS, getBogoGroup, type BogoProduct } from "@/lib/cart/bogoProducts";
+import type { BogoProduct } from "@/lib/cart/bogoProducts";
+import { getBogoOffer } from "@/lib/cart/bogoRules";
+import { isSplitBacWater, itemDisplayTotal } from "@/lib/cart/displayLines";
 import BogoPickerModal from "@/components/BogoPickerModal";
-
-const BOGO_FREE_COOKIE = "pl_bogo_free_items";
-
-function readBogoFreeCookie(): Record<string, number> {
-  if (typeof document === "undefined") return {};
-  const match = document.cookie.match(new RegExp(`(?:^|; )${BOGO_FREE_COOKIE}=([^;]*)`));
-  if (!match) return {};
-  try { return JSON.parse(decodeURIComponent(match[1])); } catch { return {}; }
-}
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
-  const [bogoFreeKeys, setBogoFreeKeys] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    setBogoFreeKeys(readBogoFreeCookie());
-  }, [cart]);
 
   return (
     <>
@@ -111,16 +99,12 @@ export function CartDrawer() {
           {cart && cart.items.length > 0 && (
             <ul className="flex flex-col gap-5">
               {cart.items.map((item) => {
-                const hasBacWaterPromo = cart.coupons.some(
-                  (c) => c.code === "pl-auto-bacwater"
-                );
-                if (item.id === 94 && hasBacWaterPromo) {
+                if (isSplitBacWater(cart, item)) {
                   return (
                     <BacWaterLineItems key={item.key} item={item} />
                   );
                 }
-                const isBogoFree = !!bogoFreeKeys[item.key];
-                return <CartLineItem key={item.key} item={item} isBogoFree={isBogoFree} />;
+                return <CartLineItem key={item.key} item={item} />;
               })}
             </ul>
           )}
@@ -161,11 +145,7 @@ export function CartDrawer() {
                 }}
               >
                 {formatMoney(String(Math.max(0,
-                  Number(cart.totals.total_items)
-                  - Number(cart.totals.total_discount)
-                  - cart.items
-                    .filter(item => !!bogoFreeKeys[item.key])
-                    .reduce((sum, item) => sum + Number(item.totals.line_subtotal), 0)
+                  Number(cart.totals.total_items) - Number(cart.totals.total_discount)
                 )))}
               </span>
             </div>
@@ -191,49 +171,11 @@ export function CartDrawer() {
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [bogoFreeKeys, setBogoFreeKeys] = useState<Record<string, number>>({});
-  const { setCart } = useCart();
+  const { refreshCart } = useCart();
 
-  useEffect(() => {
-    setBogoFreeKeys(readBogoFreeCookie());
-  }, [cart]);
-
-  // Count total paid qualifying items (distinct line items, not qty)
-  const FREE_PROMO_CODES = ["freeghk", "rpep", "pl-auto-bacwater", "swrv"];
-  const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
-  const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
-
-  const totalPaid = cart.items
-    .filter((item) => {
-      if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
-      if (isFreeItem(item)) return false;
-      if (bogoFreeKeys[item.key]) return false;
-      if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
-      return true;
-    })
-    .reduce((sum, item) => sum + item.quantity, 0);
-
-  // Count claimed free picks from cookie
-  const bogoClaimed = Object.keys(bogoFreeKeys).filter(k =>
-    cart.items.some(i => i.key === k)
-  ).length;
-
-  if (totalPaid === 0 || bogoClaimed >= totalPaid) return null;
-
-  const freeRemaining = totalPaid - bogoClaimed;
-
-  // Find highest-tier paid item to determine eligible products
-  const highestPaidTier = ([3, 2, 1] as const).find((t) =>
-    cart.items.some((item) => {
-      const g = getBogoGroup(item.id);
-      return g === t && !isFreeItem(item);
-    })
-  );
-  if (!highestPaidTier) return null;
-
-  // Eligible = same tier and below (equal or lesser value)
-  const eligibleProducts = BOGO_PRODUCTS.filter((p) => p.group <= highestPaidTier);
-  if (eligibleProducts.length === 0) return null;
+  // Same rules the server enforces in /api/cart/bogo-free
+  const { remaining: freeRemaining, eligibleProducts } = getBogoOffer(cart);
+  if (freeRemaining === 0 || eligibleProducts.length === 0) return null;
 
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
@@ -243,19 +185,11 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: product.id }),
       });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? "Failed to add free vial");
-      const data = await res.json() as import("@/lib/cart/types").Cart;
-      setCart(data);
-      // Persist free pick to localStorage so checkout page can read it
-      // Store as array of productIds for checkout page consumption
-      try {
-        const existing = JSON.parse(localStorage.getItem("pl_bogo_free_ids") ?? "[]") as number[];
-        existing.push(product.id);
-        localStorage.setItem("pl_bogo_free_ids", JSON.stringify(existing));
-      } catch { /* ignore */ }
+      if (!res.ok) throw new Error("Failed to add free vial");
+      await refreshCart();
       setModalOpen(false);
-    } catch (err) {
-      alert("Could not add free vial: " + (err instanceof Error ? err.message : "Unknown error"));
+    } catch {
+      // silently fail
     } finally {
       setIsAdding(false);
     }
@@ -618,7 +552,7 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
               {decodeHtmlEntities(item.name)}
             </p>
             <p className="text-xs" style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}>
-              {formatMoney(String(Number(item.prices.price) * paidQty))}
+              {formatMoney(itemDisplayTotal(item))}
             </p>
             <div className="mt-2 flex items-center gap-3">
               <div className="flex items-center rounded-full border" style={{ borderColor: "var(--pl-border)" }}>
@@ -637,10 +571,10 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
   );
 }
 
-function CartLineItem({ item, isBogoFree = false }: { item: CartItem; isBogoFree?: boolean }) {
+function CartLineItem({ item }: { item: CartItem }) {
   const { updateItem, removeItem } = useCart();
   const [isPending, setIsPending] = useState(false);
-  const free = isBogoFree || isFreeItem(item);
+  const free = isFreeItem(item);
   const image = item.images[0];
 
   async function handleQuantityChange(nextQuantity: number) {
@@ -709,9 +643,7 @@ function CartLineItem({ item, isBogoFree = false }: { item: CartItem; isBogoFree
           className="text-xs"
           style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}
         >
-          {free
-            ? <span style={{ color: "var(--pl-navy)", fontWeight: 600 }}>FREE</span>
-            : formatMoney(item.totals.line_total)}
+          {formatMoney(itemDisplayTotal(item))}
         </p>
 
         <div className="mt-2 flex items-center gap-3">

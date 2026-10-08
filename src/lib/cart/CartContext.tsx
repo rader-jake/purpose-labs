@@ -140,37 +140,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
               }
             } catch {/* localStorage unavailable */}
           }
-          // Clean up stale pl-bogo-* coupons where the free item is no longer in cart
-          const bogoCodesInCart = data.coupons
-            ?.filter((c: { code: string }) => c.code.startsWith("pl-bogo-"))
-            .map((c: { code: string }) => {
-              const match = c.code.match(/^pl-bogo-(\d+)-/);
-              return match ? { code: c.code, productId: parseInt(match[1]) } : null;
-            })
-            .filter(Boolean) as { code: string; productId: number }[] | undefined;
-
-          if (bogoCodesInCart?.length) {
-            const freeItemIds = new Set(
-              data.items
-                ?.filter((item: { id: number; totals: { line_total: string; line_subtotal: string } }) =>
-                  item.totals.line_total === "0" && item.totals.line_subtotal !== "0"
-                )
-                .map((item: { id: number }) => item.id)
-            );
-            for (const { code, productId } of bogoCodesInCart) {
-              if (!freeItemIds.has(productId)) {
-                fetch("/api/cart/remove-coupon", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ code }),
-                })
-                  .then(parseCartResponse)
-                  .then((updated) => { if (!cancelled) setCart(updated); })
-                  .catch(() => {});
-              }
-            }
-          }
-
           // RPEP / FREEGHK: auto-add free GHK-Cu 50mg (ID 831) when either coupon is applied
           if (!rpepGhkAttempted.current) {
             const hasRpep = data.coupons?.some(

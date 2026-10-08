@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { removeCoupon, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
+import { finalizeCart } from "@/lib/cart/bogoSync";
+import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,8 +13,12 @@ export async function POST(request: NextRequest) {
 
     const tokens = await ensureTokens(await readTokens());
     const { data, tokens: nextTokens } = await removeCoupon(tokens, code);
-    await writeTokens(nextTokens);
-    return NextResponse.json(data);
+
+    // Removing a gift coupon (rpep/freeghk) can leave its free unit unearned.
+    const { cart: finalCart, tokens: finalTokens } = await finalizeCart(data as Cart, nextTokens);
+
+    await writeTokens(finalTokens);
+    return NextResponse.json(finalCart);
   } catch (error) {
     if (error instanceof StoreApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });

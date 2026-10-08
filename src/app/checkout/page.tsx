@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
+import { getDisplayLines } from "@/lib/cart/displayLines";
 import { StripePaymentStep } from "@/components/checkout/StripePaymentStep";
 import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
@@ -42,15 +43,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress } = useCart();
-  const [bogoFreeIds, setBogoFreeIds] = useState<number[]>([]);
-
-  useEffect(() => {
-    // Read BOGO free picks from localStorage (written by CartDrawer on free pick)
-    try {
-      const ls = localStorage.getItem("pl_bogo_free_ids");
-      if (ls) setBogoFreeIds(JSON.parse(ls));
-    } catch { /* ignore */ }
-  }, []);
 
   useEffect(() => {
     trackInitiateCheckout({
@@ -79,14 +71,6 @@ export default function CheckoutPage() {
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [shipmentProtection, setShipmentProtection] = useState(false);
-
-  // Compute BOGO savings in cents to subtract from WC totals
-  const bogoSavings = cart ? cart.items.reduce((sum, item) => {
-    const freeCount = bogoFreeIds.filter(id => id === item.id).length;
-    if (!freeCount) return sum;
-    const unitPrice = Number(item.totals.line_subtotal) / item.quantity;
-    return sum + unitPrice * Math.min(freeCount, item.quantity);
-  }, 0) : 0;
 
   if (isLoading) {
     return (
@@ -205,7 +189,7 @@ export default function CheckoutPage() {
           shipping_address: address,
           line_items: lineItems,
           coupon_lines: couponCodes,
-          amount_minor: Math.max(0, Number(cart?.totals.total_price ?? 0) - bogoSavings),
+          amount_minor: Number(cart?.totals.total_price ?? 0),
           aff_id: affId,
         }),
       });
@@ -353,52 +337,44 @@ export default function CheckoutPage() {
         {/* Order Summary */}
         <CheckoutCard title="Order Summary" step={3}>
           <ul className="flex flex-col gap-3">
-            {cart.items.map((item) => (
-              <li key={item.key} className="flex items-center justify-between text-sm gap-3">
-                {(item.images?.[0]?.src || item.images?.[0]?.thumbnail) && (
-                  <img
-                    src={item.images[0].src || item.images[0].thumbnail}
-                    alt={item.name}
-                    width={48}
-                    height={48}
-                    style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
-                  />
-                )}
-                <span style={{ color: "var(--pl-slate)", flex: 1 }}>
-                  {item.name} × {item.quantity}
-                </span>
-                {(() => {
-                  if (item.totals.line_total === "0") {
-                    return <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>;
-                  }
-                  const bogoFreeCount = bogoFreeIds.filter(id => id === item.id).length;
-                  if (bogoFreeCount > 0) {
-                    const unitPrice = Number(item.totals.line_subtotal) / item.quantity;
-                    const paidPrice = unitPrice * Math.max(0, item.quantity - bogoFreeCount);
-                    return (
-                      <span style={{ color: "var(--pl-navy)" }}>
-                        {paidPrice === 0 ? <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span> : formatMoney(String(paidPrice))}
-                      </span>
-                    );
-                  }
-                  return <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>;
-                })()}
-              </li>
-            ))}
+            {getDisplayLines(cart).map((line) => {
+              const image = cart.items.find((item) => item.key === line.itemKey)?.images?.[0];
+              return (
+                <li key={line.key} className="flex items-center justify-between text-sm gap-3">
+                  {(image?.src || image?.thumbnail) && (
+                    <img
+                      src={image.src || image.thumbnail}
+                      alt={line.name}
+                      width={48}
+                      height={48}
+                      style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
+                    />
+                  )}
+                  <span style={{ color: "var(--pl-slate)", flex: 1 }}>
+                    {line.name} × {line.quantity}
+                  </span>
+                  {line.isFree ? (
+                    <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>
+                  ) : (
+                    <span style={{ color: "var(--pl-navy)" }}>{formatMoney(line.totalCents)}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="flex flex-col gap-2 border-t pt-4 text-sm" style={{ borderColor: "var(--pl-border)" }}>
             <div className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
               <span>Subtotal</span>
-              <span>{formatMoney(String(Math.max(0, Number(cart.totals.total_items) - bogoSavings)))}</span>
+              <span>{formatMoney(Math.max(0, Number(cart.totals.total_items) - Number(cart.totals.total_discount)))}</span>
             </div>
             {cart.coupons.map((coupon) => (
               <div
                 key={coupon.code}
-                className="flex items-center justify-between"
-                style={{ color: "var(--pl-slate)" }}
+                className="flex items-center justify-between text-xs"
+                style={{ color: "var(--pl-muted)" }}
               >
-                <span>Discount ({coupon.code.toUpperCase()})</span>
+                <span>Includes {coupon.code.toUpperCase()} savings</span>
                 <span>-{formatMoney(coupon.totals.total_discount)}</span>
               </div>
             ))}
@@ -442,7 +418,7 @@ export default function CheckoutPage() {
               style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)" }}
             >
               <span>Total</span>
-              <span>{formatMoney(String(Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)))}</span>
+              <span>{formatMoney(String(Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)))}</span>
             </div>
           </div>
 
@@ -490,7 +466,7 @@ export default function CheckoutPage() {
           {isValid ? (
             ENABLE_BEACON ? (
               <BeaconPaymentStep
-                amountCents={Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)}
+                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
                 currencyCode="usd"
                 billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
                 shippingAddress={buildAddressInput()}
@@ -499,7 +475,7 @@ export default function CheckoutPage() {
               />
             ) : (
               <StripePaymentStep
-                amountCents={Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)}
+                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
                 currencyCode="usd"
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}

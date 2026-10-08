@@ -1,22 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addCartItem, StoreApiError } from "@/lib/cart/storeApi";
+import { addCartItem, applyCoupon, getCart, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
-import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
+import { finalizeCart } from "@/lib/cart/bogoSync";
+import { canClaimBogo } from "@/lib/cart/bogoRules";
 import type { Cart } from "@/lib/cart/types";
-import { cookies } from "next/headers";
 
-const BOGO_FREE_COOKIE = "pl_bogo_free_items";
-const COOKIE_MAX_AGE = 60 * 60 * 48;
+const WC_BASE = "https://joshuar120.sg-host.com/wp-json/wc/v3";
+const WC_AUTH = "Basic " + Buffer.from("Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs").toString("base64");
 
-// Read free item keys from cookie: { [cartItemKey]: productId }
-export async function readBogoFreeItems(): Promise<Record<string, number>> {
-  const store = await cookies();
-  const raw = store.get(BOGO_FREE_COOKIE)?.value;
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
-}
-
-// Adds the free item to cart and tags it in a cookie
+// Creates a single-use 100% off coupon for a specific product, then applies it to cart
 export async function POST(request: NextRequest) {
   try {
     const { productId } = await request.json();
@@ -24,37 +16,58 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "productId must be a number" }, { status: 400 });
     }
 
-    // Add the product to cart
     let tokens = await ensureTokens(await readTokens());
-    const { data, tokens: afterAddTokens } = await addCartItem(tokens, productId, 1);
-    tokens = afterAddTokens;
 
-    // Sync bac water
-    const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(data as Cart, tokens);
-    await writeTokens(finalTokens);
-
-    // Find the newly added item key (last item matching productId that isn't already tagged free)
-    const store = await cookies();
-    const existingFree = store.get(BOGO_FREE_COOKIE)?.value;
-    const freeMap: Record<string, number> = existingFree ? JSON.parse(existingFree).catch?.(() => {}) ?? JSON.parse(existingFree) : {};
-
-    // Find the cart item key for this product that isn't already tagged
-    const newItem = finalCart.items.find(
-      (item) => item.id === productId && !freeMap[item.key]
-    );
-    if (newItem) {
-      freeMap[newItem.key] = productId;
+    // Eligibility is decided here, from the real cart — never trust the UI's
+    // "free vial unlocked" banner.
+    const { data: currentCart, tokens: afterGetTokens } = await getCart(tokens);
+    tokens = afterGetTokens;
+    const verdict = canClaimBogo(currentCart as Cart, productId);
+    if (!verdict.ok) {
+      return NextResponse.json({ message: verdict.reason }, { status: 409 });
     }
 
-    const response = NextResponse.json(finalCart);
-    response.cookies.set(BOGO_FREE_COOKIE, JSON.stringify(freeMap), {
-      httpOnly: false, // client needs to read this
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: COOKIE_MAX_AGE,
+    // 1. Create a single-use 100% coupon restricted to this product
+    const couponCode = `pl-bogo-${productId}-${Date.now()}`;
+    const couponRes = await fetch(`${WC_BASE}/coupons`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: WC_AUTH,
+      },
+      body: JSON.stringify({
+        code: couponCode,
+        discount_type: "percent",
+        amount: "100",
+        product_ids: [productId],
+        usage_limit: 1,
+        usage_limit_per_user: 1,
+        limit_usage_to_x_items: 1,
+        individual_use: false,
+      }),
     });
-    return response;
+
+    if (!couponRes.ok) {
+      const err = await couponRes.json().catch(() => ({}));
+      return NextResponse.json({ message: (err as { message?: string }).message ?? "Failed to create coupon" }, { status: 500 });
+    }
+
+    const coupon = await couponRes.json() as { code: string };
+
+    // 2. Add the product to cart
+    const { tokens: afterAddTokens } = await addCartItem(tokens, productId, 1);
+    tokens = afterAddTokens;
+
+    // 3. Apply the coupon
+    const { data, tokens: afterCouponTokens } = await applyCoupon(tokens, coupon.code);
+    tokens = afterCouponTokens;
+
+    // 4. Prune anything the cart no longer supports (e.g. a double-click
+    // claiming twice) and reconcile the free bac water coupon
+    const { cart: finalCart, tokens: finalTokens } = await finalizeCart(data as Cart, tokens);
+    await writeTokens(finalTokens);
+
+    return NextResponse.json(finalCart);
   } catch (error) {
     if (error instanceof StoreApiError) {
       return NextResponse.json({ message: error.message }, { status: error.status });
