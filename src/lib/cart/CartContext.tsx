@@ -30,6 +30,7 @@ interface CartContextValue {
   applyCoupon: (code: string) => Promise<void>;
   removeCoupon: (code: string) => Promise<void>;
   refreshCart: () => Promise<void>;
+  setCart: (cart: Cart) => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -356,6 +357,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       applyCoupon,
       removeCoupon,
       refreshCart,
+      setCart,
     }),
     [
       cart,
@@ -371,6 +373,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       applyCoupon,
       removeCoupon,
       refreshCart,
+      setCart,
     ]
   );
 

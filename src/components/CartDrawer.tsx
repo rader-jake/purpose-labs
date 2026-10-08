@@ -172,7 +172,7 @@ export function CartDrawer() {
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const { refreshCart } = useCart();
+  const { setCart } = useCart();
 
   // Count total paid and free BOGO items across all tiers
   // Free promo coupons that auto-add items — don't count those items as paid BOGO qualifiers
@@ -218,8 +218,9 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId: product.id }),
       });
-      if (!res.ok) throw new Error("Failed to add free vial");
-      await refreshCart();
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).message ?? "Failed to add free vial");
+      const data = await res.json() as import("@/lib/cart/types").Cart;
+      setCart(data);
       setModalOpen(false);
     } catch (err) {
       alert("Could not add free vial: " + (err instanceof Error ? err.message : "Unknown error"));
