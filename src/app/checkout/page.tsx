@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
+import { getDisplayLines } from "@/lib/cart/displayLines";
 import { StripePaymentStep } from "@/components/checkout/StripePaymentStep";
 import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
@@ -336,41 +337,44 @@ export default function CheckoutPage() {
         {/* Order Summary */}
         <CheckoutCard title="Order Summary" step={3}>
           <ul className="flex flex-col gap-3">
-            {cart.items.map((item) => (
-              <li key={item.key} className="flex items-center justify-between text-sm gap-3">
-                {(item.images?.[0]?.src || item.images?.[0]?.thumbnail) && (
-                  <img
-                    src={item.images[0].src || item.images[0].thumbnail}
-                    alt={item.name}
-                    width={48}
-                    height={48}
-                    style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
-                  />
-                )}
-                <span style={{ color: "var(--pl-slate)", flex: 1 }}>
-                  {item.name} × {item.quantity}
-                </span>
-                {item.totals.line_total === "0" ? (
-                  <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>
-                ) : (
-                  <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>
-                )}
-              </li>
-            ))}
+            {getDisplayLines(cart).map((line) => {
+              const image = cart.items.find((item) => item.key === line.itemKey)?.images?.[0];
+              return (
+                <li key={line.key} className="flex items-center justify-between text-sm gap-3">
+                  {(image?.src || image?.thumbnail) && (
+                    <img
+                      src={image.src || image.thumbnail}
+                      alt={line.name}
+                      width={48}
+                      height={48}
+                      style={{ width: 48, height: 48, borderRadius: 6, objectFit: "cover", flexShrink: 0 }}
+                    />
+                  )}
+                  <span style={{ color: "var(--pl-slate)", flex: 1 }}>
+                    {line.name} × {line.quantity}
+                  </span>
+                  {line.isFree ? (
+                    <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>
+                  ) : (
+                    <span style={{ color: "var(--pl-navy)" }}>{formatMoney(line.totalCents)}</span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="flex flex-col gap-2 border-t pt-4 text-sm" style={{ borderColor: "var(--pl-border)" }}>
             <div className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
               <span>Subtotal</span>
-              <span>{formatMoney(cart.totals.total_items)}</span>
+              <span>{formatMoney(Math.max(0, Number(cart.totals.total_items) - Number(cart.totals.total_discount)))}</span>
             </div>
             {cart.coupons.map((coupon) => (
               <div
                 key={coupon.code}
-                className="flex items-center justify-between"
-                style={{ color: "var(--pl-slate)" }}
+                className="flex items-center justify-between text-xs"
+                style={{ color: "var(--pl-muted)" }}
               >
-                <span>Discount ({coupon.code.toUpperCase()})</span>
+                <span>Includes {coupon.code.toUpperCase()} savings</span>
                 <span>-{formatMoney(coupon.totals.total_discount)}</span>
               </div>
             ))}

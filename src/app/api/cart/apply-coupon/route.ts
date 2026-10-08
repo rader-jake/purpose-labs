@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { applyCoupon, addCartItem, getCart, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
-import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
+import { finalizeCart } from "@/lib/cart/bogoSync";
 import type { Cart } from "@/lib/cart/types";
 
 // GHK-CU 50mg variation ID — auto-added when SWRV coupon is applied
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
 
     const { data, tokens: nextTokens } = await applyCoupon(tokens, code);
 
-    // Re-apply pl-auto-bacwater if an affiliate code knocked it off
-    const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
+    // Re-applies pl-auto-bacwater if an affiliate code knocked it off
+    const { cart: finalCart, tokens: finalTokens } = await finalizeCart(
       data as Cart,
       nextTokens
     );

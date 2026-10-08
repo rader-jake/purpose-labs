@@ -7,7 +7,9 @@ import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
-import { BOGO_PRODUCT_IDS, BOGO_PRODUCTS, getBogoGroup, type BogoProduct } from "@/lib/cart/bogoProducts";
+import type { BogoProduct } from "@/lib/cart/bogoProducts";
+import { getBogoOffer } from "@/lib/cart/bogoRules";
+import { isSplitBacWater, itemDisplayTotal } from "@/lib/cart/displayLines";
 import BogoPickerModal from "@/components/BogoPickerModal";
 
 export function CartDrawer() {
@@ -97,10 +99,7 @@ export function CartDrawer() {
           {cart && cart.items.length > 0 && (
             <ul className="flex flex-col gap-5">
               {cart.items.map((item) => {
-                const hasBacWaterPromo = cart.coupons.some(
-                  (c) => c.code === "pl-auto-bacwater"
-                );
-                if (item.id === 94 && hasBacWaterPromo) {
+                if (isSplitBacWater(cart, item)) {
                   return (
                     <BacWaterLineItems key={item.key} item={item} />
                   );
@@ -174,41 +173,9 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
   const [isAdding, setIsAdding] = useState(false);
   const { refreshCart } = useCart();
 
-  // Count total paid and free BOGO items across all tiers
-  // Free promo coupons that auto-add items — don't count those items as paid BOGO qualifiers
-  const FREE_PROMO_CODES = ["freeghk", "rpep", "pl-auto-bacwater", "swrv"];
-  const hasFreeProm = (code: string) => FREE_PROMO_CODES.some((p) => code.toLowerCase().includes(p));
-  const cartHasFreeProm = cart.coupons.some((c) => hasFreeProm(c.code));
-
-  const totalPaid = cart.items
-    .filter((item) => {
-      if (!BOGO_PRODUCT_IDS.has(item.id)) return false;
-      if (isFreeItem(item)) return false;
-      // If this is the auto-added free GHK-Cu (line_total=0), skip it as a paid qualifier
-      if ((item.id === 831 || item.id === 832 || item.id === 94) && item.totals.line_total === "0") return false;
-      return true;
-    })
-    .reduce((sum, item) => sum + item.quantity, 0);
-
-  // Only count items claimed via our BOGO coupon flow (pl-bogo-*) as claimed picks
-  const bogoCouponCount = cart.coupons.filter((c) => c.code.startsWith("pl-bogo-")).length;
-
-  if (totalPaid === 0 || bogoCouponCount >= totalPaid) return null;
-
-  const freeRemaining = totalPaid - bogoCouponCount;
-
-  // Find highest-tier paid item to determine eligible products
-  const highestPaidTier = ([3, 2, 1] as const).find((t) =>
-    cart.items.some((item) => {
-      const g = getBogoGroup(item.id);
-      return g === t && !isFreeItem(item);
-    })
-  );
-  if (!highestPaidTier) return null;
-
-  // Eligible = same tier and below (equal or lesser value)
-  const eligibleProducts = BOGO_PRODUCTS.filter((p) => p.group <= highestPaidTier);
-  if (eligibleProducts.length === 0) return null;
+  // Same rules the server enforces in /api/cart/bogo-free
+  const { remaining: freeRemaining, eligibleProducts } = getBogoOffer(cart);
+  if (freeRemaining === 0 || eligibleProducts.length === 0) return null;
 
   const handleSelect = async (product: BogoProduct) => {
     setIsAdding(true);
@@ -585,7 +552,7 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
               {decodeHtmlEntities(item.name)}
             </p>
             <p className="text-xs" style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}>
-              {formatMoney(String(Number(item.prices.price) * paidQty))}
+              {formatMoney(itemDisplayTotal(item))}
             </p>
             <div className="mt-2 flex items-center gap-3">
               <div className="flex items-center rounded-full border" style={{ borderColor: "var(--pl-border)" }}>
@@ -676,7 +643,7 @@ function CartLineItem({ item }: { item: CartItem }) {
           className="text-xs"
           style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}
         >
-          {formatMoney(item.totals.line_total)}
+          {formatMoney(itemDisplayTotal(item))}
         </p>
 
         <div className="mt-2 flex items-center gap-3">

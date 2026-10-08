@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addCartItem, StoreApiError } from "@/lib/cart/storeApi";
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
-import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
+import { finalizeCart } from "@/lib/cart/bogoSync";
 import type { Cart } from "@/lib/cart/types";
 
 export async function POST(request: NextRequest) {
@@ -17,8 +17,7 @@ export async function POST(request: NextRequest) {
     const tokens = await ensureTokens(await readTokens());
     const { data, tokens: nextTokens } = await addCartItem(tokens, id, quantity);
 
-    // Auto-apply free recon solution promo after adding an item
-    const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(
+    const { cart: finalCart, tokens: finalTokens } = await finalizeCart(
       data as Cart,
       nextTokens
     );
