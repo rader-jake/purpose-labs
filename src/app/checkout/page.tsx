@@ -42,6 +42,15 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress } = useCart();
+  const [bogoFreeIds, setBogoFreeIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    // Read BOGO free picks from cookie
+    try {
+      const match = document.cookie.match(/(?:^|; )pl_bogo_free_ids=([^;]*)/);
+      if (match) setBogoFreeIds(JSON.parse(decodeURIComponent(match[1])));
+    } catch { /* ignore */ }
+  }, []);
 
   useEffect(() => {
     trackInitiateCheckout({
@@ -70,6 +79,14 @@ export default function CheckoutPage() {
   const [orderConfirmation, setOrderConfirmation] = useState<OrderConfirmationData | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [shipmentProtection, setShipmentProtection] = useState(false);
+
+  // Compute BOGO savings in cents to subtract from WC totals
+  const bogoSavings = cart ? cart.items.reduce((sum, item) => {
+    const freeCount = bogoFreeIds.filter(id => id === item.id).length;
+    if (!freeCount) return sum;
+    const unitPrice = Number(item.totals.line_subtotal) / item.quantity;
+    return sum + unitPrice * Math.min(freeCount, item.quantity);
+  }, 0) : 0;
 
   if (isLoading) {
     return (
@@ -188,7 +205,7 @@ export default function CheckoutPage() {
           shipping_address: address,
           line_items: lineItems,
           coupon_lines: couponCodes,
-          amount_minor: Number(cart?.totals.total_price ?? 0),
+          amount_minor: Math.max(0, Number(cart?.totals.total_price ?? 0) - bogoSavings),
           aff_id: affId,
         }),
       });
@@ -350,11 +367,22 @@ export default function CheckoutPage() {
                 <span style={{ color: "var(--pl-slate)", flex: 1 }}>
                   {item.name} × {item.quantity}
                 </span>
-                {item.totals.line_total === "0" ? (
-                  <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>
-                ) : (
-                  <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>
-                )}
+                {(() => {
+                  if (item.totals.line_total === "0") {
+                    return <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span>;
+                  }
+                  const bogoFreeCount = bogoFreeIds.filter(id => id === item.id).length;
+                  if (bogoFreeCount > 0) {
+                    const unitPrice = Number(item.totals.line_subtotal) / item.quantity;
+                    const paidPrice = unitPrice * Math.max(0, item.quantity - bogoFreeCount);
+                    return (
+                      <span style={{ color: "var(--pl-navy)" }}>
+                        {paidPrice === 0 ? <span style={{ color: "#22c55e", fontWeight: 700 }}>FREE</span> : formatMoney(String(paidPrice))}
+                      </span>
+                    );
+                  }
+                  return <span style={{ color: "var(--pl-navy)" }}>{formatMoney(item.totals.line_subtotal)}</span>;
+                })()}
               </li>
             ))}
           </ul>
@@ -362,7 +390,7 @@ export default function CheckoutPage() {
           <div className="flex flex-col gap-2 border-t pt-4 text-sm" style={{ borderColor: "var(--pl-border)" }}>
             <div className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
               <span>Subtotal</span>
-              <span>{formatMoney(cart.totals.total_items)}</span>
+              <span>{formatMoney(String(Math.max(0, Number(cart.totals.total_items) - bogoSavings)))}</span>
             </div>
             {cart.coupons.map((coupon) => (
               <div
@@ -414,7 +442,7 @@ export default function CheckoutPage() {
               style={{ borderColor: "var(--pl-border)", color: "var(--pl-navy)" }}
             >
               <span>Total</span>
-              <span>{formatMoney(String(Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)))}</span>
+              <span>{formatMoney(String(Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)))}</span>
             </div>
           </div>
 
@@ -462,7 +490,7 @@ export default function CheckoutPage() {
           {isValid ? (
             ENABLE_BEACON ? (
               <BeaconPaymentStep
-                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
+                amountCents={Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)}
                 currencyCode="usd"
                 billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
                 shippingAddress={buildAddressInput()}
@@ -471,7 +499,7 @@ export default function CheckoutPage() {
               />
             ) : (
               <StripePaymentStep
-                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
+                amountCents={Math.max(0, Number(cart.totals.total_price) - bogoSavings) + (shipmentProtection ? 500 : 0)}
                 currencyCode="usd"
                 onSuccess={handlePaymentSuccess}
                 onError={handlePaymentError}
