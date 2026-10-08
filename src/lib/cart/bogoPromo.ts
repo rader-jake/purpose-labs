@@ -1,7 +1,31 @@
 import "server-only";
-import { addCartItem, removeCartItem, getCart, StoreApiError } from "./storeApi";
+import { addCartItem, applyCoupon, removeCartItem, getCart, StoreApiError } from "./storeApi";
 import type { CartTokens } from "./storeApi";
 import type { Cart, CartItem } from "./types";
+
+const WC_BASE = "https://joshuar120.sg-host.com/wp-json/wc/v3";
+const WC_AUTH = "Basic " + Buffer.from("Info@purposelabs.shop:KH5x vzQv rq6Y 9ccl peq7 NbCs").toString("base64");
+
+async function createBogoFreeCoupon(productId: number): Promise<string> {
+  const couponCode = `pl-bogo-${productId}-${Date.now()}`;
+  const res = await fetch(`${WC_BASE}/coupons`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: WC_AUTH },
+    body: JSON.stringify({
+      code: couponCode,
+      discount_type: "percent",
+      amount: "100",
+      product_ids: [productId],
+      usage_limit: 1,
+      usage_limit_per_user: 1,
+      limit_usage_to_x_items: 1,
+      individual_use: false,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to create BOGO coupon");
+  const data = await res.json() as { code: string };
+  return data.code;
+}
 
 /**
  * Product IDs excluded from BOGO:
@@ -70,13 +94,15 @@ export async function syncBogoPromo(
     for (const paidItem of paidItems) {
       if (!freeByProductId.has(paidItem.id)) {
         try {
-          const result = await addCartItem(currentTokens, paidItem.id, paidItem.quantity, { pl_bogo_free: "1" });
-          currentCart = result.data as Cart;
-          currentTokens = result.tokens;
-          // The PHP snippet on WP side will mark it as pl_free and zero the price.
-          // If PHP hook fires, we're done. If not (Store API bypass), the item
-          // will be added at full price — we can't zero it client-side here.
-          // The PHP snippet handles zeroing via woocommerce_before_calculate_totals.
+          // Create a real 100% coupon restricted to this product (1 item max).
+          // This is the authoritative free-item mechanism — WC knows it's free via coupon,
+          // and snippet 350 skips pl-bogo-* coupons from percent discount calculations.
+          const bogoCoupon = await createBogoFreeCoupon(paidItem.id);
+          const { tokens: afterAddTokens } = await addCartItem(currentTokens, paidItem.id, 1);
+          currentTokens = afterAddTokens;
+          const { data: afterCouponData, tokens: afterCouponTokens } = await applyCoupon(currentTokens, bogoCoupon);
+          currentCart = afterCouponData as Cart;
+          currentTokens = afterCouponTokens;
         } catch (err) {
           if (err instanceof StoreApiError) {
             console.warn("[bogoPromo] failed to add free item for product", paidItem.id, ":", err.message);
