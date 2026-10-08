@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendTikTokEvent } from "@/lib/tiktok-events";
+import { cookies } from "next/headers";
 
 const WP_BASE = "https://joshuar120.sg-host.com";
 const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
@@ -55,26 +56,22 @@ export async function POST(request: NextRequest) {
         country: shipping_address.country ?? "US",
         phone: shipping_address.phone ?? "",
       } : undefined,
-      line_items: (() => {
-        // Products excluded from B1G1 dedup:
-        // - 94: Recon Water (bac water) — handled separately by pl-auto-bacwater coupon
-        // - 837, 840, 842, 846, 848: bundles
+      line_items: await (async () => {
+        // Read BOGO free picks from cookie
+        const store = await cookies();
+        const bogoRaw = store.get("pl_bogo_free_ids")?.value;
+        const bogoFreeIds: number[] = bogoRaw ? JSON.parse(bogoRaw) : [];
+        const bogoFreeRemaining = new Map<number, number>();
+        for (const id of bogoFreeIds) {
+          bogoFreeRemaining.set(id, (bogoFreeRemaining.get(id) ?? 0) + 1);
+        }
         const BOGO_DEDUP_EXCLUDED = new Set([94, 837, 840, 842, 846, 848]);
-        const seenProductIds = new Set<number>();
         return (line_items ?? []).map((item) => {
-          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) {
-            // Never auto-zero these — their pricing is handled elsewhere
-            return item;
-          }
-          const isDuplicate = seenProductIds.has(item.product_id);
-          seenProductIds.add(item.product_id);
-          if (isDuplicate) {
-            return {
-              ...item,
-              subtotal: "0",
-              total: "0",
-              meta_data: [{ key: "Promotion", value: "B1G1 Free" }],
-            };
+          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) return item;
+          const remaining = bogoFreeRemaining.get(item.product_id) ?? 0;
+          if (remaining > 0) {
+            bogoFreeRemaining.set(item.product_id, remaining - 1);
+            return { ...item, subtotal: "0", total: "0", meta_data: [{ key: "Promotion", value: "BOGO Free" }] };
           }
           return item;
         });
