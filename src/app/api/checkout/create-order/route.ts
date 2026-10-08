@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendTikTokEvent } from "@/lib/tiktok-events";
+import { cookies } from "next/headers";
+
+const BOGO_FREE_COOKIE = "pl_bogo_free_ids";
 
 const WP_BASE = "https://joshuar120.sg-host.com";
 const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
@@ -55,25 +58,32 @@ export async function POST(request: NextRequest) {
         country: shipping_address.country ?? "US",
         phone: shipping_address.phone ?? "",
       } : undefined,
-      line_items: (() => {
-        // Products excluded from B1G1 dedup:
-        // - 94: Recon Water (bac water) — handled separately by pl-auto-bacwater coupon
-        // - 837, 840, 842, 846, 848: bundles
+      line_items: await (async () => {
+        // Read BOGO free picks from cookie — array of productIds claimed free
+        const store = await cookies();
+        const bogoRaw = store.get(BOGO_FREE_COOKIE)?.value;
+        const bogoFreeIds: number[] = bogoRaw ? JSON.parse(bogoRaw) : [];
+        // Track how many free units remain per product
+        const bogoFreeRemaining = new Map<number, number>();
+        for (const id of bogoFreeIds) {
+          bogoFreeRemaining.set(id, (bogoFreeRemaining.get(id) ?? 0) + 1);
+        }
+
+        // Products excluded from BOGO free zeroing
         const BOGO_DEDUP_EXCLUDED = new Set([94, 837, 840, 842, 846, 848]);
-        const seenProductIds = new Set<number>();
+
         return (line_items ?? []).map((item) => {
-          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) {
-            // Never auto-zero these — their pricing is handled elsewhere
-            return item;
-          }
-          const isDuplicate = seenProductIds.has(item.product_id);
-          seenProductIds.add(item.product_id);
-          if (isDuplicate) {
+          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) return item;
+          const pid = item.variation_id && item.variation_id > 0 ? item.variation_id : item.product_id;
+          const freeRemaining = bogoFreeRemaining.get(pid) ?? bogoFreeRemaining.get(item.product_id) ?? 0;
+          if (freeRemaining > 0) {
+            // Zero out price for free units
+            bogoFreeRemaining.set(item.product_id, freeRemaining - 1);
             return {
               ...item,
               subtotal: "0",
               total: "0",
-              meta_data: [{ key: "Promotion", value: "B1G1 Free" }],
+              meta_data: [{ key: "Promotion", value: "BOGO Free" }],
             };
           }
           return item;
