@@ -5,18 +5,11 @@ import { syncBacWaterPromo } from "@/lib/cart/bacWaterPromo";
 import type { Cart } from "@/lib/cart/types";
 import { cookies } from "next/headers";
 
-const BOGO_FREE_COOKIE = "pl_bogo_free_items";
+// Cookie stores an array of product IDs claimed as free: [1421, 95, ...]
+// One entry per free pick — so 2x KLOW paid = 2x KLOW free = [1421, 1421]
+export const BOGO_FREE_COOKIE = "pl_bogo_free_ids";
 const COOKIE_MAX_AGE = 60 * 60 * 48;
 
-// Read free item keys from cookie: { [cartItemKey]: productId }
-export async function readBogoFreeItems(): Promise<Record<string, number>> {
-  const store = await cookies();
-  const raw = store.get(BOGO_FREE_COOKIE)?.value;
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
-}
-
-// Adds the free item to cart and tags it in a cookie
 export async function POST(request: NextRequest) {
   try {
     const { productId } = await request.json();
@@ -24,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "productId must be a number" }, { status: 400 });
     }
 
-    // Add the product to cart
+    // Add the product to cart normally
     let tokens = await ensureTokens(await readTokens());
     const { data, tokens: afterAddTokens } = await addCartItem(tokens, productId, 1);
     tokens = afterAddTokens;
@@ -33,22 +26,15 @@ export async function POST(request: NextRequest) {
     const { cart: finalCart, tokens: finalTokens } = await syncBacWaterPromo(data as Cart, tokens);
     await writeTokens(finalTokens);
 
-    // Find the newly added item key (last item matching productId that isn't already tagged free)
+    // Append this productId to the free claims cookie
     const store = await cookies();
-    const existingFree = store.get(BOGO_FREE_COOKIE)?.value;
-    const freeMap: Record<string, number> = existingFree ? JSON.parse(existingFree).catch?.(() => {}) ?? JSON.parse(existingFree) : {};
-
-    // Find the cart item key for this product that isn't already tagged
-    const newItem = finalCart.items.find(
-      (item) => item.id === productId && !freeMap[item.key]
-    );
-    if (newItem) {
-      freeMap[newItem.key] = productId;
-    }
+    const existing = store.get(BOGO_FREE_COOKIE)?.value;
+    const freeIds: number[] = existing ? JSON.parse(existing) : [];
+    freeIds.push(productId);
 
     const response = NextResponse.json(finalCart);
-    response.cookies.set(BOGO_FREE_COOKIE, JSON.stringify(freeMap), {
-      httpOnly: false, // client needs to read this
+    response.cookies.set(BOGO_FREE_COOKIE, JSON.stringify(freeIds), {
+      httpOnly: false,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       path: "/",
