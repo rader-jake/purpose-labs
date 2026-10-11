@@ -11,6 +11,7 @@ import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
 import { trackInitiateCheckout } from "@/lib/tiktok-pixel";
+import { gtmBeginCheckout, gtmPurchase } from "@/lib/gtm";
 
 // Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
 // that Purpose Labs has switched processors. Confirmed working live: nonce
@@ -45,9 +46,17 @@ export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress } = useCart();
 
   useEffect(() => {
-    trackInitiateCheckout({
-      value: cart?.totals?.total_price ? parseFloat(cart.totals.total_price) / 100 : undefined,
-    });
+    const value = cart?.totals?.total_price ? parseFloat(cart.totals.total_price) / 100 : 0;
+    trackInitiateCheckout({ value: value || undefined });
+    gtmBeginCheckout(
+      (cart?.items ?? []).map((item) => ({
+        item_id: String(item.id),
+        item_name: item.name,
+        price: item.prices?.price ? parseFloat(item.prices.price) / 100 : undefined,
+        quantity: item.quantity,
+      })),
+      value
+    );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -196,6 +205,18 @@ export default function CheckoutPage() {
     } catch (e) {
       console.error("[create-order] failed:", e);
     }
+
+    const orderValue = cart ? parseFloat(cart.totals.total_price) / 100 : 0;
+    gtmPurchase({
+      transaction_id: result.transactionId,
+      value: orderValue,
+      items: (cart?.items ?? []).map((item) => ({
+        item_id: String(item.id),
+        item_name: item.name,
+        price: item.prices?.price ? parseFloat(item.prices.price) / 100 : undefined,
+        quantity: item.quantity,
+      })),
+    });
 
     setOrderConfirmation(
       buildMockOrderConfirmation(cart!, result.transactionId, { ...address, email: customerInfo.email }, address)

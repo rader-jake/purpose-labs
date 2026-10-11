@@ -5,6 +5,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import { trackViewContent, trackAddToCart } from "@/lib/tiktok-pixel";
+import { gtmViewItem, gtmAddToCart } from "@/lib/gtm";
 import { BulkDiscountTiers } from "./BulkDiscountTiers";
 import { PaymentIcons } from "./PaymentIcons";
 import { CoaButton } from "./CoaButton";
@@ -60,7 +61,7 @@ export function ProductBuyBox({
   const [addError, setAddError] = useState<string | null>(null);
   const { addItem, openDrawer } = useCart();
 
-  // Fire ViewContent on mount
+  // Fire ViewContent + GTM view_item on mount
   useEffect(() => {
     trackViewContent({
       contentId: String(productId),
@@ -68,6 +69,12 @@ export function ProductBuyBox({
       value: parseFloat(price) || undefined,
       productId,
       pageUrl: typeof window !== "undefined" ? window.location.href : undefined,
+    });
+    gtmViewItem({
+      item_id: String(productId),
+      item_name: name,
+      price: parseFloat(price) || undefined,
+      quantity: 1,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -107,6 +114,12 @@ export function ProductBuyBox({
         value: parseFloat(effectivePrice) || undefined,
         quantity,
         productId: effectiveId,
+      });
+      gtmAddToCart({
+        item_id: String(effectiveId),
+        item_name: name,
+        price: parseFloat(effectivePrice) || undefined,
+        quantity,
       });
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
