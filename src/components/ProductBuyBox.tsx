@@ -153,8 +153,8 @@ export function ProductBuyBox({
         )}
       </div>
 
-      {/* BOGO Callout — Sunday style */}
-      <div
+      {/* BOGO Callout — Sunday style (hidden for bundle products like 840) */}
+      {productId !== 840 && <div
         className="mb-4 sm:mb-6 rounded-xl px-5 py-4"
         style={{
           background: "#F8F6F1",
@@ -186,7 +186,7 @@ export function ProductBuyBox({
             </p>
           </div>
         </div>
-      </div>
+      </div>}
 
       {hasVariations && (
         <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
