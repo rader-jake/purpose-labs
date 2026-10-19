@@ -63,6 +63,8 @@ export function ProductCard({ product }: ProductCardProps) {
             src={image.src}
             alt={image.alt || product.name}
             className="h-full w-full object-contain"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div
