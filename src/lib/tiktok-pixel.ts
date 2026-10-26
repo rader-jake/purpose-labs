@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 /**
  * TikTok browser pixel helpers — client-side only
  * Works by calling the global `ttq` object injected by the pixel script in layout.tsx
@@ -155,6 +157,29 @@ export function trackAddPaymentInfo(props?: { value?: number; currency?: string 
 
 export function trackCompleteRegistration() {
   ttqTrack("CompleteRegistration");
+}
+
+/**
+ * Send an event to our server-side TikTok CAPI route.
+ * Use ALONGSIDE the browser ttqTrack for deduplication via event_id.
+ */
+export async function serverTrack(
+  event: string,
+  properties?: Record<string, unknown>
+): Promise<string | null> {
+  const event_id = uuidv4();
+  const page_url = typeof window !== "undefined" ? window.location.href : undefined;
+  try {
+    await fetch("/api/tiktok/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ event, properties: { ...properties, page_url }, event_id }),
+    });
+    return event_id;
+  } catch (e) {
+    console.error("[TikTok CAPI] serverTrack failed", e);
+    return null;
+  }
 }
 
 export function trackPurchase(props: {
