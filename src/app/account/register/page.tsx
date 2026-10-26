@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { setAuthToken } from "@/lib/auth";
+import { trackCompleteRegistration } from "@/lib/tiktok-pixel";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -47,6 +48,7 @@ export default function RegisterPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Registration failed");
       if (data.user?.token) setAuthToken(data.user.token);
+      trackCompleteRegistration();
       router.push("/account");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Registration failed");

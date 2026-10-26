@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import type { OrderConfirmationData } from "@/lib/order/types";
+import { ttqIdentify, trackPurchase } from "@/lib/tiktok-pixel";
 
 interface Props {
   data: OrderConfirmationData;
@@ -28,6 +29,13 @@ export function TikTokPurchaseEvent({ data }: Props) {
       quantity: item.quantity,
       price: parseFloat(item.totals.line_total) / 100,
     }));
+
+    // Identify user with hashed email
+    const email = data.billingAddress?.email;
+    if (email) void ttqIdentify(email);
+
+    // Fire Purchase event (standard TikTok event, in addition to CompletePayment)
+    trackPurchase({ value, currency: "USD", orderId, contents });
 
     const fallbackFire = () => {
       try {

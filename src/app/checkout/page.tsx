@@ -10,7 +10,7 @@ import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
-import { trackInitiateCheckout } from "@/lib/tiktok-pixel";
+import { trackInitiateCheckout, ttqIdentify } from "@/lib/tiktok-pixel";
 import { gtmBeginCheckout, gtmPurchase } from "@/lib/gtm";
 
 // Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
@@ -174,6 +174,10 @@ export default function CheckoutPage() {
 
   function handleAttemptSubmit() {
     setAttemptedSubmit(true);
+    // Identify on checkout form submit (email available at this point)
+    if (EMAIL_PATTERN.test(customerInfo.email.trim())) {
+      void ttqIdentify(customerInfo.email.trim());
+    }
   }
 
   async function handlePaymentSuccess(result: PaymentResult) {

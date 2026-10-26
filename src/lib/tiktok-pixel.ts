@@ -8,7 +8,29 @@ declare global {
     ttq?: {
       track: (event: string, props?: Record<string, unknown>) => void;
       page: () => void;
+      identify: (props: Record<string, unknown>) => void;
     };
+  }
+}
+
+/** SHA-256 hash a string, returns lowercase hex. */
+export async function sha256(str: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+/** Call ttq.identify with hashed email/phone. */
+export async function ttqIdentify(email?: string, phone?: string) {
+  if (typeof window === "undefined" || !window.ttq?.identify) return;
+  try {
+    const props: Record<string, unknown> = {};
+    if (email) props.email = await sha256(email.trim().toLowerCase());
+    if (phone) props.phone_number = await sha256(phone.replace(/\D/g, ""));
+    if (Object.keys(props).length > 0) window.ttq.identify(props);
+  } catch (e) {
+    console.error("[TikTok Pixel] identify failed", e);
   }
 }
 
@@ -112,5 +134,35 @@ export async function trackInitiateCheckout(props?: { value?: number; currency?:
     currency: props?.currency ?? "USD",
     ...(beacon?.props ?? {}),
     ...(beacon?.event_id ? { event_id: beacon.event_id } : {}),
+  });
+}
+
+export function trackSearch(query: string) {
+  ttqTrack("Search", { query });
+}
+
+export function trackAddPaymentInfo(props?: { value?: number; currency?: string }) {
+  ttqTrack("AddPaymentInfo", {
+    value: props?.value,
+    currency: props?.currency ?? "USD",
+  });
+}
+
+export function trackCompleteRegistration() {
+  ttqTrack("CompleteRegistration");
+}
+
+export function trackPurchase(props: {
+  value: number;
+  currency?: string;
+  orderId: string | number;
+  contents: { content_id: string; content_name: string; quantity: number; price: number }[];
+}) {
+  ttqTrack("Purchase", {
+    content_type: "product",
+    value: props.value,
+    currency: props.currency ?? "USD",
+    order_id: props.orderId,
+    contents: props.contents,
   });
 }

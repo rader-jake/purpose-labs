@@ -10,6 +10,7 @@ import {
 } from "@stripe/react-stripe-js";
 import type { PaymentStepProps } from "@/lib/payment/types";
 import { formatMoney } from "@/lib/cart/money";
+import { trackAddPaymentInfo } from "@/lib/tiktok-pixel";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -78,6 +79,8 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
     setFormErrors({});
     setIsProcessing(true);
     setErrorMsg(null);
+
+    trackAddPaymentInfo({ value: amountCents / 100, currency: "USD" });
 
     const { error, paymentIntent } = await stripe.confirmPayment({
       elements,

@@ -1,5 +1,6 @@
 import { getProducts } from "@/lib/woocommerce";
 import { ProductCard } from "@/components/ProductCard";
+import { TikTokSearchEvent } from "@/components/TikTokSearchEvent";
 import Link from "next/link";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
@@ -12,6 +13,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16 sm:px-10" style={{ fontFamily: "var(--pl-font-body)" }}>
+      <TikTokSearchEvent query={query} />
       <h1 style={{ color: "var(--pl-navy)", fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: "-0.02em" }}>
         {query ? `Results for "${query}"` : "Search"}
       </h1>
