@@ -94,7 +94,7 @@ export function CartDrawer() {
             </p>
           )}
 
-          {cart && cart.items.length > 0 && <BogoBanner cart={cart} />}
+          {/* BOGO banner disabled */}
 
           {cart && cart.items.length > 0 && (
             <ul className="flex flex-col gap-5">
