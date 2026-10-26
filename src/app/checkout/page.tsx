@@ -47,7 +47,16 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const value = cart?.totals?.total_price ? parseFloat(cart.totals.total_price) / 100 : 0;
-    trackInitiateCheckout({ value: value || undefined });
+    trackInitiateCheckout({
+      value: value || undefined,
+      contents: (cart?.items ?? []).map((item) => ({
+        content_id: String(item.id),
+        content_name: item.name,
+        content_type: "product",
+        quantity: item.quantity,
+        price: item.prices?.price ? parseFloat(item.prices.price) / 100 : 0,
+      })),
+    });
     gtmBeginCheckout(
       (cart?.items ?? []).map((item) => ({
         item_id: String(item.id),

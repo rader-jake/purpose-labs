@@ -123,7 +123,11 @@ export async function trackAddToCart(props: {
   });
 }
 
-export async function trackInitiateCheckout(props?: { value?: number; currency?: string }) {
+export async function trackInitiateCheckout(props?: {
+  value?: number;
+  currency?: string;
+  contents?: { content_id: string; content_name: string; content_type: string; quantity: number; price: number }[];
+}) {
   const beacon = await beaconPost("/events/initiate-checkout", {
     value: props?.value,
     currency: props?.currency ?? "USD",
@@ -132,6 +136,7 @@ export async function trackInitiateCheckout(props?: { value?: number; currency?:
   ttqTrack("InitiateCheckout", {
     value: props?.value,
     currency: props?.currency ?? "USD",
+    contents: props?.contents ?? [],
     ...(beacon?.props ?? {}),
     ...(beacon?.event_id ? { event_id: beacon.event_id } : {}),
   });
