@@ -3,7 +3,6 @@ import { addCartItem, applyCoupon, getCart, StoreApiError } from "@/lib/cart/sto
 import { ensureTokens, readTokens, writeTokens } from "@/lib/cart/session";
 import { finalizeCart } from "@/lib/cart/bogoSync";
 import { canClaimBogo } from "@/lib/cart/bogoRules";
-import { BOGO_PRODUCTS } from "@/lib/cart/bogoProducts";
 import type { Cart } from "@/lib/cart/types";
 
 const WC_BASE = "https://joshuar120.sg-host.com/wp-json/wc/v3";
@@ -28,13 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: verdict.reason }, { status: 409 });
     }
 
-    // 1. Create a single-use fixed_cart coupon for exactly the product's price.
-    // We use fixed_cart (not percent) so the discount is capped at the product
-    // price regardless of how many units WooCommerce puts in a single line item.
-    // A 100% percent coupon with limit_usage_to_x_items=1 can over-discount when
-    // WooCommerce merges units into one line (e.g. qty 2 gets the full line wiped).
-    const bogoProduct = BOGO_PRODUCTS.find((p) => p.id === productId);
-    const productPrice = bogoProduct?.price ?? 89.99;
+    // 1. Create a single-use 100% coupon restricted to this product
     const couponCode = `pl-bogo-${productId}-${Date.now()}`;
     const couponRes = await fetch(`${WC_BASE}/coupons`, {
       method: "POST",
@@ -44,8 +37,8 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         code: couponCode,
-        discount_type: "fixed_cart",
-        amount: productPrice.toFixed(2),
+        discount_type: "percent",
+        amount: "100",
         product_ids: [productId],
         usage_limit: 1,
         usage_limit_per_user: 1,
