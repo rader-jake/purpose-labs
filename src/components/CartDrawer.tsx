@@ -7,7 +7,7 @@ import { formatMoney } from "@/lib/cart/money";
 import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRules";
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
-import type { BogoProduct } from "@/lib/cart/bogoProducts";
+import { BOGO_PRODUCT_IDS } from "@/lib/cart/bogoProducts";
 import { getBogoOffer } from "@/lib/cart/bogoRules";
 import { isSplitBacWater, itemDisplayTotal } from "@/lib/cart/displayLines";
 import BogoPickerModal from "@/components/BogoPickerModal";
@@ -169,25 +169,28 @@ export function CartDrawer() {
 }
 
 function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
-  const [modalOpen, setModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const { refreshCart } = useCart();
 
-  // Same rules the server enforces in /api/cart/bogo-free
-  const { remaining: freeRemaining, eligibleProducts } = getBogoOffer(cart);
-  if (freeRemaining === 0 || eligibleProducts.length === 0) return null;
+  const { remaining: freeRemaining } = getBogoOffer(cart);
+  if (freeRemaining === 0) return null;
 
-  const handleSelect = async (product: BogoProduct) => {
+  // Find the first paid eligible item in the cart — the free one is the same product
+  const paidItem = cart.items.find(
+    (item) => BOGO_PRODUCT_IDS.has(item.id) && !isFreeItem(item)
+  );
+  if (!paidItem) return null;
+
+  const handleClaimFree = async () => {
     setIsAdding(true);
     try {
       const res = await fetch("/api/cart/bogo-free", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id }),
+        body: JSON.stringify({ productId: paidItem.id }),
       });
       if (!res.ok) throw new Error("Failed to add free vial");
       await refreshCart();
-      setModalOpen(false);
     } catch {
       // silently fail
     } finally {
@@ -195,96 +198,70 @@ function BogoBanner({ cart }: { cart: import("@/lib/cart/types").Cart }) {
     }
   };
 
-  // Show up to 3 thumbnail previews
-  const previewProducts = eligibleProducts.slice(0, 3);
-  const extraCount = eligibleProducts.length - previewProducts.length;
+  const image = paidItem.images[0];
 
   return (
-    <>
-      <div
-        style={{
-          background: "#F8F6F1",
-          border: "1px solid #E8E2D9",
-          borderRadius: 14,
-          padding: "16px 18px",
-          margin: "0 0 16px 0",
-        }}
-      >
-        {/* Row 1: label + count pill */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span style={{
-              width: 6, height: 6, borderRadius: "50%",
-              background: "#1B2A4A", display: "inline-block", flexShrink: 0,
-            }} />
-            <span style={{
-              fontWeight: 700, fontSize: 13, color: "#1B2A4A",
-              letterSpacing: "0.04em", textTransform: "uppercase",
-              fontFamily: "var(--pl-font-body)",
-            }}>
-              Complimentary Vial Unlocked
-            </span>
-          </div>
-          <span style={{
-            fontSize: 10, fontWeight: 600, letterSpacing: "0.08em",
-            textTransform: "uppercase", color: "#1B2A4A",
-            border: "1px solid #C8BFB0", borderRadius: 20,
-            padding: "3px 9px", whiteSpace: "nowrap",
-          }}>
-            {freeRemaining} available
-          </span>
-        </div>
-
-        {/* Row 2: thumbnails */}
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14 }}>
-          {previewProducts.map((p) => (
-            <div key={`${p.id}-${p.name}`} style={{
-              width: 38, height: 38, borderRadius: 8,
-              background: "#fff", border: "1px solid #E8E2D9",
-              overflow: "hidden", flexShrink: 0,
-            }}>
-              <img src={p.image} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 3 }} />
-            </div>
-          ))}
-          {extraCount > 0 && (
-            <span style={{ fontSize: 11, color: "#9B8F7A", marginLeft: 4 }}>+{extraCount} more</span>
-          )}
-        </div>
-
-        {/* Row 3: CTA button */}
-        <button
-          onClick={() => setModalOpen(true)}
-          style={{
-            background: "#1B2A4A",
-            border: "none",
-            borderRadius: 10,
-            color: "#F8F6F1",
-            padding: "11px 16px",
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: "pointer",
-            width: "100%",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            fontFamily: "var(--pl-font-body)",
-            transition: "opacity 0.15s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.85"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
-        >
-          Select Your Free Vial
-        </button>
+    <div
+      style={{
+        background: "#F8F6F1",
+        border: "1px solid #E8E2D9",
+        borderRadius: 14,
+        padding: "16px 18px",
+        margin: "0 0 16px 0",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <span style={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: "#1B2A4A", display: "inline-block", flexShrink: 0,
+        }} />
+        <span style={{
+          fontWeight: 700, fontSize: 13, color: "#1B2A4A",
+          letterSpacing: "0.04em", textTransform: "uppercase",
+          fontFamily: "var(--pl-font-body)",
+        }}>
+          Buy 1 Get 1 Free — Unlocked!
+        </span>
       </div>
 
-      {modalOpen && (
-        <BogoPickerModal
-          products={eligibleProducts}
-          onSelect={handleSelect}
-          onClose={() => setModalOpen(false)}
-          isAdding={isAdding}
-        />
-      )}
-    </>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+        {image && (
+          <div style={{
+            width: 42, height: 42, borderRadius: 8,
+            background: "#fff", border: "1px solid #E8E2D9",
+            overflow: "hidden", flexShrink: 0,
+          }}>
+            <img src={image.src} alt={paidItem.name} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 3 }} />
+          </div>
+        )}
+        <span style={{ fontSize: 13, color: "#1B2A4A", fontFamily: "var(--pl-font-body)", fontWeight: 500 }}>
+          {paidItem.name} — <strong style={{ color: "#22c55e" }}>FREE</strong>
+        </span>
+      </div>
+
+      <button
+        onClick={handleClaimFree}
+        disabled={isAdding}
+        style={{
+          background: "#1B2A4A",
+          border: "none",
+          borderRadius: 10,
+          color: "#F8F6F1",
+          padding: "11px 16px",
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: isAdding ? "not-allowed" : "pointer",
+          width: "100%",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          fontFamily: "var(--pl-font-body)",
+          opacity: isAdding ? 0.6 : 1,
+          transition: "opacity 0.15s",
+        }}
+      >
+        {isAdding ? "Adding…" : "Claim Your Free Vial"}
+      </button>
+    </div>
   );
 }
 
