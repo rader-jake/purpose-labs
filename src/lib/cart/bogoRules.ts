@@ -141,12 +141,17 @@ export interface BogoOffer {
 }
 
 export function getBogoOffer(cart: BogoCartLike): BogoOffer {
-  const eligibleProducts = BOGO_PRODUCTS.filter((product) => canClaimBogo(cart, product.id).ok);
-  if (eligibleProducts.length === 0) return { remaining: 0, eligibleProducts };
-
   const plan = planBogoClaims(cart);
-  // Units in the cart that aren't free picks are paid; each paid unit earns
-  // one pick, and picks already claimed are in the cart as units too.
-  const remaining = Math.max(0, plan.eligibleUnits - 2 * plan.paidBackedClaims);
-  return { remaining, eligibleProducts: remaining > 0 ? eligibleProducts : [] };
+  // Each paid eligible unit earns exactly 1 free pick.
+  // eligibleUnits counts ALL eligible units (paid + free claimed).
+  // paidBackedClaims = number of accepted free picks.
+  // paid units = eligibleUnits - paidBackedClaims
+  // remaining = paid units - paidBackedClaims (already claimed)
+  const paidUnits = plan.eligibleUnits - plan.paidBackedClaims;
+  const remaining = Math.max(0, paidUnits - plan.paidBackedClaims);
+
+  if (remaining === 0) return { remaining: 0, eligibleProducts: [] };
+
+  const eligibleProducts = BOGO_PRODUCTS.filter((product) => canClaimBogo(cart, product.id).ok);
+  return { remaining, eligibleProducts };
 }
