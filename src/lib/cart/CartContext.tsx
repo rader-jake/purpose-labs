@@ -73,7 +73,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const affiliateCouponAttempted = useRef(false);
-  const research25Attempted = useRef(false);
+
   const rpepGhkAttempted = useRef(false);
 
   useEffect(() => {
@@ -106,40 +106,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
               }
             } catch {/* localStorage unavailable */}
           }
-          // Auto-apply RESEARCH25 if no affiliate coupon is active
-          if (!research25Attempted.current) {
-            research25Attempted.current = true;
-            try {
-              const affId = localStorage.getItem("pl_aff_id");
-              const affiliateCoupon = getCouponForAffiliate(affId);
-              const hasAffiliateCoupon = affiliateCoupon
-                ? data.coupons?.some(
-                    (c: { code: string }) => c.code.toLowerCase() === affiliateCoupon.toLowerCase()
-                  )
-                : false;
-              const hasResearch25 = data.coupons?.some(
-                (c: { code: string }) => c.code.toLowerCase() === "research25"
-              );
-              // Don't auto-apply RESEARCH25 if ANY manual discount code is present
-              const hasAnyDiscountCode = data.coupons?.some(
-                (c: { code: string }) => {
-                  const code = c.code.toLowerCase();
-                  return code !== "research25" && code !== "pl-auto-bacwater" && !code.startsWith("pl-bogo-");
-                }
-              );
-              const hasItems = data.items && data.items.length > 0;
-              if (!hasResearch25 && !hasAffiliateCoupon && !hasAnyDiscountCode && hasItems) {
-                fetch("/api/cart/apply-coupon", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ code: "RESEARCH25" }),
-                })
-                  .then(parseCartResponse)
-                  .then((updated) => { if (!cancelled) setCart(updated); })
-                  .catch(() => {/* silent */});
-              }
-            } catch {/* localStorage unavailable */}
-          }
+
           // RPEP / FREEGHK: auto-add free GHK-Cu 50mg (ID 831) when either coupon is applied
           if (!rpepGhkAttempted.current) {
             const hasRpep = data.coupons?.some(
