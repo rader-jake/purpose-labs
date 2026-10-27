@@ -168,7 +168,7 @@ export function ProductBuyBox({
 
       {/* BOGO per-vial price hint */}
       {productId !== 840 && parseFloat(displayedSalePrice || effectivePrice || "0") > 0 && (
-        <p className="mb-1 text-sm font-semibold" style={{ color: "#1B2A4A", marginTop: "-8px" }}>
+        <p className="mb-1 text-sm font-semibold" style={{ color: "var(--pl-ivory)", marginTop: "-8px" }}>
           = ${(parseFloat(displayedSalePrice || effectivePrice || "0") / 2).toFixed(2)}/vial with BOGO deal
         </p>
       )}
