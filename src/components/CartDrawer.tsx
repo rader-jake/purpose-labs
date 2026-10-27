@@ -325,7 +325,7 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
     const code = c.code.toLowerCase();
     return code !== "research25" && code !== "pl-auto-bacwater" && !code.startsWith("pl-bogo-");
   });
-  const [code, setCode] = useState(!hasResearch25 ? "RESEARCH25" : "");
+  const [code, setCode] = useState("");
   const [isPending, setIsPending] = useState(false);
 
   async function handleApply(e: React.FormEvent) {
@@ -384,43 +384,7 @@ function CouponSection({ coupons }: { coupons: CartCoupon[] }) {
           </div>
         ))}
 
-      {/* RESEARCH25 promo banner — shown when not yet applied and no affiliate code active */}
-      {!hasResearch25 && !hasAffiliateCoupon && (
-        <div
-          className="flex items-center gap-3 rounded-xl px-4 py-3"
-          style={{ backgroundColor: "#1B2A4A" }}
-        >
-          {/* Badge */}
-          <div
-            className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-full border-2 text-center"
-            style={{ borderColor: "#C4A96B", color: "#C4A96B" }}
-          >
-            <span className="text-sm font-black leading-none">25%</span>
-            <span className="text-[9px] font-bold uppercase leading-none tracking-wide">OFF</span>
-          </div>
-          {/* Text */}
-          <div className="flex flex-1 flex-col gap-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#C4A96B" }}>
-              Research Pricing
-            </span>
-            <span className="text-sm font-semibold leading-tight" style={{ color: "#ffffff" }}>
-              25% off your whole order with <span style={{ color: "#C4A96B" }}>RESEARCH25</span>
-            </span>
-          </div>
-          {/* Apply button */}
-          <button
-            onClick={async () => {
-              setIsPending(true);
-              try { await applyCoupon("RESEARCH25"); } catch { /* silent */ } finally { setIsPending(false); }
-            }}
-            disabled={isPending}
-            className="shrink-0 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wide transition-opacity duration-200 disabled:opacity-50"
-            style={{ backgroundColor: "#C4A96B", color: "#1B2A4A" }}
-          >
-            {isPending ? "…" : "Apply"}
-          </button>
-        </div>
-      )}
+      {/* RESEARCH25 promo banner removed */}
 
       {/* Generic coupon input */}
       <form onSubmit={handleApply} className="flex gap-2">
