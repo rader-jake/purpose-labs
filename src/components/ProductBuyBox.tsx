@@ -167,16 +167,11 @@ export function ProductBuyBox({
       </div>
 
       {/* BOGO per-vial price hint */}
-      {productId !== 840 && (() => {
-        const basePrice = parseFloat(displayedSalePrice || effectivePrice || "0");
-        if (basePrice <= 0) return null;
-        const perVial = (basePrice / 2).toFixed(2);
-        return (
-          <p className="mb-1 text-sm font-semibold" style={{ color: "#1B2A4A", marginTop: "-8px" }}>
-            = ${perVial}/vial with BOGO deal
-          </p>
-        );
-      })()}
+      {productId !== 840 && parseFloat(displayedSalePrice || effectivePrice || "0") > 0 && (
+        <p className="mb-1 text-sm font-semibold" style={{ color: "#1B2A4A", marginTop: "-8px" }}>
+          = ${(parseFloat(displayedSalePrice || effectivePrice || "0") / 2).toFixed(2)}/vial with BOGO deal
+        </p>
+      )}
 
       {/* BOGO Callout — Sunday style (hidden for bundle products like 840) */}
       {productId !== 840 && <div
