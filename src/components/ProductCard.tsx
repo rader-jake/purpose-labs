@@ -97,6 +97,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <p className="text-sm font-medium" style={{ color: "var(--pl-slate)" }}>
             ${product.price}
           </p>
+          {parseFloat(product.price || "0") > 0 && (
+            <p className="text-xs font-semibold" style={{ color: "var(--pl-slate)" }}>
+              = ${(parseFloat(product.price) / 2).toFixed(2)}/vial with BOGO
+            </p>
+          )}
         </div>
 
         {product.short_description && (
