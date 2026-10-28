@@ -1,4 +1,3 @@
-import { getBestSellers } from "@/lib/woocommerce";
 import { HomeHero } from "@/components/home/HomeHero";
 import { HowToClaimFreeVial } from "@/components/home/HowToClaimFreeVial";
 import { BogoPromo } from "@/components/home/BogoPromo";
@@ -8,6 +7,12 @@ import { QualityProof } from "@/components/home/QualityProof";
 import { EditorialStory } from "@/components/home/EditorialStory";
 import { CategoryDiscovery } from "@/components/home/CategoryDiscovery";
 import { ResearchAccessCTA } from "@/components/home/ResearchAccessCTA";
+
+// Cache homepage for 1 hour. Products rarely change; revalidating every 60s
+// was pinging SiteGround constantly and causing page failures whenever the
+// backend was slow. If SiteGround is down during revalidation, Next.js
+// continues serving the last good cached version automatically.
+export const revalidate = 3600;
 
 export default async function HomePage() {
   // Fetch best seller products from WooCommerce server-side
