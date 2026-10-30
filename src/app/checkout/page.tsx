@@ -13,6 +13,51 @@ import type { PaymentError, PaymentResult } from "@/lib/payment/types";
 import { trackInitiateCheckout, ttqIdentify } from "@/lib/tiktok-pixel";
 import { gtmBeginCheckout, gtmPurchase } from "@/lib/gtm";
 
+const EMAIL_PATTERN_BASIC = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function pushOmnisendCart(
+  email: string,
+  cartID: string,
+  cart: ReturnType<typeof useCart>["cart"]
+) {
+  if (!cart || !email || !EMAIL_PATTERN_BASIC.test(email)) return;
+  try {
+    await fetch("/api/omnisend/cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        cartID,
+        cartSum: Number(cart.totals.total_price) / 100,
+        currency: "USD",
+        cartUrl: `${window.location.origin}/checkout`,
+        products: cart.items.map((item) => ({
+          productID: String(item.id),
+          title: item.name,
+          quantity: item.quantity,
+          price: item.prices?.price ? parseFloat(item.prices.price) / 100 : 0,
+          imageUrl: item.images?.[0]?.src ?? "",
+          productUrl: `${window.location.origin}/products`,
+        })),
+      }),
+    });
+  } catch (e) {
+    console.error("[omnisend cart]", e);
+  }
+}
+
+async function clearOmnisendCart(cartID: string) {
+  try {
+    await fetch("/api/omnisend/cart", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cartID }),
+    });
+  } catch (e) {
+    console.error("[omnisend clear]", e);
+  }
+}
+
 // Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
 // that Purpose Labs has switched processors. Confirmed working live: nonce
 // mint, PaymentIntent creation, Stripe.js/CardElement init, and Stripe's
@@ -83,6 +128,8 @@ export default function CheckoutPage() {
   });
   // Errors only start showing once the user has tried to proceed while
   // something's invalid — not from the moment the page loads.
+  const [omnisendCartID] = useState(() => `cart_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+  const [omnisendFired, setOmnisendFired] = useState(false);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [isSyncingAddress, setIsSyncingAddress] = useState(false);
   const [addressError, setAddressError] = useState<string | null>(null);
@@ -191,6 +238,7 @@ export default function CheckoutPage() {
 
   async function handlePaymentSuccess(result: PaymentResult) {
     setPaymentError(null);
+    void clearOmnisendCart(omnisendCartID);
     const address = buildAddressInput();
 
     // Create WooCommerce order
@@ -287,6 +335,13 @@ export default function CheckoutPage() {
               placeholder="Email"
               value={customerInfo.email}
               onChange={(e) => setCustomerInfo((c) => ({ ...c, email: e.target.value }))}
+              onBlur={(e) => {
+                const email = e.target.value.trim();
+                if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
+                  setOmnisendFired(true);
+                  void pushOmnisendCart(email, omnisendCartID, cart);
+                }
+              }}
               className="w-full rounded border px-4 py-3 text-sm"
               style={inputStyle}
             />
