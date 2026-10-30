@@ -59,7 +59,7 @@ export function HomeHero() {
                   lineHeight: 1.0,
                 }}
               >
-                Buy Any Peptide.<br />
+                Buy 1 Get 1 Free.<br />
                 <span
                   style={{
                     background: "linear-gradient(90deg, #1B2A4A 0%, #4A6FBF 100%)",
@@ -67,7 +67,7 @@ export function HomeHero() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  Get Any Peptide Free.
+                  Free Shipping.
                 </span>
               </h1>
             </Reveal>
@@ -78,7 +78,7 @@ export function HomeHero() {
                 className="text-base sm:text-lg leading-relaxed mb-7 max-w-sm"
                 style={{ color: "var(--pl-text-secondary)" }}
               >
-                Mix. Match. Stack your protocol your way — pick <strong style={{ color: "var(--pl-navy)" }}>any</strong> vial free. No code needed.
+                Buy any peptide, get one free. No code needed — the Purpose Labs way.
               </p>
             </Reveal>
 

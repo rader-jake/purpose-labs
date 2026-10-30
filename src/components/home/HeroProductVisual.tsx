@@ -132,7 +132,7 @@ export function HeroProductVisual() {
           className="flex items-center gap-2 rounded-full px-8 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition-opacity duration-200 hover:opacity-85"
           style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
         >
-          Claim Your Free Vial →
+          Shop Now — Buy 1 Get 1 Free →
         </a>
       </div>
     </div>
