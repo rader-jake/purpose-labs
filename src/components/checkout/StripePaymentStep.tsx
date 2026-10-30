@@ -11,6 +11,7 @@ import {
 import type { PaymentStepProps } from "@/lib/payment/types";
 import { formatMoney } from "@/lib/cart/money";
 import { trackAddPaymentInfo } from "@/lib/tiktok-pixel";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -133,6 +134,11 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
       {errorMsg && (
         <p className="text-sm text-red-600">{errorMsg}</p>
       )}
+
+      {/* Urgency timer */}
+      <div className="flex justify-center">
+        <CountdownTimer label="BOGO + free shipping ends in" />
+      </div>
 
       {/* Ships today nudge */}
       <p className="text-xs text-center" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>

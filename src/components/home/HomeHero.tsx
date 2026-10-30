@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { HeroProductVisual } from "./HeroProductVisual";
 import { Reveal } from "./Reveal";
+import { CountdownTimer } from "@/components/CountdownTimer";
 
 export function HomeHero() {
   return (
@@ -84,10 +85,17 @@ export function HomeHero() {
 
 
 
+            {/* Countdown timer */}
+            <Reveal delay={300}>
+              <div className="mt-5 mb-2">
+                <CountdownTimer label="Free shipping + BOGO ends in" />
+              </div>
+            </Reveal>
+
             {/* Trust line */}
             <Reveal delay={340}>
               <p
-                className="mt-5 text-[10px] font-semibold uppercase tracking-[0.14em]"
+                className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em]"
                 style={{ color: "var(--pl-muted)" }}
               >
                 Veteran Owned · Same-Day Fulfillment · ≥99% Purity
