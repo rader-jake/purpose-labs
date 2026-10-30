@@ -134,6 +134,11 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
         <p className="text-sm text-red-600">{errorMsg}</p>
       )}
 
+      {/* Ships today nudge */}
+      <p className="text-xs text-center" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
+        🚚 <strong style={{ color: "var(--pl-navy)" }}>Ships today</strong> if ordered by 2PM EST
+      </p>
+
       <button
         type="submit"
         disabled={!stripe || isProcessing}
@@ -146,6 +151,19 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
       >
         {isProcessing ? "Processing…" : `Pay ${formatMoney(amountCents)}`}
       </button>
+
+      {/* Trust badges */}
+      <div className="flex items-center justify-center gap-4 flex-wrap pt-1">
+        {[
+          "🔒 Secured by Stripe",
+          "🇺🇸 US-Based",
+          "↩️ Satisfaction Guarantee",
+        ].map((badge) => (
+          <span key={badge} className="text-xs" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
+            {badge}
+          </span>
+        ))}
+      </div>
     </form>
   );
 }
