@@ -56,13 +56,13 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [buyerType, setBuyerType] = useState("");
+  const [buyerType, setBuyerType] = useState("business");
   const [attested, setAttested] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!buyerType) errs.buyerType = "Please select a purchaser type.";
+
     if (!attested) errs.attest = "You must confirm the attestation statements.";
     return errs;
   }
@@ -113,22 +113,6 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Purchaser type */}
-      <div>
-        <label style={labelStyle}>Purchaser type *</label>
-        <select
-          value={buyerType}
-          onChange={(e) => setBuyerType(e.target.value)}
-          style={{ ...inputStyle, appearance: "auto" }}
-        >
-          <option value="" disabled>Choose one…</option>
-          {BUYER_TYPE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-        {formErrors.buyerType && <p className="text-xs text-red-600 mt-1">{formErrors.buyerType}</p>}
-      </div>
-
       <PaymentElement options={{ wallets: { applePay: "auto", googlePay: "auto" } }} />
 
       {/* Attestation */}
