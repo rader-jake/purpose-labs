@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         cartID,
         email,
         currency: currency ?? "USD",
-        cartSum: cartSum ?? 0,
+        cartSum: Math.round((cartSum ?? 0) * 100),
         cartRecoveryUrl: cartUrl ?? "https://purposelabs.shop/checkout",
         products: (products ?? []).map((p: {
           productID: string;
@@ -48,12 +48,13 @@ export async function POST(req: NextRequest) {
           imageUrl?: string;
           productUrl?: string;
         }) => ({
+          cartProductID: `${cartID}_${p.productID}`,
           productID: p.productID,
           variantID: p.variantID ?? p.productID,
           title: p.title,
           quantity: p.quantity,
-          price: p.price,
-          imageUrl: p.imageUrl ?? "",
+          price: Math.round(p.price * 100),
+          imageUrl: p.imageUrl && p.imageUrl.startsWith("http") ? p.imageUrl : "https://purposelabs.shop/pl-logo.png",
           productUrl: p.productUrl ?? "https://purposelabs.shop/products",
         })),
       }),
