@@ -9,15 +9,15 @@ function getDeadline(): Date {
 
 export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) {
   const [target] = useState(() => getDeadline());
-  const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
   useEffect(() => {
     function tick() {
       const diff = Math.max(0, target.getTime() - Date.now());
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
       const s = Math.floor((diff % 60000) / 1000);
-      setTimeLeft({ h, m, s });
+      setTimeLeft({ d, h, m: Math.floor((diff % 3600000) / 60000), s });
     }
     tick();
     const id = setInterval(tick, 1000);
@@ -33,8 +33,8 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
       </span>
       <div className="flex items-center gap-1">
         {[
+          { val: pad(timeLeft.d ?? 0), unit: "day" },
           { val: pad(timeLeft.h), unit: "hr" },
-          { val: pad(timeLeft.m), unit: "min" },
           { val: pad(timeLeft.s), unit: "sec" },
         ].map(({ val, unit }, i) => (
           <span key={unit} className="flex items-center gap-1">
