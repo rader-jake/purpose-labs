@@ -2,20 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-// Counts down to midnight ET every day — resets automatically
-function getMidnightET(): Date {
-  const now = new Date();
-  // Get current time in ET
-  const etNow = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const midnight = new Date(etNow);
-  midnight.setHours(24, 0, 0, 0);
-  // Diff in ms
-  const diffMs = midnight.getTime() - etNow.getTime();
-  return new Date(Date.now() + diffMs);
+// Fixed deadline: October 31, 2026 at 5:24 PM ET
+function getDeadline(): Date {
+  return new Date("2026-10-31T17:24:00-04:00");
 }
 
 export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) {
-  const [target] = useState(() => getMidnightET());
+  const [target] = useState(() => getDeadline());
   const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
 
   useEffect(() => {
