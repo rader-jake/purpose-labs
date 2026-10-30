@@ -497,26 +497,26 @@ export default function CheckoutPage() {
             </p>
           )}
 
-          {isValid ? (
-            ENABLE_BEACON ? (
-              <BeaconPaymentStep
-                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
-                currencyCode="usd"
-                billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
-                shippingAddress={buildAddressInput()}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-              />
-            ) : (
-              <StripePaymentStep
-                amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
-                currencyCode="usd"
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-              />
-            )
+          {ENABLE_BEACON ? (
+            <BeaconPaymentStep
+              amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
+              currencyCode="usd"
+              billingAddress={{ ...buildAddressInput(), email: customerInfo.email }}
+              shippingAddress={buildAddressInput()}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+              onAttemptSubmit={!isValid ? handleAttemptSubmit : undefined}
+              isAddressValid={isValid}
+            />
           ) : (
-            <SectionSubmitButton onClick={handleAttemptSubmit}>Continue to Payment</SectionSubmitButton>
+            <StripePaymentStep
+              amountCents={Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0)}
+              currencyCode="usd"
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+              onAttemptSubmit={!isValid ? handleAttemptSubmit : undefined}
+              isAddressValid={isValid}
+            />
           )}
         </CheckoutCard>
       </div>

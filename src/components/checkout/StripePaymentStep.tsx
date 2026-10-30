@@ -51,7 +51,7 @@ const inputStyle: React.CSSProperties = {
   boxSizing: "border-box",
 };
 
-function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
+function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddressValid }: PaymentStepProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -70,6 +70,12 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!stripe || !elements) return;
+
+    // If address fields above aren't complete yet, surface those errors first
+    if (isAddressValid === false) {
+      onAttemptSubmit?.();
+      return;
+    }
 
     const errs = validate();
     if (Object.keys(errs).length > 0) {
@@ -160,7 +166,7 @@ function CheckoutForm({ amountCents, onSuccess, onError }: PaymentStepProps) {
   );
 }
 
-export function StripePaymentStep(props: PaymentStepProps) {
+export function StripePaymentStep(props: PaymentStepProps & { onAttemptSubmit?: () => void; isAddressValid?: boolean }) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -215,7 +221,7 @@ export function StripePaymentStep(props: PaymentStepProps) {
         },
       }}
     >
-      <CheckoutForm {...props} />
+      <CheckoutForm {...props} onAttemptSubmit={props.onAttemptSubmit} isAddressValid={props.isAddressValid} />
     </Elements>
   );
 }

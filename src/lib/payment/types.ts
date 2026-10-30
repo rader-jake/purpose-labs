@@ -23,6 +23,10 @@ export interface PaymentStepProps {
   currencyCode: string;
   onSuccess: (result: PaymentResult) => void;
   onError: (error: PaymentError) => void;
+  /** Called when pay is clicked but address fields above are incomplete. */
+  onAttemptSubmit?: () => void;
+  /** Whether the contact + shipping fields above are all valid. */
+  isAddressValid?: boolean;
 }
 
 export type PaymentStepComponent = ComponentType<PaymentStepProps>;
