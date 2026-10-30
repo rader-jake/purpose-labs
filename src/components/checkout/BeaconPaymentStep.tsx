@@ -220,7 +220,7 @@ function BeaconPaymentForm({
 
   const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null);
   const [prReady, setPrReady] = useState(false);
-  const [buyerType, setBuyerType] = useState("");
+  const [buyerType, setBuyerType] = useState("business");
   const [attested, setAttested] = useState(false);
   const [attestTs, setAttestTs] = useState("");
 
@@ -253,9 +253,9 @@ function BeaconPaymentForm({
     pr.on("paymentmethod", async (ev) => {
       try {
         // Validate attestation before proceeding
-        if (!attestedRef.current || !buyerTypeRef.current) {
+        if (!attestedRef.current) {
           ev.complete("fail");
-          onError({ message: "Please select a purchaser type and confirm the attestation before using Apple Pay." });
+          onError({ message: "Please confirm the attestation before using Apple Pay." });
           return;
         }
 
@@ -380,7 +380,6 @@ function BeaconPaymentForm({
 
   function validate() {
     const errs: Record<string, string> = {};
-    if (!buyerType) errs.buyerType = "Please select a purchaser type.";
     if (!attested) errs.attest = "You must confirm the attestation statements.";
     return errs;
   }
@@ -563,22 +562,6 @@ function BeaconPaymentForm({
           </div>
         </div>
       )}
-
-      {/* Purchaser Type */}
-      <div>
-        <label style={labelStyle}>Purchaser type *</label>
-        <select
-          value={buyerType}
-          onChange={(e) => setBuyerType(e.target.value)}
-          style={{ ...inputStyle, appearance: "auto" }}
-        >
-          <option value="" disabled>Choose one…</option>
-          {BUYER_TYPE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
-        {errors.buyerType && <p style={errorStyle}>{errors.buyerType}</p>}
-      </div>
 
       {/* Card Element */}
       <div className="rounded-md border p-3" style={{ borderColor: "var(--pl-border)", backgroundColor: "#fff" }}>
