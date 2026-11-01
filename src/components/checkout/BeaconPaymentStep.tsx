@@ -384,6 +384,14 @@ function BeaconPaymentForm({
     return errs;
   }
 
+  function clearPaymentError() {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.payment;
+      return next;
+    });
+  }
+
   async function handlePay() {
     if (!stripe || !elements) return;
     const cardElement = elements.getElement(CardElement);
@@ -531,7 +539,9 @@ function BeaconPaymentForm({
       onSuccess({ transactionId: String(orderId) });
     } catch (err) {
       setIsSubmitting(false);
-      onError({ message: err instanceof Error ? err.message : "Checkout failed. Please try again." });
+      const msg = err instanceof Error ? err.message : "Checkout failed. Please try again.";
+      setErrors((prev) => ({ ...prev, payment: msg }));
+      onError({ message: msg });
     }
   }
 
@@ -590,8 +600,29 @@ function BeaconPaymentForm({
       </label>
       {errors.attest && <p style={{ ...errorStyle, marginTop: "-12px" }}>{errors.attest}</p>}
 
+      {/* Buyer type */}
+      <div>
+        <label style={labelStyle} htmlFor="beacon-buyer-type">Organization type</label>
+        <select
+          id="beacon-buyer-type"
+          value={buyerType}
+          onChange={(e) => setBuyerType(e.target.value)}
+          style={{ ...inputStyle, appearance: "auto" }}
+        >
+          {BUYER_TYPE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Terms accordion */}
       <TermsAccordion />
+
+      {errors.payment && (
+        <p style={{ fontSize: "14px", color: "#dc2626", fontWeight: 600, marginBottom: 4 }}>
+          ⚠️ {errors.payment}
+        </p>
+      )}
 
       <button
         onClick={handlePay}
