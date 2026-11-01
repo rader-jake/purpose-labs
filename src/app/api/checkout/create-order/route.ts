@@ -7,6 +7,48 @@ const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
 const WC_SECRET = "cs_7964f8082bcbe98d4688a0697eb40a611b538de8";
 const AUTH = "Basic " + Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
 
+const TELEGRAM_BOT_TOKEN = "8713242356:AAFmo0Kn90HqFVwmHBDl_BZLJ4QjSQsZ81g";
+const TELEGRAM_CHAT_ID = "-1003911597013";
+const TELEGRAM_TOPIC_ID = 297; // Website topic
+
+async function sendTelegramAlert(message: string) {
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        message_thread_id: TELEGRAM_TOPIC_ID,
+        text: message,
+        parse_mode: "HTML",
+      }),
+    });
+  } catch (e) {
+    console.error("[telegram-alert] failed:", e);
+  }
+}
+
+async function createWCOrder(orderPayload: Record<string, unknown>, retries = 2): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const wcRes = await fetch(`${WP_BASE}/wp-json/wc/v3/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": AUTH,
+      },
+      body: JSON.stringify(orderPayload),
+      cache: "no-store",
+    });
+    const data = await wcRes.json() as Record<string, unknown>;
+    if (wcRes.ok) return { ok: true, data };
+    console.error(`[create-order] WC API error (attempt ${attempt}/${retries}):`, data);
+    if (attempt < retries) await new Promise((r) => setTimeout(r, 1500 * attempt));
+    if (attempt === retries) return { ok: false, data };
+  }
+  return { ok: false, data: {} };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as {
@@ -86,27 +128,26 @@ export async function POST(request: NextRequest) {
       ],
     };
 
-    const wcRes = await fetch(`${WP_BASE}/wp-json/wc/v3/orders`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": AUTH,
-      },
-      body: JSON.stringify(orderPayload),
-      cache: "no-store",
-    });
+    const { ok: wcOk, data } = await createWCOrder(orderPayload);
 
-    const data = await wcRes.json() as Record<string, unknown>;
-
-    if (!wcRes.ok) {
-      console.error("[create-order] WC API error:", data);
-      // Still return success with payment_intent_id so customer sees confirmation
+    if (!wcOk) {
+      // Alert via Telegram — payment charged but order not in WooCommerce
+      const name = `${billing_address?.first_name ?? ""} ${billing_address?.last_name ?? ""}`.trim() || "Unknown";
+      const email = billing_address?.email ?? "unknown";
+      const amount = amount_minor ? `$${(amount_minor / 100).toFixed(2)}` : "unknown amount";
+      await sendTelegramAlert(
+        `⚠️ <b>MISSED ORDER — Action Required</b>\n\n` +
+        `Customer <b>${name}</b> (${email}) paid <b>${amount}</b> on Stripe but the WooCommerce order failed to create after 2 attempts.\n\n` +
+        `<b>Stripe Payment Intent:</b> <code>${payment_intent_id}</code>\n\n` +
+        `You need to manually create this order in WooCommerce. The customer has been charged.`
+      );
+      console.error("[create-order] WC order creation failed after retries. Telegram alert sent.", payment_intent_id);
+      // Still return success so customer sees confirmation — they paid and it went through on Stripe
       return NextResponse.json({ order_id: payment_intent_id, wc_error: data }, { status: 200 });
     }
 
     // Track affiliate sale in Affiliatly
-    if (aff_id && wcRes.ok) {
+    if (aff_id && wcOk) {
       try {
         const affId = parseInt(aff_id, 10);
         const orderId = String(data.id ?? payment_intent_id);
