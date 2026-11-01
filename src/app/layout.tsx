@@ -87,6 +87,13 @@ gtag('config', 'AW-18463912185');
         ` }} />
         {/* Affiliatly — affiliate tracking (must load on every page) */}
         <script async src="https://static.affiliatly.com/v3/affiliatly.js?affiliatly_code=AF-1074151" />
+        {/* Omnisend JS snippet — required for abandoned checkout automation */}
+        <script dangerouslySetInnerHTML={{ __html: `
+window.omnisend = window.omnisend || [];
+omnisend.push(["accountID", "69f202c847c1686b941da296"]);
+omnisend.push(["track", "$pageViewed"]);
+!function(){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://omnisnippet1.com/inshop/launcher-v2.js";var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t)}();
+        ` }} />
       </head>
       <body className="min-h-full flex flex-col">
         {/* Google Tag Manager (noscript) */}
