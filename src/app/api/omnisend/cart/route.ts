@@ -27,6 +27,69 @@ async function upsertContact(email: string, firstName?: string, lastName?: strin
   return patchRes.ok;
 }
 
+async function fireCheckoutEvent(email: string, cartID: string, cartSum: number, cartUrl: string, products: unknown[]) {
+  // Fire "added product to cart" event — initiates cart abandonment flow
+  if ((products as any[]).length > 0) {
+    const first = products[0] as any;
+    await fetch("https://api.omnisend.com/api/events", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": OMNISEND_KEY,
+        "Omnisend-Version": "2026-03-15",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        eventName: "added product to cart",
+        origin: "api",
+        eventVersion: "",
+        contact: { email },
+        properties: {
+          abandonedCheckoutURL: cartUrl,
+          cartID,
+          value: cartSum,
+          currency: "USD",
+          addedItem: {
+            productID: String(first.productID),
+            productTitle: first.title,
+            productPrice: first.price / 100,
+            productImageURL: first.imageUrl ?? "https://www.purposelabs.shop/pl-logo.png",
+            productURL: first.productUrl ?? "https://www.purposelabs.shop/products",
+          },
+          lineItems: (products as any[]).map((p) => ({
+            productID: String(p.productID),
+            productTitle: p.title,
+            productPrice: p.price / 100,
+            productImageURL: p.imageUrl ?? "https://www.purposelabs.shop/pl-logo.png",
+            productURL: p.productUrl ?? "https://www.purposelabs.shop/products",
+          })),
+        },
+      }),
+    }).catch((e) => console.warn("[omnisend] added product to cart event failed:", e));
+  }
+
+  // Fire "started checkout" event — triggers checkout abandonment automation
+  await fetch("https://api.omnisend.com/api/events", {
+    method: "POST",
+    headers: {
+      "X-API-KEY": OMNISEND_KEY,
+      "Omnisend-Version": "2026-03-15",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      eventName: "started checkout",
+      origin: "api",
+      eventVersion: "",
+      contact: { email },
+      properties: {
+        abandonedCheckoutURL: cartUrl,
+        cartID,
+        currency: "USD",
+        cartSum,
+      },
+    }),
+  }).catch((e) => console.warn("[omnisend] started checkout event failed:", e));
+}
+
 async function sendCart(cartID: string, email: string, cartSum: number, currency: string, cartUrl: string, products: unknown[]) {
   // Try POST first; if cart already exists, PATCH it
   const payload = {
@@ -79,8 +142,12 @@ export async function POST(req: NextRequest) {
     // 1. Upsert contact (required before cart event can trigger automation)
     await upsertContact(email, firstName, lastName);
 
-    // 2. Sync cart — triggers abandoned cart automation if contact exists
+    // 2. Sync cart data to Omnisend
     const { ok, data } = await sendCart(cartID, email, cartSum, currency, cartUrl, products ?? []);
+
+    // 3. Fire "added product to cart" + "started checkout" events via REST API
+    // These are what actually trigger the abandoned checkout automation
+    void fireCheckoutEvent(email, cartID, cartSum, cartUrl ?? "https://www.purposelabs.shop/checkout", products ?? []);
 
     return NextResponse.json(data, { status: ok ? 200 : 400 });
   } catch (err) {
