@@ -117,18 +117,23 @@ export default function CheckoutPage() {
     );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    firstName: "",
-    lastName: "",
-    email: "",
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>(() => {
+    try {
+      return {
+        firstName: (typeof localStorage !== "undefined" && localStorage.getItem("pl_checkout_firstName")) || "",
+        lastName: (typeof localStorage !== "undefined" && localStorage.getItem("pl_checkout_lastName")) || "",
+        email: (typeof localStorage !== "undefined" && localStorage.getItem("pl_checkout_email")) || "",
+      };
+    } catch {
+      return { firstName: "", lastName: "", email: "" };
+    }
   });
-  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    postcode: "",
-    phone: "",
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(() => {
+    try {
+      const saved = typeof localStorage !== "undefined" ? localStorage.getItem("pl_checkout_shipping") : null;
+      if (saved) return JSON.parse(saved) as ShippingAddress;
+    } catch {}
+    return { address1: "", address2: "", city: "", state: "", postcode: "", phone: "" };
   });
   // Errors only start showing once the user has tried to proceed while
   // something's invalid — not from the moment the page loads.
@@ -216,6 +221,8 @@ export default function CheckoutPage() {
   async function syncAddressIfComplete() {
     if (isSyncingAddress) return;
     const { address1, city, state, postcode } = shippingAddress;
+    // Persist shipping to localStorage on every blur
+    try { localStorage.setItem("pl_checkout_shipping", JSON.stringify(shippingAddress)); } catch {}
     if (!address1.trim() || !city.trim() || state.trim().length !== 2 || !postcode.trim()) return;
     setIsSyncingAddress(true);
     setAddressError(null);
@@ -283,6 +290,14 @@ export default function CheckoutPage() {
       })),
     });
 
+    // Clear saved checkout fields after successful order
+    try {
+      localStorage.removeItem("pl_checkout_email");
+      localStorage.removeItem("pl_checkout_firstName");
+      localStorage.removeItem("pl_checkout_lastName");
+      localStorage.removeItem("pl_checkout_shipping");
+    } catch {}
+
     setOrderConfirmation(
       buildMockOrderConfirmation(cart!, result.transactionId, { ...address, email: customerInfo.email }, address)
     );
@@ -316,7 +331,7 @@ export default function CheckoutPage() {
               <input
                 placeholder="First name"
                 value={customerInfo.firstName}
-                onChange={(e) => setCustomerInfo((c) => ({ ...c, firstName: e.target.value }))}
+                onChange={(e) => { const v = e.target.value; setCustomerInfo((c) => { const n = { ...c, firstName: v }; try { localStorage.setItem("pl_checkout_firstName", v); } catch {} return n; }); }}
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
@@ -326,7 +341,7 @@ export default function CheckoutPage() {
               <input
                 placeholder="Last name"
                 value={customerInfo.lastName}
-                onChange={(e) => setCustomerInfo((c) => ({ ...c, lastName: e.target.value }))}
+                onChange={(e) => { const v = e.target.value; setCustomerInfo((c) => { const n = { ...c, lastName: v }; try { localStorage.setItem("pl_checkout_lastName", v); } catch {} return n; }); }}
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
@@ -338,7 +353,7 @@ export default function CheckoutPage() {
               type="email"
               placeholder="Email"
               value={customerInfo.email}
-              onChange={(e) => setCustomerInfo((c) => ({ ...c, email: e.target.value }))}
+              onChange={(e) => { const v = e.target.value; setCustomerInfo((c) => { const n = { ...c, email: v }; try { localStorage.setItem("pl_checkout_email", v); } catch {} return n; }); }}
               onBlur={(e) => {
                 const email = e.target.value.trim();
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
