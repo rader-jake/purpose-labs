@@ -18,7 +18,9 @@ const EMAIL_PATTERN_BASIC = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 async function pushOmnisendCart(
   email: string,
   cartID: string,
-  cart: ReturnType<typeof useCart>["cart"]
+  cart: ReturnType<typeof useCart>["cart"],
+  firstName?: string,
+  lastName?: string
 ) {
   if (!cart || !email || !EMAIL_PATTERN_BASIC.test(email)) return;
   try {
@@ -28,6 +30,8 @@ async function pushOmnisendCart(
       body: JSON.stringify({
         email,
         cartID,
+        firstName: firstName ?? "",
+        lastName: lastName ?? "",
         cartSum: Number(cart.totals.total_price) / 100,
         currency: "USD",
         cartUrl: `${window.location.origin}/checkout`,
@@ -339,7 +343,7 @@ export default function CheckoutPage() {
                 const email = e.target.value.trim();
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
                   setOmnisendFired(true);
-                  void pushOmnisendCart(email, omnisendCartID, cart);
+                  void pushOmnisendCart(email, omnisendCartID, cart, customerInfo.firstName, customerInfo.lastName);
                 }
               }}
               className="w-full rounded border px-4 py-3 text-sm"
