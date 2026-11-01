@@ -190,7 +190,7 @@ export default function CheckoutPage() {
     else if (!EMAIL_PATTERN.test(customerInfo.email.trim())) errors.email = "Enter a valid email address";
     if (!shippingAddress.address1.trim()) errors.address1 = "Address is required";
     if (!shippingAddress.city.trim()) errors.city = "City is required";
-    if (!shippingAddress.state) errors.state = "State is required";
+    if (shippingAddress.state.trim().length !== 2) errors.state = "Use a 2-letter state code";
     if (!shippingAddress.postcode.trim()) errors.postcode = "ZIP code is required";
     return errors;
   }
@@ -202,16 +202,6 @@ export default function CheckoutPage() {
   const isValid = Object.keys(currentErrors).length === 0;
   const fieldErrors = attemptedSubmit ? currentErrors : {};
 
-  // Fire omnisend cart push as soon as the form becomes valid
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (isValid && !omnisendFired && EMAIL_PATTERN.test(customerInfo.email.trim())) {
-      setOmnisendFired(true);
-      void pushOmnisendCart(customerInfo.email.trim(), omnisendCartID, cart);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid]);
-
   // Background sync so the order summary's shipping/tax stay accurate as
   // the address is completed — same updateCustomerAddress call the old
   // step-2-to-3 transition used to make, just triggered by leaving the
@@ -222,7 +212,7 @@ export default function CheckoutPage() {
   async function syncAddressIfComplete() {
     if (isSyncingAddress) return;
     const { address1, city, state, postcode } = shippingAddress;
-    if (!address1.trim() || !city.trim() || !state || !postcode.trim()) return;
+    if (!address1.trim() || !city.trim() || state.trim().length !== 2 || !postcode.trim()) return;
     setIsSyncingAddress(true);
     setAddressError(null);
     try {
@@ -323,7 +313,6 @@ export default function CheckoutPage() {
                 placeholder="First name"
                 value={customerInfo.firstName}
                 onChange={(e) => setCustomerInfo((c) => ({ ...c, firstName: e.target.value }))}
-                autoComplete="given-name"
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
@@ -334,7 +323,6 @@ export default function CheckoutPage() {
                 placeholder="Last name"
                 value={customerInfo.lastName}
                 onChange={(e) => setCustomerInfo((c) => ({ ...c, lastName: e.target.value }))}
-                autoComplete="family-name"
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
@@ -347,7 +335,6 @@ export default function CheckoutPage() {
               placeholder="Email"
               value={customerInfo.email}
               onChange={(e) => setCustomerInfo((c) => ({ ...c, email: e.target.value }))}
-              autoComplete="email"
               onBlur={(e) => {
                 const email = e.target.value.trim();
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
@@ -370,7 +357,6 @@ export default function CheckoutPage() {
               value={shippingAddress.address1}
               onChange={(e) => setShippingAddress((a) => ({ ...a, address1: e.target.value }))}
               onBlur={syncAddressIfComplete}
-              autoComplete="address-line1"
               className="w-full rounded border px-4 py-3 text-sm"
               style={inputStyle}
             />
@@ -381,7 +367,6 @@ export default function CheckoutPage() {
             value={shippingAddress.address2}
             onChange={(e) => setShippingAddress((a) => ({ ...a, address2: e.target.value }))}
             onBlur={syncAddressIfComplete}
-            autoComplete="address-line2"
             className="rounded border px-4 py-3 text-sm"
             style={inputStyle}
           />
@@ -392,74 +377,21 @@ export default function CheckoutPage() {
                 value={shippingAddress.city}
                 onChange={(e) => setShippingAddress((a) => ({ ...a, city: e.target.value }))}
                 onBlur={syncAddressIfComplete}
-                autoComplete="address-level2"
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
               <FieldError message={fieldErrors.city} />
             </div>
             <div className="col-span-1">
-              <select
+              <input
+                placeholder="State"
+                maxLength={2}
                 value={shippingAddress.state}
-                onChange={(e) => setShippingAddress((a) => ({ ...a, state: e.target.value }))}
+                onChange={(e) => setShippingAddress((a) => ({ ...a, state: e.target.value.toUpperCase() }))}
                 onBlur={syncAddressIfComplete}
-                autoComplete="address-level1"
-                className="w-full rounded border px-4 py-3 text-sm"
+                className="w-full rounded border px-4 py-3 text-sm uppercase"
                 style={inputStyle}
-              >
-                <option value="" disabled>State</option>
-                <option value="AL">Alabama</option>
-                <option value="AK">Alaska</option>
-                <option value="AZ">Arizona</option>
-                <option value="AR">Arkansas</option>
-                <option value="CA">California</option>
-                <option value="CO">Colorado</option>
-                <option value="CT">Connecticut</option>
-                <option value="DE">Delaware</option>
-                <option value="FL">Florida</option>
-                <option value="GA">Georgia</option>
-                <option value="HI">Hawaii</option>
-                <option value="ID">Idaho</option>
-                <option value="IL">Illinois</option>
-                <option value="IN">Indiana</option>
-                <option value="IA">Iowa</option>
-                <option value="KS">Kansas</option>
-                <option value="KY">Kentucky</option>
-                <option value="LA">Louisiana</option>
-                <option value="ME">Maine</option>
-                <option value="MD">Maryland</option>
-                <option value="MA">Massachusetts</option>
-                <option value="MI">Michigan</option>
-                <option value="MN">Minnesota</option>
-                <option value="MS">Mississippi</option>
-                <option value="MO">Missouri</option>
-                <option value="MT">Montana</option>
-                <option value="NE">Nebraska</option>
-                <option value="NV">Nevada</option>
-                <option value="NH">New Hampshire</option>
-                <option value="NJ">New Jersey</option>
-                <option value="NM">New Mexico</option>
-                <option value="NY">New York</option>
-                <option value="NC">North Carolina</option>
-                <option value="ND">North Dakota</option>
-                <option value="OH">Ohio</option>
-                <option value="OK">Oklahoma</option>
-                <option value="OR">Oregon</option>
-                <option value="PA">Pennsylvania</option>
-                <option value="RI">Rhode Island</option>
-                <option value="SC">South Carolina</option>
-                <option value="SD">South Dakota</option>
-                <option value="TN">Tennessee</option>
-                <option value="TX">Texas</option>
-                <option value="UT">Utah</option>
-                <option value="VT">Vermont</option>
-                <option value="VA">Virginia</option>
-                <option value="WA">Washington</option>
-                <option value="WV">West Virginia</option>
-                <option value="WI">Wisconsin</option>
-                <option value="WY">Wyoming</option>
-                <option value="DC">District of Columbia</option>
-              </select>
+              />
               <FieldError message={fieldErrors.state} />
             </div>
             <div className="col-span-1">
@@ -468,7 +400,6 @@ export default function CheckoutPage() {
                 value={shippingAddress.postcode}
                 onChange={(e) => setShippingAddress((a) => ({ ...a, postcode: e.target.value }))}
                 onBlur={syncAddressIfComplete}
-                autoComplete="postal-code"
                 className="w-full rounded border px-4 py-3 text-sm"
                 style={inputStyle}
               />
@@ -479,7 +410,6 @@ export default function CheckoutPage() {
             placeholder="Phone (optional)"
             value={shippingAddress.phone}
             onChange={(e) => setShippingAddress((a) => ({ ...a, phone: e.target.value }))}
-            autoComplete="tel"
             className="rounded border px-4 py-3 text-sm"
             style={inputStyle}
           />
@@ -609,9 +539,16 @@ export default function CheckoutPage() {
             </p>
           )}
 
+          {/* Last chance to catch an address mistake before payment is
+              submitted. No autocomplete/validation on the address fields
+              yet (future improvement), so this is a manual nudge instead. */}
+          <p className="text-xs" style={{ color: "var(--pl-muted)" }}>
+            Please double-check your shipping address before continuing — orders ship exactly as entered.
+          </p>
+
           {paymentError && (
-            <p style={{ fontSize: "14px", color: "#dc2626", fontWeight: 600 }}>
-              ⚠️ {paymentError}
+            <p className="text-xs" style={{ color: "var(--pl-slate)" }}>
+              {paymentError}
             </p>
           )}
 
