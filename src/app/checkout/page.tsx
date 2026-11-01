@@ -359,6 +359,28 @@ export default function CheckoutPage() {
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
                   setOmnisendFired(true);
                   void pushOmnisendCart(email, omnisendCartID, cart, customerInfo.firstName, customerInfo.lastName);
+                  // Identify contact + fire "started checkout" event via Omnisend JS snippet
+                  try {
+                    const w = window as unknown as Record<string, unknown>;
+                    if (typeof w.omnisend !== "undefined") {
+                      const omni = w.omnisend as { push: (args: unknown[]) => void };
+                      // Identify the contact so the event is attributed correctly
+                      omni.push(["identifyContact", { email }]);
+                      // Fire the started checkout event — triggers the abandoned checkout automation
+                      omni.push(["track", "started checkout", {
+                        origin: "api",
+                        eventVersion: "",
+                        properties: {
+                          abandonedCheckoutURL: window.location.origin + "/checkout",
+                          cartID: omnisendCartID,
+                          currency: "USD",
+                          cartSum: cart ? Number(cart.totals.total_price) / 100 : 0,
+                        },
+                      }]);
+                    }
+                  } catch (err) {
+                    console.warn("[omnisend] JS track failed:", err);
+                  }
                 }
               }}
               className="w-full rounded border px-4 py-3 text-sm"
