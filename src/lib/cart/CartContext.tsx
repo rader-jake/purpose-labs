@@ -78,7 +78,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/cart")
+    const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
+    const initHeaders: Record<string, string> = {};
+    if (cartToken) initHeaders["x-wc-cart-token"] = cartToken;
+    fetch("/api/cart", { headers: initHeaders })
       .then(parseCartResponse)
       .then((data) => {
         if (!cancelled) {
@@ -270,7 +273,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const refreshCart = useCallback(async () => {
     try {
-      const res = await fetch("/api/cart");
+      const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
+      const refreshHeaders: Record<string, string> = {};
+      if (cartToken) refreshHeaders["x-wc-cart-token"] = cartToken;
+      const res = await fetch("/api/cart", { headers: refreshHeaders });
       const data = await parseCartResponse(res);
       setCart(data);
     } catch {

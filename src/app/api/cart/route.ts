@@ -1,14 +1,22 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getCart, StoreApiError } from "@/lib/cart/storeApi";
+import type { CartTokens } from "@/lib/cart/storeApi";
 import { readTokens, writeTokens } from "@/lib/cart/session";
 import { finalizeCart } from "@/lib/cart/bogoSync";
 import { planBogoClaims } from "@/lib/cart/bogoRules";
 import type { Cart } from "@/lib/cart/types";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const tokens = await readTokens();
-    const { data, tokens: nextTokens } = await getCart(tokens);
+    // If client sends a cart token (from localStorage) and we don't have one server-side,
+    // use the client's token to reconnect to the WC session
+    const clientCartToken = request.headers.get("x-wc-cart-token");
+    const effectiveTokens: CartTokens = {
+      ...tokens,
+      cartToken: tokens.cartToken || clientCartToken || undefined,
+    };
+    const { data, tokens: nextTokens } = await getCart(effectiveTokens);
 
     // Self-heal carts that already hold a free pick they haven't earned.
     // Only touches the cart when a claim is actually invalid.
