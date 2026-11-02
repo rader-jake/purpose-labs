@@ -50,18 +50,6 @@ async function pushOmnisendCart(
   }
 }
 
-async function clearOmnisendCart(cartID: string) {
-  try {
-    await fetch("/api/omnisend/cart", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cartID }),
-    });
-  } catch (e) {
-    console.error("[omnisend clear]", e);
-  }
-}
-
 // Reversible, off-by-default gate — replaces the old ENABLE_TAGADA flag now
 // that Purpose Labs has switched processors. Confirmed working live: nonce
 // mint, PaymentIntent creation, Stripe.js/CardElement init, and Stripe's
@@ -249,7 +237,6 @@ export default function CheckoutPage() {
 
   async function handlePaymentSuccess(result: PaymentResult) {
     setPaymentError(null);
-    void clearOmnisendCart(omnisendCartID);
     const address = buildAddressInput();
 
     // Create WooCommerce order
