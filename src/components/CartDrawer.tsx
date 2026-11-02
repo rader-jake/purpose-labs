@@ -290,7 +290,7 @@ function FreeShippingProgress({
           className="text-xs font-medium"
           style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
         >
-          🎉 You&rsquo;ve unlocked free shipping
+          🎉 You&rsquo;ve unlocked FREE 2-Day Shipping via FedEx
         </p>
       </div>
     );
@@ -305,7 +305,7 @@ function FreeShippingProgress({
         className="mb-2 text-xs"
         style={{ color: "var(--pl-text-secondary)", fontFamily: "var(--pl-font-body)" }}
       >
-        Add {formatMoney(remaining)} more for free shipping
+        Add {formatMoney(remaining)} more for FREE 2-Day Shipping via FedEx
       </p>
       <div className="h-1 w-full overflow-hidden rounded-full" style={{ backgroundColor: "var(--pl-border)" }}>
         <div

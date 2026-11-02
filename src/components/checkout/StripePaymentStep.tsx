@@ -137,7 +137,7 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
 
       {/* Urgency timer */}
       <div className="flex justify-center">
-        <CountdownTimer label="BOGO + free shipping ends in" />
+        <CountdownTimer label="BOGO + FREE 2-Day FedEx ends in" />
       </div>
 
       {/* Ships today nudge */}

@@ -68,7 +68,7 @@ export function HomeHero() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  Free Shipping.
+                  FREE 2-Day Shipping via FedEx.
                 </span>
               </h1>
             </Reveal>
@@ -88,7 +88,7 @@ export function HomeHero() {
             {/* Countdown timer */}
             <Reveal delay={300}>
               <div className="mt-5 mb-2">
-                <CountdownTimer label="Free shipping + BOGO ends in" />
+                <CountdownTimer label="FREE 2-Day FedEx + BOGO ends in" />
               </div>
             </Reveal>
 
