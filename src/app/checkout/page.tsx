@@ -359,58 +359,14 @@ export default function CheckoutPage() {
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
                   setOmnisendFired(true);
                   void pushOmnisendCart(email, omnisendCartID, cart, customerInfo.firstName, customerInfo.lastName);
-                  // Identify contact + fire cart/checkout events via Omnisend JS snippet
+                  // Tie this browser to the contact. The cart and checkout
+                  // events themselves are sent once, by /api/omnisend/cart
+                  // (sending them from here too would start the workflow twice).
                   try {
-                    const w = window as unknown as Record<string, unknown>;
-                    if (typeof w.omnisend !== "undefined") {
-                      const omni = w.omnisend as { push: (args: unknown[]) => void };
-                      const checkoutUrl = window.location.origin + "/checkout";
-                      const cartValue = cart ? Number(cart.totals.total_price) / 100 : 0;
-                      const lineItems = (cart?.items ?? []).map((item) => ({
-                        productID: String(item.id),
-                        productTitle: item.name,
-                        productPrice: item.prices?.price ? parseFloat(item.prices.price) / 100 : 0,
-                        productImageURL: item.images?.[0]?.src ?? "https://www.purposelabs.shop/pl-logo.png",
-                        productURL: window.location.origin + "/products",
-                        productDescription: item.name,
-                      }));
-
-                      // 1. Identify the contact
-                      omni.push(["identifyContact", { email }]);
-
-                      // 2. Fire "added product to cart" for each item — initiates cart abandonment flow
-                      if (lineItems.length > 0) {
-                        omni.push(["track", "added product to cart", {
-                          origin: "api",
-                          eventVersion: "",
-                          properties: {
-                            abandonedCheckoutURL: checkoutUrl,
-                            cartID: omnisendCartID,
-                            value: cartValue,
-                            currency: "USD",
-                            addedItem: lineItems[0],
-                            lineItems,
-                          },
-                          contact: { email },
-                        }]);
-                      }
-
-                      // 3. Fire "started checkout" — triggers checkout abandonment automation
-                      omni.push(["track", "started checkout", {
-                        origin: "api",
-                        eventVersion: "",
-                        properties: {
-                          abandonedCheckoutURL: checkoutUrl,
-                          cartID: omnisendCartID,
-                          currency: "USD",
-                          cartSum: cartValue,
-                          lineItems,
-                        },
-                        contact: { email },
-                      }]);
-                    }
+                    const omni = (window as unknown as { omnisend?: { push: (args: unknown[]) => void } }).omnisend;
+                    omni?.push(["identifyContact", { email }]);
                   } catch (err) {
-                    console.warn("[omnisend] JS track failed:", err);
+                    console.warn("[omnisend] identifyContact failed:", err);
                   }
                 }
               }}

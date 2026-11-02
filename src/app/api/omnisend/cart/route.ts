@@ -1,172 +1,211 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const OMNISEND_KEY = process.env.OMNISEND_API_KEY!;
-const OMNISEND_BASE = "https://api.omnisend.com/v3";
+const OMNISEND_KEY = process.env.OMNISEND_API_KEY;
+const V3_BASE = "https://api.omnisend.com/v3";
+const API_BASE = "https://api.omnisend.com/api";
+const API_VERSION = "2026-03-15";
+const FALLBACK_IMAGE = "https://www.purposelabs.shop/pl-logo.png";
+const FALLBACK_PRODUCT_URL = "https://www.purposelabs.shop/products";
 
-async function upsertContact(email: string, firstName?: string, lastName?: string) {
-  const now = new Date().toISOString();
+// Prices arrive from the checkout page in dollars; the v3 carts API wants cents.
+interface CartProduct {
+  productID: string | number;
+  variantID?: string | number;
+  title: string;
+  quantity: number;
+  price: number;
+  imageUrl?: string;
+  productUrl?: string;
+}
 
-  // Try PATCH first (update existing) — avoids duplicate/conflict errors
-  const patchRes = await fetch(`${OMNISEND_BASE}/contacts`, {
+interface OmnisendResult {
+  ok: boolean;
+  status: number;
+  data: unknown;
+}
+
+// Every call goes through here so a rejected request is logged with
+// Omnisend's own error body instead of disappearing.
+async function omnisendFetch(label: string, url: string, init: RequestInit): Promise<OmnisendResult> {
+  try {
+    const res = await fetch(url, { ...init, cache: "no-store" });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) console.error(`[omnisend] ${label} failed:`, res.status, JSON.stringify(data));
+    return { ok: res.ok, status: res.status, data };
+  } catch (err) {
+    console.error(`[omnisend] ${label} request error:`, err);
+    return { ok: false, status: 0, data: {} };
+  }
+}
+
+// Current versioned API (/api/*): Authorization header + Omnisend-Version.
+function apiHeaders() {
+  return {
+    Authorization: `Omnisend-API-Key ${OMNISEND_KEY}`,
+    "Omnisend-Version": API_VERSION,
+    "Content-Type": "application/json",
+  };
+}
+
+// v3 carts API: X-API-KEY.
+function v3Headers() {
+  return { "X-API-KEY": OMNISEND_KEY as string, "Content-Type": "application/json" };
+}
+
+const imageOrFallback = (url?: string) => (url && url.startsWith("http") ? url : FALLBACK_IMAGE);
+
+function toLineItems(products: CartProduct[]) {
+  return products.map((p) => ({
+    productID: String(p.productID),
+    productVariantID: String(p.variantID ?? p.productID),
+    productTitle: p.title,
+    productDescription: p.title,
+    productPrice: p.price,
+    productQuantity: Number(p.quantity),
+    productImageURL: imageOrFallback(p.imageUrl),
+    productURL: p.productUrl ?? FALLBACK_PRODUCT_URL,
+  }));
+}
+
+// Creates the contact if new, otherwise updates it. Deliberately sends no
+// channel status: an existing subscriber must never be reset to
+// "nonSubscribed", and names are only sent when we actually have them so an
+// empty string can't blank an existing name.
+function upsertContact(email: string, firstName?: string, lastName?: string) {
+  return omnisendFetch("contact upsert", `${API_BASE}/contacts`, {
     method: "POST",
-    headers: { "X-API-KEY": OMNISEND_KEY, "Content-Type": "application/json" },
+    headers: apiHeaders(),
     body: JSON.stringify({
-      email,
-      firstName: firstName ?? "",
-      lastName: lastName ?? "",
-      status: "nonSubscribed",
-      statusDate: now,
-      sendWelcomeEmail: false,
+      ...(firstName ? { firstName } : {}),
+      ...(lastName ? { lastName } : {}),
+      identifiers: [{ type: "email", id: email }],
     }),
   });
-
-  if (!patchRes.ok) {
-    const err = await patchRes.json().catch(() => ({}));
-    console.warn("[omnisend] contact upsert failed:", patchRes.status, err);
-  }
-  return patchRes.ok;
 }
 
-async function fireCheckoutEvent(email: string, cartID: string, cartSum: number, cartUrl: string, products: unknown[]) {
-  // Fire "added product to cart" event — initiates cart abandonment flow
-  if ((products as any[]).length > 0) {
-    const first = products[0] as any;
-    await fetch("https://api.omnisend.com/api/events", {
-      method: "POST",
-      headers: {
-        "X-API-KEY": OMNISEND_KEY,
-        "Omnisend-Version": "2026-03-15",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        eventName: "added product to cart",
-        origin: "api",
-        eventVersion: "",
-        contact: { email },
-        properties: {
-          abandonedCheckoutURL: cartUrl,
-          cartID,
-          value: cartSum,
-          currency: "USD",
-          addedItem: {
-            productID: String(first.productID),
-            productTitle: first.title,
-            productPrice: first.price / 100,
-            productImageURL: first.imageUrl ?? "https://www.purposelabs.shop/pl-logo.png",
-            productURL: first.productUrl ?? "https://www.purposelabs.shop/products",
-          },
-          lineItems: (products as any[]).map((p) => ({
-            productID: String(p.productID),
-            productTitle: p.title,
-            productPrice: p.price / 100,
-            productImageURL: p.imageUrl ?? "https://www.purposelabs.shop/pl-logo.png",
-            productURL: p.productUrl ?? "https://www.purposelabs.shop/products",
-          })),
-        },
-      }),
-    }).catch((e) => console.warn("[omnisend] added product to cart event failed:", e));
-  }
-
-  // Fire "started checkout" event — triggers checkout abandonment automation
-  await fetch("https://api.omnisend.com/api/events", {
-    method: "POST",
-    headers: {
-      "X-API-KEY": OMNISEND_KEY,
-      "Omnisend-Version": "2026-03-15",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      eventName: "started checkout",
-      origin: "api",
-      eventVersion: "",
-      contact: { email },
-      properties: {
-        abandonedCheckoutURL: cartUrl,
-        cartID,
-        currency: "USD",
-        cartSum,
-      },
-    }),
-  }).catch((e) => console.warn("[omnisend] started checkout event failed:", e));
-}
-
-async function sendCart(cartID: string, email: string, cartSum: number, currency: string, cartUrl: string, products: unknown[]) {
-  // Try POST first; if cart already exists, PATCH it
+async function sendCart(cartID: string, email: string, cartSum: number, currency: string, cartUrl: string, products: CartProduct[]) {
   const payload = {
     cartID,
     email,
-    currency: currency ?? "USD",
-    cartSum: Math.round((cartSum ?? 0) * 100),
-    cartRecoveryUrl: cartUrl ?? "https://www.purposelabs.shop/checkout",
-    products: (products ?? []).map((p: any) => ({
+    currency,
+    cartSum: Math.round(cartSum * 100),
+    cartRecoveryUrl: cartUrl,
+    products: products.map((p) => ({
       cartProductID: `${cartID}_${p.productID}`,
       productID: String(p.productID),
       variantID: String(p.variantID ?? p.productID),
       title: p.title,
       quantity: Number(p.quantity),
       price: Math.round(p.price * 100),
-      imageUrl: p.imageUrl && p.imageUrl.startsWith("http") ? p.imageUrl : "https://www.purposelabs.shop/pl-logo.png",
-      productUrl: p.productUrl ?? "https://www.purposelabs.shop/products",
+      imageUrl: imageOrFallback(p.imageUrl),
+      productUrl: p.productUrl ?? FALLBACK_PRODUCT_URL,
     })),
   };
 
-  let res = await fetch(`${OMNISEND_BASE}/carts`, {
+  let res = await omnisendFetch("cart create", `${V3_BASE}/carts`, {
     method: "POST",
-    headers: { "X-API-KEY": OMNISEND_KEY, "Content-Type": "application/json" },
+    headers: v3Headers(),
     body: JSON.stringify(payload),
   });
 
-  // If cart already exists (409 conflict), patch it instead
+  // Cart already exists (e.g. a retry) — update it instead.
   if (res.status === 409) {
-    res = await fetch(`${OMNISEND_BASE}/carts/${cartID}`, {
+    res = await omnisendFetch("cart update", `${V3_BASE}/carts/${encodeURIComponent(cartID)}`, {
       method: "PATCH",
-      headers: { "X-API-KEY": OMNISEND_KEY, "Content-Type": "application/json" },
+      headers: v3Headers(),
       body: JSON.stringify(payload),
     });
   }
+  return res;
+}
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) console.error("[omnisend] cart sync failed:", res.status, data);
-  return { ok: res.ok, data };
+function sendEvent(eventName: string, contact: Record<string, string>, properties: Record<string, unknown>) {
+  return omnisendFetch(`event "${eventName}"`, `${API_BASE}/events`, {
+    method: "POST",
+    headers: apiHeaders(),
+    body: JSON.stringify({ eventName, origin: "api", eventVersion: "", contact, properties }),
+  });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { email, cartID, cartSum, currency, products, cartUrl, firstName, lastName } = body;
+    if (!OMNISEND_KEY) {
+      console.error("[omnisend] OMNISEND_API_KEY is not set in this environment");
+      return NextResponse.json({ error: "Omnisend is not configured" }, { status: 500 });
+    }
 
+    const { email, cartID, cartSum, currency, products, cartUrl, firstName, lastName } = await req.json();
     if (!email || !cartID) {
       return NextResponse.json({ error: "Missing email or cartID" }, { status: 400 });
     }
 
-    // 1. Upsert contact (required before cart event can trigger automation)
-    await upsertContact(email, firstName, lastName);
+    const items: CartProduct[] = Array.isArray(products) ? products : [];
+    const total = Number(cartSum) || 0;
+    const cur = currency || "USD";
+    const checkoutUrl: string = cartUrl || "https://www.purposelabs.shop/checkout";
 
-    // 2. Sync cart data to Omnisend
-    const { ok, data } = await sendCart(cartID, email, cartSum, currency, cartUrl, products ?? []);
+    // Contact and cart are independent, so run them together.
+    const [contact, cart] = await Promise.all([
+      upsertContact(email, firstName, lastName),
+      sendCart(cartID, email, total, cur, checkoutUrl, items),
+    ]);
 
-    // 3. Fire "added product to cart" + "started checkout" events via REST API
-    // These are what actually trigger the abandoned checkout automation
-    void fireCheckoutEvent(email, cartID, cartSum, cartUrl ?? "https://www.purposelabs.shop/checkout", products ?? []);
+    // These events are what start the abandonment automations. They are
+    // awaited on purpose: a serverless function can be frozen as soon as the
+    // response is sent, which silently drops anything still in flight.
+    const eventContact: Record<string, string> = { email };
+    if (firstName) eventContact.firstName = firstName;
+    if (lastName) eventContact.lastName = lastName;
+    const lineItems = toLineItems(items);
 
-    return NextResponse.json(data, { status: ok ? 200 : 400 });
+    const added =
+      lineItems.length > 0
+        ? await sendEvent("added product to cart", eventContact, {
+            abandonedCheckoutURL: checkoutUrl,
+            cartID,
+            currency: cur,
+            value: total,
+            addedItem: lineItems[0],
+            lineItems,
+          })
+        : null;
+    const started = await sendEvent("started checkout", eventContact, {
+      abandonedCheckoutURL: checkoutUrl,
+      cartID,
+      currency: cur,
+      value: total,
+      lineItems,
+    });
+
+    return NextResponse.json(
+      {
+        contact: contact.status,
+        cart: cart.status,
+        addedProductToCart: added?.status ?? "skipped",
+        startedCheckout: started.status,
+      },
+      { status: started.ok ? 200 : 502 }
+    );
   } catch (err) {
     console.error("[omnisend/cart POST]", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 
-// Called when order completes — clears the cart so abandoned cart email doesn't fire
+// Called when an order completes so the saved cart isn't treated as abandoned.
 export async function DELETE(req: NextRequest) {
   try {
+    if (!OMNISEND_KEY) {
+      console.error("[omnisend] OMNISEND_API_KEY is not set in this environment");
+      return NextResponse.json({ error: "Omnisend is not configured" }, { status: 500 });
+    }
     const { cartID } = await req.json();
     if (!cartID) return NextResponse.json({ error: "Missing cartID" }, { status: 400 });
 
-    const res = await fetch(`${OMNISEND_BASE}/carts/${cartID}`, {
+    const res = await omnisendFetch("cart delete", `${V3_BASE}/carts/${encodeURIComponent(cartID)}`, {
       method: "DELETE",
       headers: { "X-API-KEY": OMNISEND_KEY },
     });
-
     return NextResponse.json({ ok: res.ok }, { status: res.ok ? 200 : 400 });
   } catch (err) {
     console.error("[omnisend/cart DELETE]", err);
