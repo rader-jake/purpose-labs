@@ -546,8 +546,11 @@ export default function CheckoutPage() {
               </div>
             ))}
             <div className="flex items-center justify-between" style={{ color: "var(--pl-slate)" }}>
-              <span>Shipping</span>
-              <span>{selectedRate ? formatMoney(selectedRate.price) : "—"}</span>
+              <span>FedEx 2-Day Shipping</span>
+              <span className="flex items-center gap-2">
+                <span style={{ textDecoration: "line-through", color: "var(--pl-muted)" }}>$12.00</span>
+                <span style={{ color: "var(--pl-navy)", fontWeight: 700 }}>FREE</span>
+              </span>
             </div>
             {cart.totals.tax_lines.length > 0
               ? cart.totals.tax_lines.map((tax) => (
