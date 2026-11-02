@@ -8,6 +8,7 @@ import { FREE_SHIPPING_THRESHOLD_CENTS, isFreeItem } from "@/lib/cart/businessRu
 import type { CartCoupon, CartItem } from "@/lib/cart/types";
 import { decodeHtmlEntities } from "@/lib/utils";
 import { BOGO_PRODUCT_IDS } from "@/lib/cart/bogoProducts";
+import { CountdownTimer } from "@/components/CountdownTimer";
 import { getBogoOffer } from "@/lib/cart/bogoRules";
 import { isSplitBacWater, itemDisplayTotal } from "@/lib/cart/displayLines";
 import BogoPickerModal from "@/components/BogoPickerModal";
@@ -292,6 +293,9 @@ function FreeShippingProgress({
         >
           🎉 You&rsquo;ve unlocked FREE 2-Day Shipping via FedEx
         </p>
+        <div className="mt-2">
+          <CountdownTimer label="Offer ends in" />
+        </div>
       </div>
     );
   }
