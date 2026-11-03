@@ -346,14 +346,47 @@ export default function CheckoutPage() {
                 if (EMAIL_PATTERN_BASIC.test(email) && !omnisendFired) {
                   setOmnisendFired(true);
                   void pushOmnisendCart(email, omnisendCartID, cart, customerInfo.firstName, customerInfo.lastName);
-                  // Tie this browser to the contact. The cart and checkout
-                  // events themselves are sent once, by /api/omnisend/cart
-                  // (sending them from here too would start the workflow twice).
+                  // Browser side: identify the visitor, then send the same cart
+                  // and checkout events through Omnisend's snippet (their
+                  // recommended path for "started checkout"; the snippet ties
+                  // the events to this browser's session). The server route
+                  // sends them too, so the workflow's once-per-day frequency
+                  // setting is what keeps a contact from entering twice.
                   try {
                     const omni = (window as unknown as { omnisend?: { push: (args: unknown[]) => void } }).omnisend;
-                    omni?.push(["identifyContact", { email }]);
+                    if (omni) {
+                      const checkoutUrl = window.location.origin + "/checkout";
+                      const value = cart ? Number(cart.totals.total_price) / 100 : 0;
+                      const lineItems = (cart?.items ?? []).map((item) => ({
+                        productID: String(item.id),
+                        productVariantID: String(item.id),
+                        productTitle: item.name,
+                        productDescription: item.name,
+                        productPrice: item.prices?.price ? parseFloat(item.prices.price) / 100 : 0,
+                        productQuantity: item.quantity,
+                        productImageURL: item.images?.[0]?.src || "https://www.purposelabs.shop/pl-logo.png",
+                        productURL: window.location.origin + "/products",
+                      }));
+                      const properties = { abandonedCheckoutURL: checkoutUrl, cartID: omnisendCartID, currency: "USD", value, lineItems };
+
+                      omni.push(["identifyContact", { email }]);
+                      if (lineItems.length > 0) {
+                        omni.push(["track", "added product to cart", {
+                          origin: "api",
+                          eventVersion: "",
+                          properties: { ...properties, addedItem: lineItems[0] },
+                          contact: { email },
+                        }]);
+                      }
+                      omni.push(["track", "started checkout", {
+                        origin: "api",
+                        eventVersion: "",
+                        properties,
+                        contact: { email },
+                      }]);
+                    }
                   } catch (err) {
-                    console.warn("[omnisend] identifyContact failed:", err);
+                    console.warn("[omnisend] browser tracking failed:", err);
                   }
                 }
               }}
