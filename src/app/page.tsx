@@ -1,5 +1,4 @@
 import { HomeHero } from "@/components/home/HomeHero";
-import { HowToClaimFreeVial } from "@/components/home/HowToClaimFreeVial";
 import { BogoPromo } from "@/components/home/BogoPromo";
 import { TrustStats } from "@/components/home/TrustStats";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
@@ -27,7 +26,7 @@ export default async function HomePage() {
   return (
     <main className="flex-1 bg-[#F1F6F9]">
       <HomeHero />
-      <HowToClaimFreeVial />
+
       <BogoPromo />
       <FeaturedProducts products={products} />
       <TrustStats />
