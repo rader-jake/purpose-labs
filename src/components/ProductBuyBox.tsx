@@ -87,16 +87,9 @@ export function ProductBuyBox({
   const effectiveRegularPrice = selectedVariation ? selectedVariation.regular_price : regularPrice;
   const effectiveSalePrice = selectedVariation ? null : salePrice;
 
-  // RESEARCH25: always show 25% off on product pages
-  // Compute display price as 75% of regular price (or current price if no regular)
-  const research25BasePrice = parseFloat(effectiveRegularPrice || effectivePrice || "0");
-  const research25DisplayPrice = research25BasePrice > 0
-    ? (research25BasePrice * 0.75).toFixed(2)
-    : null;
-  // Use RESEARCH25 display if no existing sale price
-  const hasDiscount = research25DisplayPrice !== null;
+  const hasDiscount = !!effectiveSalePrice && effectiveSalePrice !== effectiveRegularPrice;
   const displayedRegularPrice = effectiveRegularPrice || effectivePrice;
-  const displayedSalePrice = effectiveSalePrice || research25DisplayPrice;
+  const displayedSalePrice = effectiveSalePrice || null;
 
   const effectiveOutOfStock = selectedVariation
     ? selectedVariation.stock_status !== "instock"
@@ -161,7 +154,7 @@ export function ProductBuyBox({
             className="rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide"
             style={{ backgroundColor: "#1B2A4A", color: "#ffffff" }}
           >
-            25% OFF
+            SALE
           </span>
         )}
       </div>
