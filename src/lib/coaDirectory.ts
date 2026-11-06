@@ -166,20 +166,24 @@ export const COA_DIRECTORY: CoaEntry[] = [
   },
   {
     slug: "klow-80mg",
-    lab: "BT Labs · 2026",
+    lab: "ILS Laboratories · 2026",
     title: "KLOW 80MG",
-    purity: "99.7%",
-    method: "FTIR + HPLC",
-    storage: "R.T.",
-    docs: [{ label: "View COA", url: "/coas/KLOW_COA.jpg" }],
+    purity: "99.81%",
+    method: "Full QC Panel (HPLC)",
+    lot: "Klow-108",
+    docs: [{ label: "View COA", url: "/coas/KLOW-COA-Klow-108-Sep2026.pdf" }],
   },
   {
     slug: "pl-tesa",
-    lab: "BT Labs · 2026",
+    lab: "ILS Laboratories · 2026",
     title: "PL-TESA",
-    purity: "99.7%",
-    storage: "R.T.",
-    docs: [{ label: "View COA", url: "/coas/tesamorelin-5mg-coa.pdf" }],
+    purity: "99.90%",
+    method: "Full QC Panel (HPLC)",
+    lot: "Tesa-146",
+    docs: [
+      { label: "View COA (5mg)", url: "/coas/tesamorelin-5mg-coa.pdf" },
+      { label: "View COA (10mg)", url: "/coas/Tesamorelin-COA-Tesa-146-Oct2026.pdf" },
+    ],
   },
   {
     // No local file: this COA lives behind a full WordPress page, not a
