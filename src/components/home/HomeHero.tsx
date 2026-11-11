@@ -5,96 +5,112 @@ import { Reveal } from "./Reveal";
 export function HomeHero() {
   return (
     <section
-      className="relative overflow-hidden bg-[#F8FAFC] pt-10 pb-12 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24"
+      className="relative overflow-hidden bg-[#F8FAFC] pt-6 pb-10 md:pt-10 md:pb-16"
       style={{ fontFamily: "var(--pl-font-body)" }}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40 select-none"
-        style={{
-          background:
-            "radial-gradient(circle at 10% 20%, var(--pl-white) 0%, transparent 45%), radial-gradient(circle at 80% 60%, rgba(155, 164, 180, 0.15) 0%, transparent 50%)",
-        }}
-      />
+      <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
 
-      <div className="relative mx-auto max-w-7xl px-6 sm:px-10">
-        <div className="flex flex-col lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-8">
-
-          {/* Left — Headline & CTA */}
-          <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 order-1 flex flex-col items-start mb-6 lg:mb-0">
-
-            {/* Big headline */}
-            <Reveal delay={160}>
+        {/* Dark navy card — the hero box */}
+        <Reveal delay={80}>
+          <div
+            className="rounded-3xl px-7 pt-9 pb-8 mb-6"
+            style={{
+              background: "linear-gradient(160deg, #0D1A30 0%, #14274E 60%, #1a3360 100%)",
+              boxShadow: "0 24px 64px rgba(13,26,48,0.28)",
+            }}
+          >
+            {/* Headline */}
+            <Reveal delay={140}>
               <h1
-                className="font-black tracking-tight mb-4"
+                className="font-black tracking-tight mb-3 text-white"
                 style={{
-                  color: "var(--pl-navy)",
                   fontFamily: "var(--pl-font-display)",
-                  fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
-                  lineHeight: 1.0,
+                  fontSize: "clamp(2.4rem, 8vw, 3.6rem)",
+                  lineHeight: 1.05,
                 }}
               >
-                Research-Grade Peptides.<br />
-                <span
-                  style={{
-                    background: "linear-gradient(90deg, #1B2A4A 0%, #4A6FBF 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  Every Batch Documented.
-                </span>
+                Research-Grade<br />Peptides.
               </h1>
             </Reveal>
 
-            {/* Sub */}
-            <Reveal delay={220}>
+            <Reveal delay={180}>
               <p
-                className="text-base sm:text-lg leading-relaxed mb-7 max-w-sm"
-                style={{ color: "var(--pl-text-secondary)" }}
+                className="font-black mb-5"
+                style={{
+                  fontSize: "clamp(1.3rem, 5vw, 2rem)",
+                  color: "#7EB4FF",
+                  fontFamily: "var(--pl-font-display)",
+                  lineHeight: 1.1,
+                }}
               >
-                Third-party tested. COA on every lot. Same-day fulfillment.
+                Every Batch Documented.
+              </p>
+            </Reveal>
+
+            {/* Subtext */}
+            <Reveal delay={220}>
+              <p className="text-[#A8BBCC] text-base leading-relaxed mb-7 max-w-sm">
+                Purpose Labs supplies third-party tested research compounds with batch-specific Certificates of Analysis. Documented from raw material to vial.
               </p>
             </Reveal>
 
             {/* CTAs */}
-            <Reveal delay={280}>
-              <div className="flex flex-wrap gap-3 mb-6">
+            <Reveal delay={270}>
+              <div className="flex gap-3 mb-7 flex-wrap">
                 <Link
                   href="/products"
-                  className="rounded-full px-7 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition-opacity duration-200 hover:opacity-85"
-                  style={{ background: "#14274E" }}
+                  className="rounded-xl px-6 py-3.5 text-sm font-black text-white transition-opacity duration-200 hover:opacity-90"
+                  style={{ background: "linear-gradient(90deg, #3B6FD4 0%, #5A8FEF 100%)" }}
                 >
-                  Shop Compounds
+                  Browse Compounds
                 </Link>
                 <Link
-                  href="/coa"
-                  className="rounded-full border px-7 py-3 text-xs font-black uppercase tracking-[0.14em] transition-all duration-200 hover:bg-[#14274E] hover:text-white"
-                  style={{ borderColor: "#14274E", color: "#14274E" }}
+                  href="/quality"
+                  className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-black text-white transition-all duration-200 hover:bg-white/10"
                 >
-                  View COA
+                  View COAs
                 </Link>
               </div>
             </Reveal>
 
-            {/* Trust line */}
-            <Reveal delay={340}>
-              <p
-                className="text-[10px] font-semibold uppercase tracking-[0.14em]"
-                style={{ color: "var(--pl-muted)" }}
+            {/* Trust icon rows */}
+            <Reveal delay={310}>
+              <div
+                className="rounded-2xl px-5 py-4 flex flex-col gap-3"
+                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
               >
-                Veteran Owned · ≥99% Purity · COA Every Batch · Same-Day FedEx
-              </p>
+                {[
+                  { icon: "⚗️", label: "3rd-party tested", sub: "Batch verified — HPLC + Mass Spec" },
+                  { icon: "🚚", label: "Same-day dispatch", sub: "Orders placed before 2 PM EST" },
+                  { icon: "📦", label: "Tracked shipping", sub: "FedEx 2Day with full documentation" },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-3">
+                    <div
+                      className="flex items-center justify-center rounded-xl text-lg flex-shrink-0"
+                      style={{
+                        width: 40,
+                        height: 40,
+                        background: "rgba(255,255,255,0.08)",
+                      }}
+                    >
+                      {item.icon}
+                    </div>
+                    <div>
+                      <p className="text-white text-sm font-bold leading-tight">{item.label}</p>
+                      <p className="text-[#7A9BB5] text-xs">{item.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </Reveal>
           </div>
+        </Reveal>
 
-          {/* Right — Product Visual */}
-          <div className="lg:col-span-7 lg:col-start-6 lg:row-start-1 order-2 lg:order-none flex justify-center items-center w-full mb-8 lg:mb-0 z-10">
-            <Reveal delay={200} duration={900}>
-              <HeroProductVisual />
-            </Reveal>
-          </div>
+        {/* Vials below the card */}
+        <Reveal delay={200} duration={900}>
+          <HeroProductVisual />
+        </Reveal>
 
-        </div>
       </div>
     </section>
   );
