@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Montserrat, Anton } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -21,6 +21,12 @@ import "./globals.css";
 // <html> before the SSR'd gate (which always renders open, since the
 // server has no localStorage to check) ever becomes visible.
 const AGE_GATE_NO_FLASH_SCRIPT = `(function(){try{var u=localStorage.getItem('pl_age_verified_until');if(u&&Number(u)>Date.now()){document.documentElement.classList.add('pl-age-ok');}}catch(e){}})();`;
+
+const anton = Anton({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-anton",
+});
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -49,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${montserrat.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${montserrat.variable} ${anton.variable} h-full antialiased`}
       // The no-flash script below adds a "pl-age-ok" class to this
       // exact element before React hydrates, for already-verified
       // visitors — an intentional, expected mismatch against the

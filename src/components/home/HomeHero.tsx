@@ -36,11 +36,11 @@ export function HomeHero() {
       >
         <span
           style={{
-            fontFamily: "var(--pl-font-display)",
-            fontWeight: 900,
+            fontFamily: "var(--font-anton), Impact, sans-serif",
+            fontWeight: 400,
             fontSize: "clamp(90px, 24vw, 220px)",
             color: "rgba(100,80,200,0.13)",
-            letterSpacing: "-0.03em",
+            letterSpacing: "0.01em",
             userSelect: "none",
             paddingLeft: "2vw",
           }}
@@ -49,11 +49,11 @@ export function HomeHero() {
         </span>
         <span
           style={{
-            fontFamily: "var(--pl-font-display)",
-            fontWeight: 900,
+            fontFamily: "var(--font-anton), Impact, sans-serif",
+            fontWeight: 400,
             fontSize: "clamp(90px, 24vw, 220px)",
             color: "rgba(100,80,200,0.13)",
-            letterSpacing: "-0.03em",
+            letterSpacing: "0.01em",
             userSelect: "none",
             paddingRight: "2vw",
           }}
@@ -96,11 +96,13 @@ export function HomeHero() {
         {/* BUY 1, GET 1 */}
         <Reveal delay={110}>
           <h1
-            className="font-black leading-none mb-1"
+            className="leading-none mb-1"
             style={{
+              fontFamily: "var(--font-anton), Impact, sans-serif",
               fontSize: "clamp(3.2rem, 13vw, 8rem)",
               color: "#FFFFFF",
-              letterSpacing: "-0.02em",
+              letterSpacing: "0.01em",
+              fontWeight: 400,
             }}
           >
             BUY 1, GET 1
@@ -110,10 +112,12 @@ export function HomeHero() {
         {/* FREE. — blue gradient */}
         <Reveal delay={160}>
           <p
-            className="font-black leading-none mb-8"
+            className="leading-none mb-8"
             style={{
+              fontFamily: "var(--font-anton), Impact, sans-serif",
               fontSize: "clamp(3.6rem, 15vw, 9rem)",
-              letterSpacing: "-0.02em",
+              letterSpacing: "0.01em",
+              fontWeight: 400,
               background: "linear-gradient(90deg, #5B7FFF 0%, #7B9FFF 50%, #60A5FA 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
