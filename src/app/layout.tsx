@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat, Anton } from "next/font/google";
+import { Cormorant_Garamond, Montserrat, Anton, Nunito } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -26,6 +26,12 @@ const anton = Anton({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-anton",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["900"],
+  variable: "--font-nunito",
 });
 
 const cormorant = Cormorant_Garamond({
@@ -55,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${montserrat.variable} ${anton.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${montserrat.variable} ${anton.variable} ${nunito.variable} h-full antialiased`}
       // The no-flash script below adds a "pl-age-ok" class to this
       // exact element before React hydrates, for already-verified
       // visitors — an intentional, expected mismatch against the
