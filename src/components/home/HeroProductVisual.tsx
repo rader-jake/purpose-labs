@@ -24,23 +24,26 @@ export function HeroProductVisual() {
       <style>{`
         @keyframes float-left {
           0%,100% { transform: translateY(0px)   rotate(-6deg); }
-          50%      { transform: translateY(-14px) rotate(-4deg); }
+          40%      { transform: translateY(-30px) rotate(-3deg); }
+          60%      { transform: translateY(-24px) rotate(-5deg); }
         }
         @keyframes float-center {
           0%,100% { transform: translateY(0px)   rotate(0deg); }
-          50%      { transform: translateY(-20px) rotate(0deg); }
+          40%      { transform: translateY(-38px) rotate(1deg); }
+          60%      { transform: translateY(-30px) rotate(-1deg); }
         }
         @keyframes float-right {
           0%,100% { transform: translateY(0px)   rotate(6deg); }
-          50%      { transform: translateY(-12px) rotate(4deg); }
+          40%      { transform: translateY(-28px) rotate(4deg); }
+          60%      { transform: translateY(-22px) rotate(6deg); }
         }
         @keyframes glow-breathe {
           0%,100% { opacity: 0.5; }
           50%      { opacity: 0.9; }
         }
-        .float-left   { animation: float-left   5.6s ease-in-out 0s   infinite; }
-        .float-center { animation: float-center  6.3s ease-in-out 0.5s infinite; }
-        .float-right  { animation: float-right   5.1s ease-in-out 1.1s infinite; }
+        .float-left   { animation: float-left   3.0s cubic-bezier(0.37, 0, 0.63, 1) 0s   infinite; }
+        .float-center { animation: float-center  2.7s cubic-bezier(0.37, 0, 0.63, 1) 0.25s infinite; }
+        .float-right  { animation: float-right   3.3s cubic-bezier(0.37, 0, 0.63, 1) 0.5s infinite; }
         .glow-breathe { animation: glow-breathe  6s   ease-in-out 0s   infinite; }
 
         .vial-side   { width: clamp(140px, 32vw, 240px); }
