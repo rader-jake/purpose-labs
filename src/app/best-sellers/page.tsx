@@ -1,5 +1,5 @@
 import { getBestSellers } from "@/lib/woocommerce";
-import { ProductCard } from "@/components/ProductCard";
+import { FeaturedProductCard } from "@/components/home/FeaturedProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 
 export default async function BestSellersPage() {
@@ -12,9 +12,9 @@ export default async function BestSellersPage() {
     >
       <SectionHeading eyebrow="Purpose Labs" title="Best Sellers" />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <FeaturedProductCard key={product.id} product={product} />
         ))}
       </div>
     </main>

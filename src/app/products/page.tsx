@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getProducts, NON_MERCHANDISABLE_PRODUCT_IDS } from "@/lib/woocommerce";
-import { ProductCard } from "@/components/ProductCard";
+import { FeaturedProductCard } from "@/components/home/FeaturedProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 
 export const metadata: Metadata = {
@@ -18,9 +18,9 @@ export default async function CatalogPage() {
     >
       <SectionHeading eyebrow="Purpose Labs" title="Research Compounds" />
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <FeaturedProductCard key={product.id} product={product} />
         ))}
       </div>
     </main>
