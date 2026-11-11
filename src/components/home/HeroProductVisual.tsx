@@ -41,9 +41,9 @@ export function HeroProductVisual() {
           0%,100% { opacity: 0.5; }
           50%      { opacity: 0.9; }
         }
-        .float-left   { animation: float-left   3.0s cubic-bezier(0.37, 0, 0.63, 1) 0s   infinite; }
-        .float-center { animation: float-center  2.7s cubic-bezier(0.37, 0, 0.63, 1) 0.25s infinite; }
-        .float-right  { animation: float-right   3.3s cubic-bezier(0.37, 0, 0.63, 1) 0.5s infinite; }
+        .float-left   { animation: float-left   4.2s cubic-bezier(0.37, 0, 0.63, 1) 0s   infinite; }
+        .float-center { animation: float-center  3.8s cubic-bezier(0.37, 0, 0.63, 1) 0.25s infinite; }
+        .float-right  { animation: float-right   4.5s cubic-bezier(0.37, 0, 0.63, 1) 0.5s infinite; }
         .glow-breathe { animation: glow-breathe  6s   ease-in-out 0s   infinite; }
 
         .vial-side   { width: clamp(140px, 32vw, 240px); }
