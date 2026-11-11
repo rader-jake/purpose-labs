@@ -6,8 +6,15 @@ type FeaturedProductCardProps = {
   product: WooProduct;
 };
 
+// Known dosage overrides for products whose names don't include mg
+const DOSAGE_OVERRIDES: Record<string, string> = {
+  "purpose labs 3rt": "10MG",
+};
+
 // Extract dosage from product name e.g. "BPC-157 10mg" → "10MG"
 function extractDosage(name: string): string | null {
+  const override = DOSAGE_OVERRIDES[name.toLowerCase().trim()];
+  if (override) return override;
   const match = name.match(/(\d+\s?mg)/i);
   return match ? match[1].toUpperCase() : null;
 }
