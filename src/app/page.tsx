@@ -1,5 +1,4 @@
 import { HomeHero } from "@/components/home/HomeHero";
-import { TrustBanner } from "@/components/home/TrustBanner";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { ProcessSteps } from "@/components/home/ProcessSteps";
 import { ComparisonTable } from "@/components/home/ComparisonTable";
@@ -25,7 +24,6 @@ export default async function HomePage() {
   return (
     <main className="flex-1 bg-[#F8FAFC]">
       <HomeHero />
-      <TrustBanner />
       <FeaturedProducts products={products} />
       <ProcessSteps />
       <ComparisonTable />

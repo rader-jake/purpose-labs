@@ -85,33 +85,7 @@ export function HomeHero() {
                 </div>
               </Reveal>
 
-              {/* Trust icons — horizontal row */}
-              <Reveal delay={300}>
-                <div className="flex flex-wrap gap-6">
-                  {[
-                    { icon: "⚗️", label: "3rd-party tested", sub: "Batch verified quality" },
-                    { icon: "🚚", label: "Same-day dispatch", sub: "Fast processing" },
-                    { icon: "📦", label: "Tracked shipping", sub: "Rates at checkout" },
-                  ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-2.5">
-                      <div
-                        className="flex items-center justify-center rounded-lg text-base flex-shrink-0"
-                        style={{
-                          width: 36,
-                          height: 36,
-                          background: "rgba(255,255,255,0.09)",
-                        }}
-                      >
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="text-white text-xs font-bold leading-tight">{item.label}</p>
-                        <p className="text-[#7A9BB5] text-[11px]">{item.sub}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
+
             </div>
 
             {/* RIGHT — Vials inside the box */}
