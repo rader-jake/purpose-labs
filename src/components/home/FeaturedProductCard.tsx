@@ -6,12 +6,10 @@ type FeaturedProductCardProps = {
   product: WooProduct;
 };
 
-// Known dosage overrides for products whose names don't include mg
 const DOSAGE_OVERRIDES: Record<string, string> = {
   "purpose labs 3rt": "10MG",
 };
 
-// Extract dosage from product name e.g. "BPC-157 10mg" → "10MG"
 function extractDosage(name: string): string | null {
   const override = DOSAGE_OVERRIDES[name.toLowerCase().trim()];
   if (override) return override;
@@ -26,14 +24,14 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
 
   return (
     <div
-      className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-[rgba(0,0,0,0.07)] hover:shadow-[0_8px_32px_rgba(20,39,78,0.10)] hover:-translate-y-0.5 transition-all duration-300"
+      className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-[rgba(0,0,0,0.07)] hover:shadow-[0_8px_32px_rgba(20,39,78,0.10)] transition-all duration-300"
       style={{ fontFamily: "var(--pl-font-body)" }}
     >
-      {/* Image */}
+      {/* Image — soft tinted background like AminoHaus */}
       <Link
         href={`/products/${product.slug}`}
         className="relative flex items-center justify-center overflow-hidden"
-        style={{ background: "#EAEFF5", aspectRatio: "1/1" }}
+        style={{ background: "#DDE3EE", aspectRatio: "1/1" }}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -49,37 +47,30 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
 
       {/* Info */}
       <div className="flex flex-col p-4 gap-3">
-        {/* Name */}
-        <h3 className="text-base font-semibold leading-tight" style={{ color: "#0D1A30" }}>
+
+        {/* Product name */}
+        <h3 className="text-base font-bold leading-tight" style={{ color: "#0D1A30" }}>
           <Link href={`/products/${product.slug}`} className="hover:opacity-70 transition-opacity">
             {product.name}
           </Link>
         </h3>
 
-        {/* Dosage pill */}
-        {dosage && (
-          <span
-            className="self-start rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide"
-            style={{ background: "#EEF2F8", color: "#14274E" }}
-          >
-            {dosage}
-          </span>
-        )}
-
-        {/* Price */}
-        {displayPrice && (
-          <p className="text-lg font-bold" style={{ color: "#0D1A30" }}>
-            {displayPrice}
-          </p>
-        )}
-
-        {/* Add to cart */}
+        {/* Dosage pill + quantity stepper on same row */}
         <FeaturedAddToCart
           productId={product.id}
           productSlug={product.slug}
           productType={product.type}
           stockStatus={product.stock_status}
+          dosage={dosage}
         />
+
+        {/* Price */}
+        {displayPrice && (
+          <p className="text-xl font-bold" style={{ color: "#0D1A30" }}>
+            {displayPrice}
+          </p>
+        )}
+
       </div>
     </div>
   );
