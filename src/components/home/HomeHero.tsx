@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { HeroProductVisual } from "./HeroProductVisual";
 import { Reveal } from "./Reveal";
@@ -5,112 +7,122 @@ import { Reveal } from "./Reveal";
 export function HomeHero() {
   return (
     <section
-      className="relative overflow-hidden bg-[#F8FAFC] pt-6 pb-10 md:pt-10 md:pb-16"
+      className="relative bg-[#F8FAFC] pt-6 pb-10 md:pt-8 md:pb-14"
       style={{ fontFamily: "var(--pl-font-body)" }}
     >
-      <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Dark navy card — the hero box */}
-        <Reveal delay={80}>
+        {/* Full-width navy hero box */}
+        <div
+          className="relative overflow-hidden rounded-3xl w-full"
+          style={{
+            background: "linear-gradient(135deg, #0D1A30 0%, #14274E 55%, #1C3464 100%)",
+            boxShadow: "0 24px 80px rgba(13,26,48,0.32)",
+            minHeight: 420,
+          }}
+        >
+          {/* Subtle radial glow */}
           <div
-            className="rounded-3xl px-7 pt-9 pb-8 mb-6"
+            className="pointer-events-none absolute inset-0"
             style={{
-              background: "linear-gradient(160deg, #0D1A30 0%, #14274E 60%, #1a3360 100%)",
-              boxShadow: "0 24px 64px rgba(13,26,48,0.28)",
+              background: "radial-gradient(ellipse at 70% 50%, rgba(74,111,191,0.18) 0%, transparent 60%)",
             }}
-          >
-            {/* Headline */}
-            <Reveal delay={140}>
-              <h1
-                className="font-black tracking-tight mb-3 text-white"
-                style={{
-                  fontFamily: "var(--pl-font-display)",
-                  fontSize: "clamp(2.4rem, 8vw, 3.6rem)",
-                  lineHeight: 1.05,
-                }}
-              >
-                Research-Grade<br />Peptides.
-              </h1>
-            </Reveal>
+          />
 
-            <Reveal delay={180}>
-              <p
-                className="font-black mb-5"
-                style={{
-                  fontSize: "clamp(1.3rem, 5vw, 2rem)",
-                  color: "#7EB4FF",
-                  fontFamily: "var(--pl-font-display)",
-                  lineHeight: 1.1,
-                }}
-              >
-                Every Batch Documented.
-              </p>
-            </Reveal>
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 px-8 pt-10 pb-8 md:px-12 md:pt-12">
 
-            {/* Subtext */}
-            <Reveal delay={220}>
-              <p className="text-[#A8BBCC] text-base leading-relaxed mb-7 max-w-sm">
-                Purpose Labs supplies third-party tested research compounds with batch-specific Certificates of Analysis. Documented from raw material to vial.
-              </p>
-            </Reveal>
+            {/* LEFT — Text content */}
+            <div className="flex flex-col items-start max-w-lg z-10">
 
-            {/* CTAs */}
-            <Reveal delay={270}>
-              <div className="flex gap-3 mb-7 flex-wrap">
-                <Link
-                  href="/products"
-                  className="rounded-xl px-6 py-3.5 text-sm font-black text-white transition-opacity duration-200 hover:opacity-90"
-                  style={{ background: "linear-gradient(90deg, #3B6FD4 0%, #5A8FEF 100%)" }}
+              <Reveal delay={100}>
+                <h1
+                  className="font-black tracking-tight mb-3 text-white"
+                  style={{
+                    fontFamily: "var(--pl-font-display)",
+                    fontSize: "clamp(2.8rem, 6vw, 4.2rem)",
+                    lineHeight: 1.0,
+                  }}
                 >
-                  Browse Compounds
-                </Link>
-                <Link
-                  href="/quality"
-                  className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-black text-white transition-all duration-200 hover:bg-white/10"
-                >
-                  View COAs
-                </Link>
-              </div>
-            </Reveal>
+                  Research<br />Peptides.
+                </h1>
+              </Reveal>
 
-            {/* Trust icon rows */}
-            <Reveal delay={310}>
-              <div
-                className="rounded-2xl px-5 py-4 flex flex-col gap-3"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                {[
-                  { icon: "⚗️", label: "3rd-party tested", sub: "Batch verified — HPLC + Mass Spec" },
-                  { icon: "🚚", label: "Same-day dispatch", sub: "Orders placed before 2 PM EST" },
-                  { icon: "📦", label: "Tracked shipping", sub: "FedEx 2Day with full documentation" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center gap-3">
-                    <div
-                      className="flex items-center justify-center rounded-xl text-lg flex-shrink-0"
-                      style={{
-                        width: 40,
-                        height: 40,
-                        background: "rgba(255,255,255,0.08)",
-                      }}
-                    >
-                      {item.icon}
+              <Reveal delay={160}>
+                <p
+                  className="font-black mb-5"
+                  style={{
+                    fontSize: "clamp(1.5rem, 4vw, 2.2rem)",
+                    color: "#7EB4FF",
+                    fontFamily: "var(--pl-font-display)",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  Verified by science.
+                </p>
+              </Reveal>
+
+              <Reveal delay={210}>
+                <p className="text-[#A8BBCC] text-base leading-relaxed mb-7 max-w-sm">
+                  Purpose Labs supplies third-party tested research compounds with batch-specific Certificates of Analysis. Sourced, tested, and documented from raw material to vial.
+                </p>
+              </Reveal>
+
+              <Reveal delay={260}>
+                <div className="flex gap-3 mb-8 flex-wrap">
+                  <Link
+                    href="/products"
+                    className="rounded-xl px-6 py-3.5 text-sm font-black text-white transition-opacity duration-200 hover:opacity-90"
+                    style={{ background: "linear-gradient(90deg, #3B6FD4 0%, #5A8FEF 100%)" }}
+                  >
+                    Browse Peptides
+                  </Link>
+                  <Link
+                    href="/quality"
+                    className="rounded-xl border border-white/25 bg-white/5 px-6 py-3.5 text-sm font-black text-white transition-all duration-200 hover:bg-white/12"
+                  >
+                    View COAs
+                  </Link>
+                </div>
+              </Reveal>
+
+              {/* Trust icons — horizontal row */}
+              <Reveal delay={300}>
+                <div className="flex flex-wrap gap-6">
+                  {[
+                    { icon: "⚗️", label: "3rd-party tested", sub: "Batch verified quality" },
+                    { icon: "🚚", label: "Same-day dispatch", sub: "Fast processing" },
+                    { icon: "📦", label: "Tracked shipping", sub: "Rates at checkout" },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-2.5">
+                      <div
+                        className="flex items-center justify-center rounded-lg text-base flex-shrink-0"
+                        style={{
+                          width: 36,
+                          height: 36,
+                          background: "rgba(255,255,255,0.09)",
+                        }}
+                      >
+                        {item.icon}
+                      </div>
+                      <div>
+                        <p className="text-white text-xs font-bold leading-tight">{item.label}</p>
+                        <p className="text-[#7A9BB5] text-[11px]">{item.sub}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-white text-sm font-bold leading-tight">{item.label}</p>
-                      <p className="text-[#7A9BB5] text-xs">{item.sub}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+
+            {/* RIGHT — Vials inside the box */}
+            <div className="flex justify-center lg:justify-end items-end flex-shrink-0 z-10 lg:-mb-8 lg:mr-4">
+              <Reveal delay={180} duration={900}>
+                <HeroProductVisual />
+              </Reveal>
+            </div>
+
           </div>
-        </Reveal>
-
-        {/* Vials below the card */}
-        <Reveal delay={200} duration={900}>
-          <HeroProductVisual />
-        </Reveal>
-
+        </div>
       </div>
     </section>
   );
