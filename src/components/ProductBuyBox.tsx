@@ -229,28 +229,46 @@ export function ProductBuyBox({
         <BulkDiscountTiers onSelectQuantity={setQuantity} />
       </div>
 
+      {/* Dosage pill */}
+      {(() => {
+        const dosageMatch = name.match(/(\d+\s?mg)/i);
+        const dosage = dosageMatch ? dosageMatch[1].toUpperCase() : null;
+        return dosage ? (
+          <div className="mb-4">
+            <span
+              className="inline-block rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest"
+              style={{ background: "rgba(255,255,255,0.12)", color: "var(--pl-ivory)", border: "1px solid rgba(255,255,255,0.2)" }}
+            >
+              {dosage}
+            </span>
+          </div>
+        ) : null;
+      })()}
+
+      {/* Qty stepper + Add to Cart */}
       <div className="mb-3 flex items-center gap-3 sm:mb-5">
+        {/* − qty + stepper */}
         <div
-          className="flex items-center rounded-full border"
+          className="flex items-center rounded-xl border overflow-hidden flex-shrink-0"
           style={{ borderColor: "rgba(255,255,255,0.25)" }}
         >
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="px-4 py-3 text-lg"
+            className="w-11 h-12 flex items-center justify-center text-xl font-bold hover:bg-white/10 transition-colors"
             style={{ color: "var(--pl-ivory)" }}
             aria-label="Decrease quantity"
           >
             −
           </button>
           <span
-            className="w-8 text-center text-sm font-medium"
+            className="w-9 text-center text-sm font-bold select-none"
             style={{ color: "var(--pl-ivory)" }}
           >
             {quantity}
           </span>
           <button
             onClick={() => setQuantity((q) => q + 1)}
-            className="px-4 py-3 text-lg"
+            className="w-11 h-12 flex items-center justify-center text-xl font-bold hover:bg-white/10 transition-colors"
             style={{ color: "var(--pl-ivory)" }}
             aria-label="Increase quantity"
           >
@@ -258,15 +276,16 @@ export function ProductBuyBox({
           </button>
         </div>
 
+        {/* Full-width Add to Cart */}
         <button
           onClick={handleAddToCart}
           disabled={effectiveOutOfStock || isAdding}
-          className="flex-1 rounded-full px-8 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{
-            backgroundColor: "var(--pl-ivory)",
-            color: "var(--pl-navy)",
-          }}
+          className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-black transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          style={{ backgroundColor: "var(--pl-ivory)", color: "var(--pl-navy)" }}
         >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
           {effectiveOutOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to Cart"}
         </button>
       </div>
