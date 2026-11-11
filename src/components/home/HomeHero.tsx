@@ -116,10 +116,27 @@ export function HomeHero() {
               fontSize: "clamp(3.6rem, 15vw, 9rem)",
               letterSpacing: "0.01em",
               fontWeight: 900,
-              color: "rgba(27, 42, 74, 0.72)",
+              color: "rgba(27, 42, 74, 0.95)",
             }}
           >
             FREE.
+          </p>
+        </Reveal>
+
+        {/* Free shipping badge */}
+        <Reveal delay={190}>
+          <p
+            className="mb-6"
+            style={{
+              fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(1.1rem, 4vw, 1.8rem)",
+              letterSpacing: "0.12em",
+              color: "#5B7FFF",
+              textTransform: "uppercase",
+            }}
+          >
+            + FREE 2 DAY SHIPPING
           </p>
         </Reveal>
 
