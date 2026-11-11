@@ -1,12 +1,11 @@
 import Link from "next/link";
 import { HeroProductVisual } from "./HeroProductVisual";
 import { Reveal } from "./Reveal";
-import { CountdownTimer } from "@/components/CountdownTimer";
 
 export function HomeHero() {
   return (
     <section
-      className="relative overflow-hidden bg-[#F1F6F9] pt-10 pb-12 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24"
+      className="relative overflow-hidden bg-[#F8FAFC] pt-10 pb-12 md:pt-14 md:pb-20 lg:pt-16 lg:pb-24"
       style={{ fontFamily: "var(--pl-font-body)" }}
     >
       <div
@@ -23,32 +22,6 @@ export function HomeHero() {
           {/* Left — Headline & CTA */}
           <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 order-1 flex flex-col items-start mb-6 lg:mb-0">
 
-            {/* LIMITED TIME badge */}
-            <Reveal delay={100}>
-              <div
-                className="mb-5 inline-flex items-center gap-2 rounded-full px-4 py-1.5"
-                style={{
-                  background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)",
-                }}
-              >
-                <span
-                  style={{
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: "#22c55e",
-                    display: "inline-block",
-                    boxShadow: "0 0 6px 2px rgba(34,197,94,0.5)",
-                    flexShrink: 0,
-                    animation: "pulse-dot 2s ease-in-out infinite",
-                  }}
-                />
-                <span className="text-white text-[10px] font-black uppercase tracking-[0.22em]">
-                  Limited Time Offer
-                </span>
-              </div>
-            </Reveal>
-
             {/* Big headline */}
             <Reveal delay={160}>
               <h1
@@ -60,7 +33,7 @@ export function HomeHero() {
                   lineHeight: 1.0,
                 }}
               >
-                Buy 1 Get 1 Free.<br />
+                Research-Grade Peptides.<br />
                 <span
                   style={{
                     background: "linear-gradient(90deg, #1B2A4A 0%, #4A6FBF 100%)",
@@ -68,7 +41,7 @@ export function HomeHero() {
                     WebkitTextFillColor: "transparent",
                   }}
                 >
-                  FREE 2-Day Shipping via FedEx.
+                  Every Batch Documented.
                 </span>
               </h1>
             </Reveal>
@@ -79,26 +52,37 @@ export function HomeHero() {
                 className="text-base sm:text-lg leading-relaxed mb-7 max-w-sm"
                 style={{ color: "var(--pl-text-secondary)" }}
               >
-                Buy any peptide, get one free. No code needed — the Purpose Labs way.
+                Third-party tested. COA on every lot. Same-day fulfillment.
               </p>
             </Reveal>
 
-
-
-            {/* Countdown timer */}
-            <Reveal delay={300}>
-              <div className="mt-5 mb-2">
-                <CountdownTimer label="FREE 2-Day FedEx + BOGO ends in" />
+            {/* CTAs */}
+            <Reveal delay={280}>
+              <div className="flex flex-wrap gap-3 mb-6">
+                <Link
+                  href="/products"
+                  className="rounded-full px-7 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition-opacity duration-200 hover:opacity-85"
+                  style={{ background: "#14274E" }}
+                >
+                  Shop Compounds
+                </Link>
+                <Link
+                  href="/coa"
+                  className="rounded-full border px-7 py-3 text-xs font-black uppercase tracking-[0.14em] transition-all duration-200 hover:bg-[#14274E] hover:text-white"
+                  style={{ borderColor: "#14274E", color: "#14274E" }}
+                >
+                  View COA
+                </Link>
               </div>
             </Reveal>
 
             {/* Trust line */}
             <Reveal delay={340}>
               <p
-                className="mt-3 text-[10px] font-semibold uppercase tracking-[0.14em]"
+                className="text-[10px] font-semibold uppercase tracking-[0.14em]"
                 style={{ color: "var(--pl-muted)" }}
               >
-                Veteran Owned · Same-Day Fulfillment · ≥99% Purity
+                Veteran Owned · ≥99% Purity · COA Every Batch · Same-Day FedEx
               </p>
             </Reveal>
           </div>
@@ -112,13 +96,6 @@ export function HomeHero() {
 
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse-dot {
-          0%,100% { box-shadow: 0 0 6px 2px rgba(34,197,94,0.5); }
-          50%      { box-shadow: 0 0 12px 4px rgba(34,197,94,0.8); }
-        }
-      `}</style>
     </section>
   );
 }

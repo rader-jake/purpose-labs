@@ -1,10 +1,9 @@
 import { HomeHero } from "@/components/home/HomeHero";
-import { BogoPromo } from "@/components/home/BogoPromo";
-import { TrustStats } from "@/components/home/TrustStats";
+import { TrustBanner } from "@/components/home/TrustBanner";
 import { FeaturedProducts } from "@/components/home/FeaturedProducts";
+import { ProcessSteps } from "@/components/home/ProcessSteps";
+import { ComparisonTable } from "@/components/home/ComparisonTable";
 import { QualityProof } from "@/components/home/QualityProof";
-import { EditorialStory } from "@/components/home/EditorialStory";
-import { CategoryDiscovery } from "@/components/home/CategoryDiscovery";
 import { ResearchAccessCTA } from "@/components/home/ResearchAccessCTA";
 
 // Cache homepage for 1 hour. Products rarely change; revalidating every 60s
@@ -24,15 +23,13 @@ export default async function HomePage() {
   products.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
 
   return (
-    <main className="flex-1 bg-[#F1F6F9]">
+    <main className="flex-1 bg-[#F8FAFC]">
       <HomeHero />
-
-      <BogoPromo />
+      <TrustBanner />
       <FeaturedProducts products={products} />
-      <TrustStats />
+      <ProcessSteps />
+      <ComparisonTable />
       <QualityProof />
-      <EditorialStory />
-      <CategoryDiscovery />
       <ResearchAccessCTA />
     </main>
   );

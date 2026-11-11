@@ -73,25 +73,6 @@ export function HeroProductVisual() {
         }}
       />
 
-      {/* BOGO pill */}
-      <div className="absolute top-3 left-1/2 z-30" style={{ transform: "translateX(-50%)" }}>
-        <div style={{
-          background: "rgba(27,42,74,0.07)",
-          border: "1px solid rgba(27,42,74,0.14)",
-          borderRadius: 100,
-          padding: "6px 20px",
-          fontSize: 9,
-          fontWeight: 800,
-          letterSpacing: "0.24em",
-          textTransform: "uppercase",
-          whiteSpace: "nowrap",
-          fontFamily: "var(--pl-font-body)",
-          color: "var(--pl-navy)",
-        }}>
-          Buy One · Get One Free
-        </div>
-      </div>
-
       {/* Vials row */}
       <div className="flex items-end justify-center pt-16 pb-4" style={{ gap: 0 }}>
         {/* Left */}
@@ -125,16 +106,7 @@ export function HeroProductVisual() {
         </div>
       </div>
 
-      {/* Claim Free Vial CTA */}
-      <div className="flex justify-center pb-6">
-        <a
-          href="/products"
-          className="flex items-center gap-2 rounded-full px-8 py-3 text-xs font-black uppercase tracking-[0.14em] text-white transition-opacity duration-200 hover:opacity-85"
-          style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
-        >
-          Shop Now — Buy 1 Get 1 Free →
-        </a>
-      </div>
+
     </div>
   );
 }
