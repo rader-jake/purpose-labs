@@ -91,15 +91,15 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <div
-          className="flex items-baseline gap-2"
+          className="flex flex-col gap-1"
           style={{ fontFamily: "var(--pl-font-body)" }}
         >
           <p className="text-sm font-medium" style={{ color: "var(--pl-slate)" }}>
             ${product.price}
           </p>
           {parseFloat(product.price || "0") > 0 && (
-            <p className="text-xs font-semibold" style={{ color: "var(--pl-slate)" }}>
-              = ${(parseFloat(product.price) / 2).toFixed(2)}/vial with BOGO
+            <p className="text-sm font-medium" style={{ color: "var(--pl-slate)" }}>
+              Buy 1, Get 1 Free · ${(parseFloat(product.price) / 2).toFixed(2)}/vial
             </p>
           )}
         </div>
@@ -132,14 +132,6 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
 
 
-
-        {/* BOGO badge */}
-        <div
-          className="flex items-center justify-center rounded-full px-4 py-2"
-          style={{ background: "linear-gradient(90deg, #0B1728 0%, #2E4A8A 100%)" }}
-        >
-          <span className="text-white text-xs font-black uppercase tracking-[0.18em]">Buy 1 + Get 1 Free</span>
-        </div>
 
         <CoaButton productSlug={product.slug} />
 
