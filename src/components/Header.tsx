@@ -78,6 +78,7 @@ export function Header() {
     <>
       {/* Scrolling ticker bar */}
       <div
+        id="pl-global-header"
         className="overflow-hidden"
         style={{ backgroundColor: "var(--pl-navy)", height: 34 }}
       >

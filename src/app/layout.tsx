@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Montserrat, Anton, Nunito, Barlow_Condensed } from "next/font/google";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+import { ShellWrapper } from "@/components/ShellWrapper";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartProvider } from "@/lib/cart/CartContext";
 import { AgeGate } from "@/components/AgeGate";
@@ -118,9 +117,9 @@ omnisend.push(["track", "$pageViewed"]);
         <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TJ2TPZN8" height="0" width="0" style={{display:"none",visibility:"hidden"}}></iframe></noscript>
         <AuthProvider>
         <CartProvider>
-          <Header />
+          <ShellWrapper>
           {children}
-          <Footer />
+          </ShellWrapper>
           <CartDrawer />
           <Suspense fallback={null}><DiscountAutoApply /></Suspense>
         </CartProvider>
