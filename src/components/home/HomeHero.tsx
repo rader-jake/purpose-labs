@@ -36,7 +36,7 @@ export function HomeHero() {
       >
         <span
           style={{
-            fontFamily: "var(--font-nunito), 'Arial Rounded MT Bold', sans-serif",
+            fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
             fontWeight: 900,
             fontSize: "clamp(90px, 24vw, 220px)",
             color: "rgba(100,80,200,0.13)",
@@ -48,7 +48,7 @@ export function HomeHero() {
         </span>
         <span
           style={{
-            fontFamily: "var(--font-nunito), 'Arial Rounded MT Bold', sans-serif",
+            fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
             fontWeight: 900,
             fontSize: "clamp(90px, 24vw, 220px)",
             color: "rgba(100,80,200,0.13)",
@@ -96,10 +96,10 @@ export function HomeHero() {
           <h1
             className="leading-none mb-1"
             style={{
-              fontFamily: "var(--font-nunito), 'Arial Rounded MT Bold', sans-serif",
+              fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
               fontSize: "clamp(3.2rem, 13vw, 8rem)",
               color: "#FFFFFF",
-              letterSpacing: "-0.01em",
+              letterSpacing: "0.01em",
               fontWeight: 900,
             }}
           >
@@ -112,9 +112,9 @@ export function HomeHero() {
           <p
             className="leading-none mb-8"
             style={{
-              fontFamily: "var(--font-nunito), 'Arial Rounded MT Bold', sans-serif",
+              fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
               fontSize: "clamp(3.6rem, 15vw, 9rem)",
-              letterSpacing: "-0.01em",
+              letterSpacing: "0.01em",
               fontWeight: 900,
               background: "linear-gradient(90deg, #5B7FFF 0%, #7B9FFF 50%, #60A5FA 100%)",
               WebkitBackgroundClip: "text",
