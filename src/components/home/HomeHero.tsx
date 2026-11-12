@@ -28,37 +28,7 @@ export function HomeHero() {
         }}
       />
 
-      {/* Faded "BOGO" background text */}
-      <div
-        className="pointer-events-none absolute top-0 left-0 w-full flex justify-between select-none"
-        aria-hidden="true"
-        style={{ lineHeight: 1 }}
-      >
-        <span
-          style={{
-            fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
-            fontWeight: 900,
-            fontSize: "clamp(90px, 24vw, 220px)",
-            color: "rgba(100,80,200,0.13)",
-            userSelect: "none",
-            paddingLeft: "2vw",
-          }}
-        >
-          B
-        </span>
-        <span
-          style={{
-            fontFamily: "var(--font-barlow), 'Arial Narrow', sans-serif",
-            fontWeight: 900,
-            fontSize: "clamp(90px, 24vw, 220px)",
-            color: "rgba(100,80,200,0.13)",
-            userSelect: "none",
-            paddingRight: "2vw",
-          }}
-        >
-          O
-        </span>
-      </div>
+      
 
       {/* Radial purple glow center */}
       <div
