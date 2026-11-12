@@ -42,6 +42,7 @@ export type CoaEntry = {
   lot?: string;
   endotoxinTested?: boolean;
   sevenXTested?: boolean;
+  image?: string; // path under /public, e.g. "/3d/label-bpc157.png"
   docs: CoaDoc[];
 };
 
@@ -55,6 +56,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     endotoxinTested: true,
     sevenXTested: true,
+    image: "/3d/label-glp3rt.png",
     docs: [
       { label: "View COA (ILS · Aug 2026)", url: "/coas/pl-rt-coa.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/GLP-3-RT-CoA-RT1025-Endotoxins-Jul2026.pdf" },
@@ -68,6 +70,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-tb500.png",
     docs: [{ label: "View COA", url: "/coas/TB500-COA.webp" }],
   },
   {
@@ -77,6 +80,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-bpc157.png",
     docs: [{ label: "View COA", url: "/coas/BPC-157-COA.webp" }],
   },
   {
@@ -86,6 +90,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-ghkcu-50.png",
     docs: [{ label: "View COA", url: "/coas/GHK-CU-COA.webp" }],
   },
   {
@@ -95,6 +100,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-mt2.png",
     docs: [{ label: "View COA", url: "/coas/MT2-COA.webp" }],
   },
   {
@@ -106,35 +112,30 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     lot: "CP10-980012",
     endotoxinTested: true,
+    image: "/3d/label-cjc1295.png",
     docs: [
       { label: "View COA (FTIR/HPLC)", url: "/coas/CJC-COA-hplc.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/CJC-COA-endotoxins.pdf" },
     ],
   },
   {
-    // RESOLVED: this COA's own "Visual Description" is lyophilized-powder
-    // vial packaging, not a nasal spray bottle. Deliberately NOT mapped to
-    // "semax-10-mg-spray" — no evidence this tested lot is what's in the
-    // spray formulation, and a wrong-product COA is worse than the button
-    // not appearing on that page (CoaButton degrades gracefully when a
-    // slug has no entry).
     slug: "semax-10mg",
     lab: "BT Labs · 2026",
     title: "Semax 10MG",
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-semax.png",
     docs: [{ label: "View COA", url: "/coas/Semax_COA.jpeg" }],
   },
   {
-    // RESOLVED — same reasoning as Semax above: vial packaging, not spray.
-    // Deliberately NOT mapped to "selank-10mg-nasal-spray".
     slug: "selank-10mg",
     lab: "BT Labs · 2026",
     title: "Selank 10MG",
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-selank.png",
     docs: [{ label: "View COA", url: "/coas/Selank_COA.jpeg" }],
   },
   {
@@ -144,24 +145,19 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.7%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-motsc.png",
     docs: [{ label: "View COA", url: "/coas/MOTS_COA.jpg" }],
   },
   {
-    // FLAG — dosage mismatch, not a slug problem, and NOT resolved by
-    // this reconciliation: re-verified directly against the live document
-    // (byte-identical MD5 to the file already flagged here previously,
-    // just re-uploaded to WordPress under a different filename). It still
-    // tests against a "500 mg" specification ("Content/Potency: 500 mg",
-    // "Specifications: 90–110% of 500mg"), while the product it's mapped
-    // to is sold as "NAD+ 600mg". Please confirm which is correct before
-    // this goes live — attaching a COA for the wrong strength is worse
-    // than no COA at all.
+    // FLAG — dosage mismatch: COA says 500mg, product sold as 600mg.
+    // Confirm before treating this as resolved.
     slug: "nad-600mg",
     lab: "BT Labs · 2026",
     title: "NAD+ 600MG",
     purity: "99.8%",
     method: "FTIR + HPLC",
     storage: "R.T.",
+    image: "/3d/label-nad.png",
     docs: [{ label: "View COA", url: "/coas/NAD__COA.jpg" }],
   },
   {
@@ -171,6 +167,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.81%",
     method: "Full QC Panel (HPLC)",
     lot: "Klow-108",
+    image: "/3d/label-klow.png",
     docs: [{ label: "View COA", url: "/coas/KLOW-COA-Klow-108-Sep2026.pdf" }],
   },
   {
@@ -180,24 +177,20 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.90%",
     method: "Full QC Panel (HPLC)",
     lot: "Tesa-146",
+    image: "/3d/label-tesamorelin.png",
     docs: [
       { label: "View COA (5mg)", url: "/coas/tesamorelin-5mg-coa.pdf" },
       { label: "View COA (10mg)", url: "/coas/Tesamorelin-COA-Tesa-146-Oct2026.pdf" },
     ],
   },
   {
-    // No local file: this COA lives behind a full WordPress page, not a
-    // raw file — confirmed the page embeds a direct image
-    // (igf-1-lr3-coa-lot-IG18584-1.jpg) but the Quality page intentionally
-    // links to the friendlier branded page instead. CoaModal (used by the
-    // per-product CoaButton) renders a link-out card rather than trying
-    // to embed this URL as an image.
     slug: "igf-1-lr3-1mg",
     lab: "Freedom Diagnostics · 2026",
     title: "IGF-1-LR3 1MG",
     purity: "99.56%",
     method: "HPLC-UV + LC-MS",
     lot: "IG18584",
+    image: "/3d/label-igf1lr3.png",
     docs: [{ label: "View COA", url: "/coas/IGF-1-LR3-COA.jpg" }],
   },
   {
@@ -209,19 +202,20 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     lot: "BB10-990010",
     endotoxinTested: true,
+    image: "/3d/label-wolverine.png",
     docs: [
       { label: "View COA (FTIR/HPLC)", url: "/coas/wolverine-stack-coa-hplc.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/wolverine-stack-coa-endotoxins.pdf" },
     ],
   },
   {
-    // Same as IGF-1-LR3 above — page link, not a raw file.
     slug: "pl-tz",
     lab: "Freedom Diagnostics · 2026",
     title: "PL-TZ",
     purity: "99.74%",
     method: "HPLC-UV + LC-MS",
     lot: "TR8585",
+    image: "/3d/label-tirzepatide.png",
     docs: [{ label: "View COA", url: "/coas/TIRZ-COA.jpg" }],
   },
 ];
