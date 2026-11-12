@@ -156,23 +156,26 @@ export function HomeHero() {
 
         {/* CTA */}
         <Reveal delay={250}>
-          <Link
-            href="/products"
-            className="rounded-full px-10 py-4 text-sm font-black uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90 mb-16"
-            style={{
-              background: "linear-gradient(90deg, #3B55E6 0%, #5B7FFF 100%)",
-              boxShadow: "0 0 32px rgba(80,100,255,0.35)",
-            }}
-          >
-            Shop Now
-          </Link>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 48 }}>
+            <Link
+              href="/products"
+              className="rounded-full px-10 py-4 text-sm font-black uppercase tracking-[0.15em] text-white transition-opacity hover:opacity-90"
+              style={{
+                background: "linear-gradient(90deg, #3B55E6 0%, #5B7FFF 100%)",
+                boxShadow: "0 0 32px rgba(80,100,255,0.35)",
+                display: "inline-block",
+              }}
+            >
+              Shop Now
+            </Link>
+          </div>
         </Reveal>
 
         {/* Vials — tight row, all same size, no rotation gap */}
         <Reveal delay={300} duration={1000}>
           <div
             className="relative flex items-end justify-center w-full"
-            style={{ maxWidth: 480, margin: "0 auto" }}
+            style={{ maxWidth: 480, margin: "0 auto", marginTop: 0 }}
           >
             <style>{`
               @keyframes float-l {
