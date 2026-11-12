@@ -41,26 +41,6 @@ export function HomeHero() {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center pt-14 pb-0 px-6 w-full">
 
-        {/* Limited Time pill */}
-        <Reveal delay={60}>
-          <div
-            className="mb-6 flex items-center gap-2 rounded-full border px-5 py-2"
-            style={{
-              borderColor: "rgba(180,160,255,0.35)",
-              background: "rgba(255,255,255,0.05)",
-              backdropFilter: "blur(6px)",
-            }}
-          >
-            <span style={{ fontSize: 14 }}>⚠️</span>
-            <span
-              className="text-xs font-black uppercase tracking-[0.2em]"
-              style={{ color: "rgba(220,210,255,0.9)" }}
-            >
-              Limited Time Only
-            </span>
-          </div>
-        </Reveal>
-
         {/* BUY 1, GET 1 */}
         <Reveal delay={110}>
           <h1
