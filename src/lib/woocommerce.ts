@@ -26,6 +26,8 @@ export interface WooProduct {
    * include non-merchandisable IDs like recon solution — see
    * NON_MERCHANDISABLE_PRODUCT_IDS below. */
   related_ids: number[];
+  /** Product attributes e.g. Size → ["5mg", "10mg"] */
+  attributes: { name: string; options: string[] }[];
 }
 
 interface WooApiProduct {
@@ -42,6 +44,7 @@ interface WooApiProduct {
   short_description: string;
   images: { id: number; src: string; alt: string }[];
   related_ids: number[];
+  attributes: { name: string; options: string[] }[];
 }
 
 // Every product that has a CAS number renders it the same way: its own
@@ -89,6 +92,10 @@ function mapProduct(raw: WooApiProduct): WooProduct {
     images,
     casNumber,
     related_ids: raw.related_ids,
+    attributes: (raw.attributes ?? []).map((a: { name: string; options: string[] }) => ({
+      name: a.name,
+      options: a.options ?? [],
+    })),
   };
 }
 
