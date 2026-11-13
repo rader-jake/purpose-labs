@@ -7,19 +7,24 @@ type FeaturedProductCardProps = {
 };
 
 const DOSAGE_OVERRIDES: Record<string, string> = {
-  "purpose labs 3rt": "10MG",
+  "pl-rt": "10MG",
+  "pl-tz": "5MG",
+  "pl-tesa": "5MG / 10MG",
+  "klow-80mg": "80MG",
+  "wolverine-stack-bpc-157-tb-500": "BPC-157 + TB-500",
+  "the-jimmy-neutron-stack-semax-selank-dispersal-kit": "Semax + Selank",
 };
 
-function extractDosage(name: string): string | null {
-  const override = DOSAGE_OVERRIDES[name.toLowerCase().trim()];
+function extractDosage(productName: string, slug: string): string | null {
+  const override = DOSAGE_OVERRIDES[slug];
   if (override) return override;
-  const match = name.match(/(\d+\s?mg)/i);
+  const match = productName.match(/(\d+(?:\.\d+)?\s?(?:mg|mcg|iu|ml|g)(?:\/(?:ml|vial))?)/i);
   return match ? match[1].toUpperCase() : null;
 }
 
 export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
   const image = product.images?.[0];
-  const dosage = extractDosage(product.name);
+  const dosage = extractDosage(product.name, product.slug);
   const displayPrice = product.price ? `$${parseFloat(product.price).toFixed(2)}` : null;
 
   return (
@@ -55,7 +60,14 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           </Link>
         </h3>
 
-        {/* Dosage pill + quantity stepper on same row */}
+        {/* Price */}
+        {displayPrice && (
+          <p className="text-xl font-bold" style={{ color: "#0D1A30" }}>
+            {displayPrice}
+          </p>
+        )}
+
+        {/* Dosage pill + quantity stepper + Add to Cart */}
         <FeaturedAddToCart
           productId={product.id}
           productSlug={product.slug}
@@ -63,13 +75,6 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           stockStatus={product.stock_status}
           dosage={dosage}
         />
-
-        {/* Price */}
-        {displayPrice && (
-          <p className="text-xl font-bold" style={{ color: "#0D1A30" }}>
-            {displayPrice}
-          </p>
-        )}
 
       </div>
     </div>
