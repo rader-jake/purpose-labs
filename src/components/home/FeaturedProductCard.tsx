@@ -89,8 +89,8 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
       {/* Info */}
       <div className="flex flex-col p-4 gap-3">
 
-        {/* 1. Product name */}
-        <h3 className="text-base font-bold leading-tight" style={{ color: "#0D1A30" }}>
+        {/* 1. Product name — fixed 2-line height so cards stay aligned */}
+        <h3 className="text-base font-bold leading-tight line-clamp-2" style={{ color: "#0D1A30", minHeight: "2.5rem" }}>
           <Link href={`/products/${product.slug}`} className="hover:opacity-70 transition-opacity">
             {product.name}
           </Link>
