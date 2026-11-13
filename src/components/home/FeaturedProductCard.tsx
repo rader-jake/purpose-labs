@@ -17,6 +17,7 @@ const DOSAGE_OVERRIDES: Record<string, string> = {
   "klow-80mg": "80MG",
   "wolverine-stack-bpc-157-tb-500": "BPC-157 + TB-500",
   "the-jimmy-neutron-stack-semax-selank-dispersal-kit": "Semax + Selank",
+  "pink-korean-gluta-1200mg": "1200MG",
 };
 
 function extractDosage(name: string, slug: string): string | null {
