@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatMoney } from "@/lib/cart/money";
@@ -98,7 +97,6 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponMsg, setCouponMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
-  const [upsellOpen, setUpsellOpen] = useState(false);
   const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [ageError, setAgeError] = useState(false);
 
@@ -402,8 +400,8 @@ export default function CheckoutPage() {
           <Link href="/cart" style={{ color: "#1B2A4A", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
             ← Back
           </Link>
-          <Link href="/" style={{ display: "flex", alignItems: "center" }}>
-            <Image src="/pl-logo.png" alt="Purpose Labs" width={120} height={36} style={{ objectFit: "contain" }} />
+          <Link href="/" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
+            <span style={{ fontFamily: "var(--font-barlow, sans-serif)", fontWeight: 800, fontSize: 20, color: "#1B2A4A", letterSpacing: "0.08em" }}>PURPOSE LABS</span>
           </Link>
           <div
             style={{
@@ -458,7 +456,7 @@ export default function CheckoutPage() {
         className="checkout-layout"
       >
         {/* ── LEFT COLUMN ─── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }} className="checkout-left">
 
           {/* ── STEP 1: Contact / Email ─── */}
           <StepCard
@@ -487,7 +485,7 @@ export default function CheckoutPage() {
                 />
                 <FieldError message={shownEmailErrors.email} />
               </div>
-              <ContinueButton onClick={handleStep1Continue}>Continue to Delivery</ContinueButton>
+              <NavyButton onClick={handleStep1Continue}>Continue to Delivery</NavyButton>
             </div>
           </StepCard>
 
@@ -665,7 +663,7 @@ export default function CheckoutPage() {
                 </p>
               )}
 
-              <ContinueButton onClick={handleStep2Continue}>Continue to Payment</ContinueButton>
+              <NavyButton onClick={handleStep2Continue}>Continue to Payment</NavyButton>
             </div>
           </StepCard>
 
@@ -701,55 +699,14 @@ export default function CheckoutPage() {
             </div>
           </StepCard>
 
-          {/* ── Bottom Info Cards ─── */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
-            <InfoCard title="How this appears on your statement">
-              Your charge will appear as <strong>PURPOSE LABS</strong> — no product details.
-            </InfoCard>
-            <InfoCard title="Need payment help?">
-              Reach us at <a href="mailto:support@purposelabs.shop" style={{ color: "#3B55E6" }}>support@purposelabs.shop</a>
-            </InfoCard>
-            <InfoCard title="Return &amp; refund policy">
-              Unopened items may be returned within 30 days. Contact support to initiate.
-            </InfoCard>
-          </div>
-
-          {/* ── Footer Links ─── */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px", marginTop: 8 }}>
-            {["Shipping & Returns", "Terms of Service", "Privacy Policy", "Billing & Statements", "Research Use Only"].map((label) => (
-              <span key={label} style={{ fontSize: 11, color: "#9ca3af", cursor: "default" }}>{label}</span>
-            ))}
-          </div>
+          {/* ── Support line ─── */}
+          <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
+            Questions? <a href="mailto:support@purposelabs.shop" style={{ color: "#6b7280" }}>support@purposelabs.shop</a>
+          </p>
         </div>
 
         {/* ── RIGHT SIDEBAR ─── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 100 }}>
-
-          {/* Trust Badges */}
-          <div
-            style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: 12,
-              padding: "16px 18px",
-              background: "#fff",
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            {[
-              { title: "Encrypted, secure payment", body: "Card details are never stored on this site." },
-              { title: "Discreet shipping", body: "No product names on the box or your statement." },
-              { title: "99%+ purity, 10x tested", body: "A certificate of analysis for every batch — see the COA page." },
-            ].map((b) => (
-              <div key={b.title} style={{ display: "flex", gap: 10 }}>
-                <div>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>{b.title}</p>
-                  <p style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 0" }}>{b.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16, position: "sticky", top: 100 }} className="checkout-sidebar">
 
           {/* Order Summary */}
           <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
@@ -784,22 +741,6 @@ export default function CheckoutPage() {
                   </div>
                 );
               })}
-
-              {/* Upsell accordion */}
-              <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8 }}>
-                <button
-                  onClick={() => setUpsellOpen((v) => !v)}
-                  style={{ width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, fontWeight: 600, color: "#3B55E6", padding: 0 }}
-                >
-                  <span>Often added with this order</span>
-                  <span style={{ transform: upsellOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
-                </button>
-                {upsellOpen && (
-                  <p style={{ fontSize: 11, color: "#9ca3af", marginTop: 6 }}>
-                    Visit our products page to add more items to your cart.
-                  </p>
-                )}
-              </div>
 
               {/* Coupon */}
               <div style={{ borderTop: "1px solid #f3f4f6", paddingTop: 8 }}>
@@ -896,6 +837,10 @@ export default function CheckoutPage() {
               </div>
             </div>
           </div>
+          {/* Trust line */}
+          <p style={{ fontSize: 11, color: "#9ca3af", textAlign: "center" }}>
+            SSL Encrypted · Discreet Shipping · COA Verified
+          </p>
         </div>
       </div>
 
@@ -904,6 +849,10 @@ export default function CheckoutPage() {
         @media (max-width: 768px) {
           .checkout-layout {
             grid-template-columns: 1fr !important;
+          }
+          .checkout-sidebar {
+            order: -1;
+            position: static !important;
           }
         }
       `}</style>
@@ -933,14 +882,14 @@ function FieldError({ message }: { message?: string }) {
   return <p style={{ fontSize: 11, color: "#ef4444", marginTop: 3 }}>{message}</p>;
 }
 
-function ContinueButton({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
+function NavyButton({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       style={{
         width: "100%",
-        background: "#111",
+        background: "#1B2A4A",
         color: "#fff",
         border: "none",
         borderRadius: 8,
@@ -1047,22 +996,4 @@ function StepCard({
   );
 }
 
-function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: 10,
-        padding: "12px 16px",
-        display: "flex",
-        gap: 10,
-        background: "#fafafa",
-      }}
-    >
-      <div>
-        <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>{title}</p>
-        <p style={{ fontSize: 12, color: "#6b7280", margin: "3px 0 0" }}>{children}</p>
-      </div>
-    </div>
-  );
-}
+
