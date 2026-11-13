@@ -68,18 +68,18 @@ export function FeaturedAddToCart({
   return (
     <div className="flex flex-col gap-3 w-full">
 
-      {/* Row: dosage pill + qty stepper */}
-      <div className="flex items-center gap-3">
-        {dosage && (
+      {/* Row: dosage pill on left, qty stepper on right */}
+      <div className="flex items-center justify-between">
+        {dosage ? (
           <span
             className="rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white flex-shrink-0"
             style={{ background: "#0D1A30" }}
           >
             {dosage}
           </span>
-        )}
+        ) : <span />}
 
-        {/* +/- stepper */}
+        {/* +/- stepper — right side */}
         <div
           className="flex items-center rounded-lg overflow-hidden border"
           style={{ borderColor: "rgba(0,0,0,0.12)" }}
