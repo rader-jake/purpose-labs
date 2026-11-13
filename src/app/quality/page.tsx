@@ -82,8 +82,8 @@ export default function QualityPage() {
         </p>
 
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-          {COA_DIRECTORY.map((entry, i) => (
-            <CoaCard key={entry.slug} entry={entry} index={i} />
+          {COA_DIRECTORY.map((entry) => (
+            <CoaCard key={entry.slug} entry={entry} />
           ))}
         </div>
       </section>
@@ -91,24 +91,13 @@ export default function QualityPage() {
   );
 }
 
-// Soft background tints — cycles through cards like Amino Haus
-const CARD_BG_TINTS = [
-  "#E8EEF5", // cool blue-grey
-  "#EDE8F0", // soft lavender
-  "#E8EDF0", // muted teal-grey
-  "#F0ECE8", // warm sand
-];
-
 function CoaCard({
   entry,
-  index,
 }: {
   entry: (typeof COA_DIRECTORY)[number];
-  index: number;
 }) {
   const primaryDoc = entry.docs[0];
   const extraDocs = entry.docs.slice(1);
-  const bgTint = CARD_BG_TINTS[index % CARD_BG_TINTS.length];
 
   return (
     <div
@@ -121,7 +110,7 @@ function CoaCard({
       {/* Product image — large, Amino Haus style */}
       <div
         className="relative flex items-end justify-center"
-        style={{ backgroundColor: bgTint, minHeight: 260 }}
+        style={{ backgroundColor: "#F5F6F8", minHeight: 260 }}
       >
         {/* Purity badge — top right */}
         <span
