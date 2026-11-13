@@ -17,7 +17,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const image = product.images?.[0];
   const outOfStock = product.stock_status === "outofstock";
-  const dosage = product.attributes?.[0]?.options?.[0];
+  // Extract dosage from product name e.g. "BPC-157 – 10MG" → "10MG"
+  const dosageMatch = product.name.match(/(\d+(?:\.\d+)?\s*(?:mg|mcg|iu|ml|g)(?:\s*\/\s*\d+\s*(?:mg|ml))?)/i);
+  const dosage = dosageMatch ? dosageMatch[0].toUpperCase() : null;
   const price = parseFloat(product.price || "0");
 
   async function handleAddToCart() {
