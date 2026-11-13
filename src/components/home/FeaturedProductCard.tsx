@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { WooProduct } from "@/lib/woocommerce";
+import type { WooProduct, WooProductVariation } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cart/CartContext";
 
 type FeaturedProductCardProps = {
   product: WooProduct;
+  variations?: WooProductVariation[];
 };
 
 const DOSAGE_OVERRIDES: Record<string, string> = {
@@ -25,21 +26,35 @@ function extractDosage(name: string, slug: string): string | null {
   return match ? match[1].toUpperCase() : null;
 }
 
-export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
+export function FeaturedProductCard({ product, variations = [] }: FeaturedProductCardProps) {
+  const isVariable = product.type === "variable" && variations.length > 0;
+
+  const [selectedVariation, setSelectedVariation] = useState<WooProductVariation | null>(
+    isVariable ? variations[0] : null
+  );
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const { addItem, openDrawer } = useCart();
 
   const image = product.images?.[0];
-  const outOfStock = product.stock_status === "outofstock";
-  const dosage = extractDosage(product.name, product.slug);
-  const displayPrice = product.price ? `$${parseFloat(product.price).toFixed(2)}` : null;
+  const outOfStock = isVariable
+    ? selectedVariation?.stock_status === "outofstock"
+    : product.stock_status === "outofstock";
+
+  const displayPrice = isVariable && selectedVariation
+    ? `$${parseFloat(selectedVariation.price).toFixed(2)}`
+    : product.price
+    ? `$${parseFloat(product.price).toFixed(2)}`
+    : null;
+
+  const dosage = isVariable ? null : extractDosage(product.name, product.slug);
 
   async function handleAddToCart() {
     setIsAdding(true);
     try {
-      await addItem(product.id, quantity);
+      const idToAdd = isVariable && selectedVariation ? selectedVariation.id : product.id;
+      await addItem(idToAdd, quantity);
       setAdded(true);
       openDrawer();
       setTimeout(() => setAdded(false), 1800);
@@ -81,8 +96,29 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           </Link>
         </h3>
 
-        {/* 2. Dosage pill (left) + qty stepper (right) */}
-        {product.type !== "variable" && (
+        {/* 2. Variant size pills (variable) OR dosage pill + qty stepper (simple) */}
+        {isVariable ? (
+          <div className="flex flex-wrap gap-2">
+            {variations.map((v) => {
+              const label = v.attributes[0]?.option?.toUpperCase() ?? "—";
+              const isSelected = selectedVariation?.id === v.id;
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => setSelectedVariation(v)}
+                  className="rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide border transition-all duration-150"
+                  style={{
+                    background: isSelected ? "#0D1A30" : "transparent",
+                    color: isSelected ? "#fff" : "#0D1A30",
+                    borderColor: "#0D1A30",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
           <div className="flex items-center justify-between">
             {dosage ? (
               <span className="rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white" style={{ background: "#0D1A30" }}>
@@ -90,6 +126,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
               </span>
             ) : <span />}
 
+            {/* +/- qty stepper on the right */}
             <div className="flex items-center rounded-lg overflow-hidden border" style={{ borderColor: "rgba(0,0,0,0.12)" }}>
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -117,26 +154,16 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
           </p>
         )}
 
-        {/* 4. Add to Cart / Select Options */}
-        {product.type === "variable" ? (
-          <Link
-            href={`/products/${product.slug}`}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-opacity hover:opacity-85"
-            style={{ background: "#0D1A30" }}
-          >
-            <CartIcon /> Select Options
-          </Link>
-        ) : (
-          <button
-            onClick={handleAddToCart}
-            disabled={outOfStock || isAdding}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-opacity hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "#0D1A30" }}
-          >
-            <CartIcon />
-            {outOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added ✓" : "Add to Cart"}
-          </button>
-        )}
+        {/* 4. Add to Cart */}
+        <button
+          onClick={handleAddToCart}
+          disabled={outOfStock || isAdding}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-opacity hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "#0D1A30" }}
+        >
+          <CartIcon />
+          {outOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added ✓" : "Add to Cart"}
+        </button>
 
       </div>
     </div>
