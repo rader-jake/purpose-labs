@@ -82,8 +82,8 @@ export default function QualityPage() {
         </p>
 
         <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
-          {COA_DIRECTORY.map((entry) => (
-            <CoaCard key={entry.slug} entry={entry} />
+          {COA_DIRECTORY.map((entry, i) => (
+            <CoaCard key={entry.slug} entry={entry} index={i} />
           ))}
         </div>
       </section>
@@ -91,34 +91,45 @@ export default function QualityPage() {
   );
 }
 
+// Soft background tints — cycles through cards like Amino Haus
+const CARD_BG_TINTS = [
+  "#E8EEF5", // cool blue-grey
+  "#EDE8F0", // soft lavender
+  "#E8EDF0", // muted teal-grey
+  "#F0ECE8", // warm sand
+];
+
 function CoaCard({
   entry,
+  index,
 }: {
   entry: (typeof COA_DIRECTORY)[number];
+  index: number;
 }) {
   const primaryDoc = entry.docs[0];
   const extraDocs = entry.docs.slice(1);
+  const bgTint = CARD_BG_TINTS[index % CARD_BG_TINTS.length];
 
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-xl border transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+      className="flex flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
       style={{
         borderColor: "var(--pl-border)",
         backgroundColor: "var(--pl-white)",
       }}
     >
-      {/* Product image area */}
+      {/* Product image — large, Amino Haus style */}
       <div
-        className="relative flex items-center justify-center px-6 py-8"
-        style={{ backgroundColor: "#F7F8FA", minHeight: 180 }}
+        className="relative flex items-end justify-center"
+        style={{ backgroundColor: bgTint, minHeight: 260 }}
       >
         {/* Purity badge — top right */}
         <span
-          className="absolute top-3 right-3 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em]"
+          className="absolute top-3 right-3 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em]"
           style={{
-            backgroundColor: "rgba(16,185,129,0.12)",
+            backgroundColor: "rgba(16,185,129,0.15)",
             color: "#059669",
-            border: "1px solid rgba(16,185,129,0.3)",
+            border: "1px solid rgba(16,185,129,0.35)",
           }}
         >
           {entry.purity}
@@ -128,16 +139,16 @@ function CoaCard({
           <Image
             src={entry.image}
             alt={entry.title}
-            width={120}
-            height={160}
-            className="object-contain drop-shadow-md"
-            style={{ maxHeight: 160 }}
+            width={200}
+            height={240}
+            className="object-contain drop-shadow-lg"
+            style={{ maxHeight: 240, width: "auto" }}
           />
         ) : (
           <div
-            className="flex h-32 w-20 items-center justify-center rounded-lg text-xs"
+            className="mb-6 flex h-40 w-28 items-center justify-center rounded-lg text-xs"
             style={{
-              backgroundColor: "var(--pl-border)",
+              backgroundColor: "rgba(0,0,0,0.08)",
               color: "var(--pl-muted)",
             }}
           >
@@ -147,7 +158,7 @@ function CoaCard({
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-2 px-4 py-4">
+      <div className="flex flex-1 flex-col gap-2 px-4 py-5">
         <p
           className="text-[8px] font-semibold uppercase tracking-[0.2em]"
           style={{ color: "var(--pl-slate)" }}
@@ -156,27 +167,34 @@ function CoaCard({
         </p>
 
         <h3
-          className="text-sm font-bold leading-tight whitespace-pre-line"
+          className="text-base font-bold leading-tight whitespace-pre-line"
           style={{ color: "var(--pl-navy)" }}
         >
           {entry.title}
         </h3>
 
-        <div
-          className="flex flex-wrap gap-1 text-[8px] uppercase tracking-[0.08em]"
-          style={{ color: "var(--pl-muted)" }}
+        {entry.lot && (
+          <p
+            className="text-[9px] uppercase tracking-[0.08em]"
+            style={{ color: "var(--pl-muted)" }}
+          >
+            Lot {entry.lot}
+          </p>
+        )}
+
+        {/* Purity pill */}
+        <span
+          className="w-fit rounded-full px-2.5 py-0.5 text-[9px] font-semibold"
+          style={{
+            backgroundColor: "rgba(16,185,129,0.1)",
+            color: "#059669",
+          }}
         >
-          {entry.method && <span>{entry.method}</span>}
-          {entry.lot && (
-            <>
-              <span>·</span>
-              <span>Lot: {entry.lot}</span>
-            </>
-          )}
-        </div>
+          {entry.purity} purity
+        </span>
 
         {(entry.endotoxinTested || entry.sevenXTested) && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 pt-1">
             {entry.endotoxinTested && (
               <span
                 className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]"
@@ -203,15 +221,15 @@ function CoaCard({
         )}
 
         {/* CTA buttons */}
-        <div className="mt-auto flex flex-col gap-2 pt-3">
+        <div className="mt-auto flex flex-col gap-2 pt-4">
           <a
             href={primaryDoc.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="block w-full rounded-lg py-2.5 text-center text-[10px] font-black uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-85"
+            className="block w-full rounded-lg py-3 text-center text-[10px] font-black uppercase tracking-[0.14em] text-white transition-opacity hover:opacity-85"
             style={{ backgroundColor: "var(--pl-navy)" }}
           >
-            View COA →
+            📄 View COA
           </a>
 
           {extraDocs.map((doc) => (
@@ -220,7 +238,7 @@ function CoaCard({
               href={doc.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full rounded-lg border py-2 text-center text-[9px] font-semibold uppercase tracking-[0.1em] transition-colors hover:bg-[rgba(27,42,74,0.05)]"
+              className="block w-full rounded-lg border py-2.5 text-center text-[9px] font-semibold uppercase tracking-[0.1em] transition-colors hover:bg-[rgba(27,42,74,0.05)]"
               style={{
                 borderColor: "var(--pl-border-strong)",
                 color: "var(--pl-navy)",
