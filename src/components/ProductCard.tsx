@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import type { WooProduct } from "@/lib/woocommerce";
 import { useCart } from "@/lib/cart/CartContext";
-import { CoaButton } from "@/components/CoaButton";
 
 export type Product = WooProduct;
 
@@ -13,49 +12,34 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [isHovered, setIsHovered] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [addError, setAddError] = useState<string | null>(null);
   const { addItem, openDrawer } = useCart();
 
   const image = product.images?.[0];
   const outOfStock = product.stock_status === "outofstock";
+  const dosage = product.attributes?.[0]?.options?.[0];
+  const price = parseFloat(product.price || "0");
 
   async function handleAddToCart() {
     setIsAdding(true);
-    setAddError(null);
     try {
-      await addItem(product.id, quantity);
+      await addItem(product.id, 1);
       openDrawer();
-    } catch (err) {
-      setAddError(err instanceof Error ? err.message : "Couldn't add to cart");
+    } catch {
+      // silent — drawer still opens
     } finally {
       setIsAdding(false);
     }
   }
 
   return (
-    <div
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="flex flex-col overflow-hidden rounded-lg transition-all duration-200"
-      style={{
-        backgroundColor: "var(--pl-white)",
-        border: `1px solid ${
-          isHovered ? "var(--pl-border-strong)" : "var(--pl-border)"
-        }`,
-        boxShadow: isHovered
-          ? "var(--pl-shadow-hover)"
-          : "var(--pl-shadow-subtle)",
-        transform: isHovered ? "translateY(-3px)" : "translateY(0)",
-      }}
-    >
+    <div className="flex flex-col overflow-hidden rounded-2xl bg-white border border-[#EBEBEB] transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+
       {/* Image */}
       <Link
         href={`/products/${product.slug}`}
-        className="flex h-64 items-center justify-center p-8"
-        style={{ backgroundColor: "var(--pl-ivory-soft)" }}
+        className="relative flex items-center justify-center"
+        style={{ backgroundColor: "#F2F2F2", minHeight: 240 }}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -63,126 +47,55 @@ export function ProductCard({ product }: ProductCardProps) {
             src={image.src}
             alt={image.alt || product.name}
             className="h-full w-full object-contain"
+            style={{ maxHeight: 240 }}
             loading="lazy"
             decoding="async"
           />
         ) : (
-          <div
-            className="text-xs"
-            style={{ color: "var(--pl-muted)" }}
-          >
-            No image
-          </div>
+          <div className="text-xs text-gray-400">No image</div>
         )}
       </Link>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3
-          className="text-2xl leading-tight"
-          style={{
-            color: "var(--pl-navy)",
-            fontFamily: "var(--pl-font-display)",
-            fontWeight: 500,
-            letterSpacing: "-0.012em",
-          }}
-        >
+      {/* Info */}
+      <div className="flex flex-col gap-3 p-5">
+
+        {/* Product name */}
+        <h3 className="text-lg font-semibold leading-snug text-[#111]">
           <Link href={`/products/${product.slug}`}>{product.name}</Link>
         </h3>
 
-        {/* Dosage pill + quantity box row */}
-        {(() => {
-          const dosage = product.attributes?.[0]?.options?.[0];
-          return (
-            <div className="flex items-center gap-2" style={{ fontFamily: "var(--pl-font-body)" }}>
-              {dosage && (
-                <span
-                  className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.08em]"
-                  style={{
-                    backgroundColor: "var(--pl-navy)",
-                    color: "var(--pl-ivory)",
-                  }}
-                >
-                  {dosage}
-                </span>
-              )}
-              {product.type !== "variable" && (
-                <input
-                  type="number"
-                  min={1}
-                  value={quantity}
-                  onChange={(e) =>
-                    setQuantity(Math.max(1, Number(e.target.value) || 1))
-                  }
-                  className="w-16 rounded-lg border px-2 py-1.5 text-center text-sm"
-                  style={{
-                    borderColor: "var(--pl-border-strong)",
-                    color: "var(--pl-navy)",
-                    fontFamily: "var(--pl-font-body)",
-                  }}
-                />
-              )}
-            </div>
-          );
-        })()}
+        {/* Dosage pill */}
+        {dosage && (
+          <div>
+            <span className="inline-block rounded-full bg-[#1a1a1a] px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-white">
+              {dosage}
+            </span>
+          </div>
+        )}
 
         {/* Price */}
-        <div style={{ fontFamily: "var(--pl-font-body)" }}>
-          <p className="text-xl font-semibold" style={{ color: "var(--pl-navy)" }}>
+        {price > 0 && (
+          <p className="text-xl font-semibold text-[#111]">
             ${product.price}
           </p>
-        </div>
+        )}
 
-        <CoaButton productSlug={product.slug} />
-
-        {/* Add to cart */}
+        {/* Add to cart / Select options */}
         {product.type === "variable" ? (
-          <div className="mt-auto pt-1">
-            <Link
-              href={`/products/${product.slug}`}
-              className="flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200"
-              style={{
-                backgroundColor: "var(--pl-navy)",
-                color: "var(--pl-ivory)",
-                fontFamily: "var(--pl-font-body)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--pl-navy)";
-              }}
-            >
-              🛒 Select Options
-            </Link>
-          </div>
+          <Link
+            href={`/products/${product.slug}`}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1a1a1a] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80"
+          >
+            🛒 Select Options
+          </Link>
         ) : (
-          <div className="mt-auto pt-1">
-            <button
-              onClick={handleAddToCart}
-              disabled={outOfStock || isAdding}
-              className="flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{
-                backgroundColor: "var(--pl-navy)",
-                color: "var(--pl-ivory)",
-                fontFamily: "var(--pl-font-body)",
-              }}
-              onMouseEnter={(e) => {
-                if (!outOfStock)
-                  e.currentTarget.style.backgroundColor = "var(--pl-navy-hover)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--pl-navy)";
-              }}
-            >
-              🛒 {outOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to cart"}
-            </button>
-            {addError && (
-              <p className="mt-1 text-xs" style={{ color: "var(--pl-slate)" }}>
-                {addError}
-              </p>
-            )}
-          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={outOfStock || isAdding}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[#1a1a1a] py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            🛒 {outOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to cart"}
+          </button>
         )}
       </div>
     </div>
