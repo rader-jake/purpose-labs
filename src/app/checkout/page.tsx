@@ -66,14 +66,6 @@ type FieldKey = "firstName" | "lastName" | "email" | "address1" | "city" | "stat
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Cart rewards tiers
-const REWARD_TIERS = [
-  { threshold: 150, label: "Free accessory", icon: "🎁" },
-  { threshold: 200, label: "+$20 store credit", icon: "💳" },
-  { threshold: 250, label: "Choose a free peptide", icon: "⭐", best: true },
-  { threshold: 300, label: "Free 2-Day shipping", icon: "🚚" },
-];
-
 export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
@@ -107,6 +99,8 @@ export default function CheckoutPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponMsg, setCouponMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [upsellOpen, setUpsellOpen] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [ageError, setAgeError] = useState(false);
 
   useEffect(() => {
     const value = cart?.totals?.total_price ? parseFloat(cart.totals.total_price) / 100 : 0;
@@ -169,6 +163,9 @@ export default function CheckoutPage() {
   const subtotalCents = Number(cart.totals.total_items) - Number(cart.totals.total_discount);
   const subtotalDollars = subtotalCents / 100;
   const totalCents = Number(cart.totals.total_price) + (shipmentProtection ? 500 : 0);
+
+  // suppress unused warning
+  void subtotalDollars;
 
   function buildAddressInput() {
     return {
@@ -243,6 +240,10 @@ export default function CheckoutPage() {
   async function handleStep2Continue() {
     setAttemptedSubmit(true);
     if (!isAddressValid) return;
+    if (!ageConfirmed) {
+      setAgeError(true);
+      return;
+    }
     setAttemptedSubmit(false);
     await syncAddressIfComplete();
     setCurrentStep(3);
@@ -375,13 +376,6 @@ export default function CheckoutPage() {
   const stepLabels = ["Address", "Delivery", "Payment"];
   const stepLabel = stepLabels[currentStep - 1];
 
-  // Cart rewards
-  const unlockedCount = REWARD_TIERS.filter((t) => subtotalDollars >= t.threshold).length;
-
-  // Coins earned (1 coin per $1, worth $0.01 each — visual only)
-  const coinsEarned = Math.floor(subtotalDollars);
-  const coinsDollarValue = (coinsEarned * 0.01).toFixed(2);
-
   return (
     <div style={{ background: "#fff", minHeight: "100vh", fontFamily: "var(--font-montserrat, sans-serif)" }}>
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -422,7 +416,7 @@ export default function CheckoutPage() {
               gap: 4,
             }}
           >
-            🔒 SECURE CHECKOUT
+            SECURE CHECKOUT
           </div>
         </div>
       </header>
@@ -635,6 +629,42 @@ export default function CheckoutPage() {
               {addressError && <p style={{ fontSize: 12, color: "#ef4444" }}>{addressError}</p>}
               {isSyncingAddress && <p style={{ fontSize: 12, color: "#9ca3af" }}>Updating shipping &amp; tax…</p>}
 
+              {/* Age Confirmation */}
+              <div
+                onClick={() => { setAgeConfirmed((v) => !v); setAgeError(false); }}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  border: `1.5px solid ${ageError ? "#ef4444" : ageConfirmed ? "#1B2A4A" : "#e5e7eb"}`,
+                  borderRadius: 8,
+                  padding: "12px 14px",
+                  cursor: "pointer",
+                  background: ageConfirmed ? "#f0f4ff" : "#fff",
+                  transition: "all 0.2s",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={ageConfirmed}
+                  onChange={(e) => { e.stopPropagation(); setAgeConfirmed((v) => !v); setAgeError(false); }}
+                  style={{ marginTop: 2, accentColor: "#1B2A4A", width: 15, height: 15, flexShrink: 0 }}
+                />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>
+                    I confirm I am 21 years of age or older
+                  </p>
+                  <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>
+                    Required to proceed. Products are for research use only.
+                  </p>
+                </div>
+              </div>
+              {ageError && (
+                <p style={{ fontSize: 12, color: "#ef4444", marginTop: -4 }}>
+                  You must confirm you are 21+ to continue.
+                </p>
+              )}
+
               <ContinueButton onClick={handleStep2Continue}>Continue to Payment</ContinueButton>
             </div>
           </StepCard>
@@ -673,13 +703,13 @@ export default function CheckoutPage() {
 
           {/* ── Bottom Info Cards ─── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
-            <InfoCard icon="📄" title="How this appears on your statement">
+            <InfoCard title="How this appears on your statement">
               Your charge will appear as <strong>PURPOSE LABS</strong> — no product details.
             </InfoCard>
-            <InfoCard icon="💬" title="Need payment help?">
+            <InfoCard title="Need payment help?">
               Reach us at <a href="mailto:support@purposelabs.shop" style={{ color: "#3B55E6" }}>support@purposelabs.shop</a>
             </InfoCard>
-            <InfoCard icon="↩️" title="Return &amp; refund policy">
+            <InfoCard title="Return &amp; refund policy">
               Unopened items may be returned within 30 days. Contact support to initiate.
             </InfoCard>
           </div>
@@ -708,82 +738,17 @@ export default function CheckoutPage() {
             }}
           >
             {[
-              { icon: "🔒", title: "Encrypted, secure payment", body: "Card details are never stored on this site." },
-              { icon: "👁", title: "Discreet shipping", body: "No product names on the box or your statement." },
-              { icon: "🧪", title: "99%+ purity, 10x tested", body: "A certificate of analysis for every batch — see the COA page." },
+              { title: "Encrypted, secure payment", body: "Card details are never stored on this site." },
+              { title: "Discreet shipping", body: "No product names on the box or your statement." },
+              { title: "99%+ purity, 10x tested", body: "A certificate of analysis for every batch — see the COA page." },
             ].map((b) => (
               <div key={b.title} style={{ display: "flex", gap: 10 }}>
-                <span style={{ fontSize: 18, flexShrink: 0 }}>{b.icon}</span>
                 <div>
                   <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>{b.title}</p>
                   <p style={{ fontSize: 11, color: "#6b7280", margin: "2px 0 0" }}>{b.body}</p>
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Cart Rewards */}
-          <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden", background: "#fff" }}>
-            <div style={{ background: "#1B2A4A", padding: "12px 18px" }}>
-              <p style={{ fontSize: 10, fontWeight: 800, color: "#93c5fd", letterSpacing: "0.12em", margin: 0, fontFamily: "var(--font-barlow, sans-serif)" }}>
-                CART REWARDS
-              </p>
-              <p style={{ fontSize: 14, fontWeight: 700, color: "#fff", margin: "2px 0 0" }}>
-                Free gifts on this order
-              </p>
-            </div>
-            <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
-              {/* Progress dots */}
-              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                {REWARD_TIERS.map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: "50%",
-                      background: i < unlockedCount ? "#3B55E6" : "#e5e7eb",
-                      border: i < unlockedCount ? "none" : "1.5px solid #d1d5db",
-                      transition: "background 0.3s",
-                    }}
-                  />
-                ))}
-                <span style={{ fontSize: 11, color: "#6b7280", marginLeft: 4 }}>{unlockedCount}/4 unlocked</span>
-              </div>
-              {/* Tiers */}
-              {REWARD_TIERS.map((tier) => {
-                const unlocked = subtotalDollars >= tier.threshold;
-                const diff = tier.threshold - subtotalDollars;
-                return (
-                  <div
-                    key={tier.threshold}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      opacity: unlocked ? 1 : 0.7,
-                    }}
-                  >
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>{unlocked ? "✅" : tier.icon}</span>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "#1B2A4A" }}>
-                        ${tier.threshold}+ — {tier.label}
-                        {tier.best && (
-                          <span style={{ marginLeft: 4, fontSize: 10, background: "#fef9c3", color: "#92400e", borderRadius: 4, padding: "1px 5px", fontWeight: 700 }}>
-                            BEST VALUE
-                          </span>
-                        )}
-                      </span>
-                      {!unlocked && (
-                        <p style={{ fontSize: 11, color: "#9ca3af", margin: "1px 0 0" }}>
-                          Spend ${diff.toFixed(0)} more to unlock
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
 
           {/* Order Summary */}
@@ -929,24 +894,6 @@ export default function CheckoutPage() {
                   <span style={{ color: "#1B2A4A" }}>{formatMoney(String(totalCents))}</span>
                 </div>
               </div>
-
-              {/* Coins badge */}
-              {coinsEarned > 0 && (
-                <div
-                  style={{
-                    background: "#f0fdf4",
-                    border: "1px solid #bbf7d0",
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 12,
-                    color: "#15803d",
-                    fontWeight: 600,
-                    textAlign: "center",
-                  }}
-                >
-                  🪙 You will earn {coinsEarned} Coins (worth ${coinsDollarValue})
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -1100,7 +1047,7 @@ function StepCard({
   );
 }
 
-function InfoCard({ icon, title, children }: { icon: string; title: string; children: React.ReactNode }) {
+function InfoCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div
       style={{
@@ -1112,7 +1059,6 @@ function InfoCard({ icon, title, children }: { icon: string; title: string; chil
         background: "#fafafa",
       }}
     >
-      <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
       <div>
         <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>{title}</p>
         <p style={{ fontSize: 12, color: "#6b7280", margin: "3px 0 0" }}>{children}</p>
