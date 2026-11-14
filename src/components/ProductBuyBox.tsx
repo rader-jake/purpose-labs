@@ -7,6 +7,7 @@ import { useCart } from "@/lib/cart/CartContext";
 import { trackViewContent, trackAddToCart } from "@/lib/tiktok-pixel";
 import { gtmViewItem, gtmAddToCart } from "@/lib/gtm";
 import { BulkDiscountTiers } from "./BulkDiscountTiers";
+import { BundleSave } from "./BundleSave";
 import { PaymentIcons } from "./PaymentIcons";
 import { CoaButton } from "./CoaButton";
 import type { WooProductVariation } from "@/lib/woocommerce";
@@ -170,6 +171,15 @@ export function ProductBuyBox({
             })}
           </div>
         </div>
+      )}
+
+      {/* Bundle & Save */}
+      {productId !== 840 && !hasVariations && parseFloat(effectivePrice || "0") > 0 && (
+        <BundleSave
+          pricePerUnit={parseFloat(effectivePrice || "0")}
+          quantity={quantity}
+          onSelect={setQuantity}
+        />
       )}
 
       {/* THE ROW: − qty + | Add to Cart | COA */}
