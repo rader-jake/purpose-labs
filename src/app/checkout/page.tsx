@@ -259,7 +259,7 @@ export default function CheckoutPage() {
     setCouponLoading(true);
     setCouponMsg(null);
     try {
-      const res = await fetch("/api/cart/coupon", {
+      const res = await fetch("/api/cart/apply-coupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: couponCode.trim() }),
