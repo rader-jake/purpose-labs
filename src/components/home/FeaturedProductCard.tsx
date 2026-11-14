@@ -151,14 +151,22 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
           </div>
         )}
 
-        {/* Add to Cart — pill shaped */}
+        {/* View More — outline pill */}
+        <Link
+          href={`/products/${product.slug}`}
+          className="flex h-12 w-full items-center justify-center rounded-full text-sm font-black transition-opacity hover:opacity-80"
+          style={{ border: "2px solid #0D1A30", color: "#0D1A30", background: "#fff" }}
+        >
+          View More
+        </Link>
+
+        {/* Add to Cart — solid pill */}
         <button
           onClick={handleAddToCart}
           disabled={outOfStock || isAdding}
           className="flex h-12 w-full items-center justify-center gap-2 rounded-full text-sm font-black text-white transition-opacity hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: "#0D1A30" }}
         >
-          <CartIcon />
           {outOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added ✓" : "Add to Cart"}
         </button>
         </div>
