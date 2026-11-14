@@ -143,9 +143,12 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
         {/* Price + Button — always at bottom */}
         <div className="mt-auto flex flex-col gap-3">
         {displayPrice && (
-          <p className="text-2xl font-bold" style={{ color: "#0D1A30" }}>
-            {displayPrice}
-          </p>
+          <div>
+            <p className="text-2xl font-bold" style={{ color: "#0D1A30" }}>
+              ${(parseFloat(displayPrice.replace("$","")) / 2).toFixed(2)}<span className="text-sm font-medium" style={{ color: "#6b7280" }}>/vial</span>
+            </p>
+            <p className="text-xs" style={{ color: "#9ca3af" }}>2 for {displayPrice} · BOGO deal</p>
+          </div>
         )}
 
         {/* Add to Cart — pill shaped */}
