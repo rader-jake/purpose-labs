@@ -180,16 +180,25 @@ export function HomeHero() {
           .pl-sub { max-width: 100%; }
           #pl-vials {
             width: 100%;
-            min-height: 320px;
-            margin-top: 10px;
+            min-height: 240px;
+            margin-top: 0;
             justify-content: center;
           }
-          .pl-vial-left  { right: auto; left: 2%; }
-          .pl-vial-left img  { height: 200px; }
-          .pl-vial-center { right: auto; left: 50%; transform: translateX(-50%); bottom: 10px; }
-          .pl-vial-center img { height: 270px; }
-          .pl-vial-right { right: 2%; left: auto; }
-          .pl-vial-right img  { height: 200px; }
+          #pl-vials-img {
+            position: relative;
+            right: auto;
+            bottom: auto;
+            width: clamp(300px, 90vw, 460px);
+          }
+          /* Mobile order: headline → vials → sub → buttons → trust */
+          #pl-hero-inner { display: flex; flex-direction: column; align-items: center; }
+          #pl-hero-text { display: contents; }
+          .pl-badge-wrap    { order: 0; width: 100%; text-align: center; }
+          .pl-headline-wrap { order: 1; width: 100%; text-align: center; }
+          #pl-vials         { order: 2; }
+          .pl-sub-wrap      { order: 3; width: 100%; text-align: center; }
+          .pl-ctas-wrap     { order: 4; width: 100%; }
+          .pl-trust-wrap    { order: 5; width: 100%; }
         }
       `}</style>
 
@@ -198,13 +207,16 @@ export function HomeHero() {
         {/* TEXT */}
         <div id="pl-hero-text">
 
+          <div className="pl-badge-wrap">
           <Reveal delay={80}>
             <div className="pl-badge">
               <span className="pl-badge-dot" />
               3rd-Party Tested · Every Batch
             </div>
           </Reveal>
+          </div>
 
+          <div className="pl-headline-wrap">
           <Reveal delay={120}>
             <h1 className="pl-headline">
               Buy One,
@@ -212,20 +224,26 @@ export function HomeHero() {
               Free
             </h1>
           </Reveal>
+          </div>
 
+          <div className="pl-sub-wrap">
           <Reveal delay={160}>
             <p className="pl-sub">
               Premium research peptides. Transparent sourcing. Documented purity. U.S. based.
             </p>
           </Reveal>
+          </div>
 
+          <div className="pl-ctas-wrap">
           <Reveal delay={200}>
             <div className="pl-ctas">
               <Link href="/products" className="pl-cta-dark">Shop Peptides →</Link>
               <Link href="/quality" className="pl-cta-outline">View COAs</Link>
             </div>
           </Reveal>
+          </div>
 
+          <div className="pl-trust-wrap">
           <Reveal delay={240}>
             <div className="pl-trust-row">
               <div className="pl-trust-item">
@@ -248,6 +266,7 @@ export function HomeHero() {
               </div>
             </div>
           </Reveal>
+          </div>
 
         </div>
 
