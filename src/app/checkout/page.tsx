@@ -67,7 +67,7 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CheckoutPage() {
   const { cart, isLoading, updateCustomerAddress, refreshCart } = useCart();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>(() => {
     try {
       return {
@@ -462,7 +462,7 @@ export default function CheckoutPage() {
                 />
                 <FieldError message={shownEmailErrors.email} />
               </div>
-              <NavyButton onClick={handleStep1Continue}>Continue to Delivery</NavyButton>
+
             </div>
           </StepCard>
 
@@ -899,7 +899,7 @@ function StepCard({
   onEdit?: () => void;
   summary?: string;
 }) {
-  const isCompleted = stepNum < currentStep;
+  const isCompleted = false; // All steps always open
 
   return (
     <div
