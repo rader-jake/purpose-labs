@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { Reveal } from "./Reveal";
 
-const VIALS = [
-  { src: "/hero-bpc157.png", alt: "BPC-157 10MG",  cls: "bogo-vial-l" },
-  { src: "/hero-rt.png",     alt: "GLP-3 RT 10MG", cls: "bogo-vial-c" },
-  { src: "/hero-tb500.png",  alt: "TB-500 10MG",   cls: "bogo-vial-r" },
-];
+
 
 export function HomeHero() {
   return (
@@ -164,23 +160,7 @@ export function HomeHero() {
           display: block;
           object-fit: contain;
         }
-        .pl-vial-left  { right: 440px; }
-        .pl-vial-left img  { height: clamp(280px, 32vw, 390px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.13)); }
-        .pl-vial-center { right: 190px; bottom: 10px; z-index: 2; }
-        .pl-vial-center img { height: clamp(360px, 42vw, 520px); filter: drop-shadow(0 30px 60px rgba(0,0,0,0.18)); }
-        .pl-vial-right { right: -10px; }
-        .pl-vial-right img  { height: clamp(280px, 32vw, 390px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.13)); }
 
-        .pl-vial-name {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #0d1b2e;
-          opacity: 0.4;
-          margin-top: 10px;
-        }
 
         @keyframes float-l { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
         @keyframes float-c { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-22px)} }
@@ -273,21 +253,21 @@ export function HomeHero() {
 
         {/* VIALS */}
         <div id="pl-vials">
-          <div className={`pl-vial pl-vial-left ${VIALS[0].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false} />
-            <span className="pl-vial-name">BPC-157</span>
-          </div>
-          <div className={`pl-vial pl-vial-center ${VIALS[1].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[1].src} alt={VIALS[1].alt} draggable={false} />
-            <span className="pl-vial-name">GLP-3 RT</span>
-          </div>
-          <div className={`pl-vial pl-vial-right ${VIALS[2].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false} />
-            <span className="pl-vial-name">TB-500</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/pl-vials-hero.png"
+            alt="Purpose Labs TB-500, PL-TZ, BPC-157"
+            draggable={false}
+            className="bogo-vial-c"
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: "-20px",
+              width: "clamp(380px, 48vw, 640px)",
+              objectFit: "contain",
+              filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.12))",
+            }}
+          />
         </div>
 
       </div>
