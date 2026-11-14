@@ -238,10 +238,6 @@ export default function CheckoutPage() {
   async function handleStep2Continue() {
     setAttemptedSubmit(true);
     if (!isAddressValid) return;
-    if (!ageConfirmed) {
-      setAgeError(true);
-      return;
-    }
     setAttemptedSubmit(false);
     await syncAddressIfComplete();
     setCurrentStep(3);
@@ -570,77 +566,14 @@ export default function CheckoutPage() {
                 style={fieldStyle(false)}
               />
 
-              {/* Shipment Protection */}
-              <div
-                onClick={() => setShipmentProtection((v) => !v)}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  border: `1.5px solid ${shipmentProtection ? "#1B2A4A" : "#e5e7eb"}`,
-                  borderRadius: 8,
-                  padding: "12px 14px",
-                  cursor: "pointer",
-                  background: shipmentProtection ? "#f0f4ff" : "#fff",
-                  transition: "all 0.2s",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={shipmentProtection}
-                  onChange={(e) => { e.stopPropagation(); setShipmentProtection((v) => !v); }}
-                  style={{ marginTop: 2, accentColor: "#1B2A4A", width: 15, height: 15, flexShrink: 0 }}
-                />
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>
-                    Shipment Protection — $5.00
-                  </p>
-                  <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>
-                    Protect your order against loss or damage in transit.
-                  </p>
-                </div>
-              </div>
+
 
               {addressError && <p style={{ fontSize: 12, color: "#ef4444" }}>{addressError}</p>}
               {isSyncingAddress && <p style={{ fontSize: 12, color: "#9ca3af" }}>Updating shipping &amp; tax…</p>}
 
-              {/* Age Confirmation */}
-              <div
-                onClick={() => { setAgeConfirmed((v) => !v); setAgeError(false); }}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  border: `1.5px solid ${ageError ? "#ef4444" : ageConfirmed ? "#1B2A4A" : "#e5e7eb"}`,
-                  borderRadius: 8,
-                  padding: "12px 14px",
-                  cursor: "pointer",
-                  background: ageConfirmed ? "#f0f4ff" : "#fff",
-                  transition: "all 0.2s",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={ageConfirmed}
-                  onChange={(e) => { e.stopPropagation(); setAgeConfirmed((v) => !v); setAgeError(false); }}
-                  style={{ marginTop: 2, accentColor: "#1B2A4A", width: 15, height: 15, flexShrink: 0 }}
-                />
-                <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1B2A4A", margin: 0 }}>
-                    I confirm I am 21 years of age or older
-                  </p>
-                  <p style={{ fontSize: 12, color: "#6b7280", margin: "2px 0 0" }}>
-                    Required to proceed. Products are for research use only.
-                  </p>
-                </div>
-              </div>
-              {ageError && (
-                <p style={{ fontSize: 12, color: "#ef4444", marginTop: -4 }}>
-                  You must confirm you are 21+ to continue.
-                </p>
-              )}
 
-              <NavyButton onClick={handleStep2Continue}>Continue to Payment</NavyButton>
+
+
             </div>
           </StepCard>
 
