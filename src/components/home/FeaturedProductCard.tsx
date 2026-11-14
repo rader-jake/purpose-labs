@@ -22,14 +22,14 @@ const DOSAGE_OVERRIDES: Record<string, string> = {
 
 // Per-product card background colors (navy accent tones)
 const CARD_BG: Record<string, string> = {
-  "bpc-157-10mg": "#1B2A4A",
-  "bpc157": "#1B2A4A",
-  "tb-500-10mg": "#1B2A4A",
-  "tb500": "#1B2A4A",
-  "pl-rt": "#243352",
-  "pl-tz": "#1B2A4A",
-  "igf-1-lr3-1mg": "#1B2A4A",
-  "default": "#1B2A4A",
+  "bpc-157-10mg": "#356ba9",
+  "bpc157": "#356ba9",
+  "tb-500-10mg": "#356ba9",
+  "tb500": "#356ba9",
+  "pl-rt": "#356ba9",
+  "pl-tz": "#356ba9",
+  "igf-1-lr3-1mg": "#356ba9",
+  "default": "#356ba9",
 };
 
 function getCardBg(slug: string): string {
@@ -52,7 +52,6 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
   const [selectedVariation, setSelectedVariation] = useState<WooProductVariation | null>(
     isVariable ? variations[0] : null
   );
-  const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const { addItem, openDrawer } = useCart();
@@ -75,7 +74,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
     setIsAdding(true);
     try {
       const idToAdd = isVariable && selectedVariation ? selectedVariation.id : product.id;
-      await addItem(idToAdd, quantity);
+      await addItem(idToAdd, 1);
       setAdded(true);
       openDrawer();
       setTimeout(() => setAdded(false), 1800);
