@@ -51,11 +51,11 @@ export function HomeHero() {
           font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #2a9d7f;
+          color: #1B2A4A;
         }
         .pl-badge-dot {
           width: 7px; height: 7px;
-          background: #4fc3a1;
+          background: #1B2A4A;
           border-radius: 50%;
           display: inline-block;
           flex-shrink: 0;
@@ -71,7 +71,7 @@ export function HomeHero() {
           color: #0d1b2e;
           margin: 0 0 26px;
         }
-        .pl-headline .teal { color: #4fc3a1; display: block; }
+        .pl-headline .teal { color: #1B2A4A; display: block; }
 
         .pl-sub {
           font-family: 'Inter', sans-serif;
@@ -136,7 +136,7 @@ export function HomeHero() {
           font-weight: 500;
           color: #8a9aaa;
         }
-        .pl-trust-icon { flex-shrink: 0; color: #4fc3a1; }
+        .pl-trust-icon { flex-shrink: 0; color: #1B2A4A; }
 
         /* Vials */
         #pl-vials {
