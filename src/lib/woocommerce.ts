@@ -140,7 +140,7 @@ async function wooCommerceFetch<T>(
       // customer completes payment would be actively misleading.
       ...(options.cache === "no-store"
         ? { cache: "no-store" as const }
-        : { next: { revalidate: 3600 } }),
+        : { next: { revalidate: 0 } }),
     });
   } catch (err) {
     clearTimeout(timeoutId);
