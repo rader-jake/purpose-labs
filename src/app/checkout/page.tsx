@@ -66,7 +66,7 @@ type FieldKey = "firstName" | "lastName" | "email" | "address1" | "city" | "stat
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function CheckoutPage() {
-  const { cart, isLoading, updateCustomerAddress } = useCart();
+  const { cart, isLoading, updateCustomerAddress, refreshCart } = useCart();
   const [currentStep, setCurrentStep] = useState(1);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>(() => {
     try {
@@ -265,6 +265,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({ code: couponCode.trim() }),
       });
       if (res.ok) {
+        await refreshCart();
         setCouponMsg({ type: "ok", text: "Coupon applied!" });
       } else {
         const data = await res.json().catch(() => ({}));
