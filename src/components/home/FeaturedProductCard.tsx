@@ -149,7 +149,8 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
           </div>
         ) : null}
 
-        {/* Price */}
+        {/* Price + Button — always at bottom */}
+        <div className="mt-auto flex flex-col gap-3">
         {displayPrice && (
           <p className="text-2xl font-bold" style={{ color: "#0D1A30" }}>
             {displayPrice}
@@ -166,6 +167,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
           <CartIcon />
           {outOfStock ? "Out of Stock" : isAdding ? "Adding..." : added ? "Added ✓" : "Add to Cart"}
         </button>
+        </div>
 
       </div>
     </div>
