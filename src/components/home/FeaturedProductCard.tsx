@@ -138,15 +138,6 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
               );
             })}
           </div>
-        ) : dosage ? (
-          <div>
-            <span
-              className="inline-block rounded-full px-5 py-2 text-[13px] font-bold uppercase tracking-wide text-white"
-              style={{ background: "#0D1A30" }}
-            >
-              {dosage}
-            </span>
-          </div>
         ) : null}
 
         {/* Price + Button — always at bottom */}
