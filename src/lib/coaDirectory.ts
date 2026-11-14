@@ -90,7 +90,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/ghk-cu-50mg.png",
+    image: "/products/ghk-cu-50mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/GHK-CU-COA.webp" }],
   },
   {
@@ -157,7 +157,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.8%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/nad-600mg.png",
+    image: "/products/nad-600mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/NAD__COA.jpg" }],
   },
   {
@@ -167,7 +167,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.81%",
     method: "Full QC Panel (HPLC)",
     lot: "Klow-108",
-    image: "/products/klow-80mg.png",
+    image: "/products/klow-80mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/KLOW-COA-Klow-108-Sep2026.pdf" }],
   },
   {
