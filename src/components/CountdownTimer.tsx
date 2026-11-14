@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-// Fixed deadline: November 6, 2026 at 5:24 PM ET (one week from offer start)
+// Deadline: November 21, 2026 at 5:00 PM ET
 function getDeadline(): Date {
-  return new Date("2026-11-06T17:24:00-05:00");
+  return new Date("2026-11-21T17:00:00-05:00");
 }
 
 export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) {

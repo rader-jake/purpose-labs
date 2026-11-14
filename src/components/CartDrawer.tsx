@@ -286,16 +286,17 @@ function FreeShippingProgress({
   // actual configuration, only inferred.
   if (hasFreeShippingRate) {
     return (
-      <div className="px-6 pt-4">
-        <p
-          className="text-xs font-medium"
-          style={{ color: "var(--pl-navy)", fontFamily: "var(--pl-font-body)" }}
-        >
-          🎉 You&rsquo;ve unlocked FREE 2-Day Shipping via FedEx
-        </p>
-        <div className="mt-2">
-          <CountdownTimer label="Offer ends in" />
+      <div className="mx-6 mt-4 rounded-2xl px-5 py-4" style={{ background: "linear-gradient(135deg, #0d1b2e 0%, #1b3a6b 100%)" }}>
+        <div className="flex items-center gap-2 mb-1">
+          <span style={{ fontSize: 18 }}>🚀</span>
+          <p className="text-sm font-black uppercase tracking-wide" style={{ color: "#fff", fontFamily: "var(--pl-font-body)", letterSpacing: "0.05em" }}>
+            FREE 2-Day FedEx Unlocked!
+          </p>
         </div>
+        <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "var(--pl-font-body)" }}>
+          Your order ships fast — on us. Don&apos;t miss it.
+        </p>
+        <CountdownTimer label="Offer ends in" />
       </div>
     );
   }
