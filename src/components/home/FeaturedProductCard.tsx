@@ -15,7 +15,7 @@ const DOSAGE_OVERRIDES: Record<string, string> = {
   "pl-tz": "5MG",
   "pl-tesa": "5MG / 10MG",
   "klow-80mg": "80MG",
-  "wolverine-stack-bpc-157-tb-500": "BPC-157 + TB-500",
+  "wolverine-stack-bpc-157-tb-500": "10MG/10MG",
   "the-jimmy-neutron-stack-semax-selank-dispersal-kit": "Semax + Selank",
   "pink-korean-gluta-1200mg": "1200MG",
 };
@@ -107,10 +107,10 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
       </Link>
 
       {/* Info */}
-      <div className="flex flex-col p-4 gap-3">
+      <div className="flex flex-col p-4 gap-3 flex-1">
 
         {/* Product name */}
-        <h3 className="text-base font-bold leading-tight line-clamp-2" style={{ color: "#0D1A30", minHeight: "2.5rem" }}>
+        <h3 className="text-base font-bold leading-tight line-clamp-2" style={{ color: "#0D1A30", minHeight: "3.5rem" }}>
           <Link href={`/products/${product.slug}`} className="hover:opacity-70 transition-opacity">
             {product.name}
           </Link>
