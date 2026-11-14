@@ -147,70 +147,73 @@ function CoaCard({
       </div>
 
       {/* Info */}
-      <div className="flex flex-1 flex-col gap-2 px-4 py-5">
-        <p
-          className="text-[8px] font-semibold uppercase tracking-[0.2em]"
-          style={{ color: "var(--pl-slate)" }}
-        >
-          {entry.lab}
-        </p>
-
-        <h3
-          className="text-base font-bold leading-tight whitespace-pre-line"
-          style={{ color: "var(--pl-navy)" }}
-        >
-          {entry.title}
-        </h3>
-
-        {entry.lot && (
+      <div className="flex flex-1 flex-col px-4 py-5">
+        {/* Top content — grows to fill space, pushing buttons to bottom */}
+        <div className="flex flex-1 flex-col gap-2">
           <p
-            className="text-[9px] uppercase tracking-[0.08em]"
-            style={{ color: "var(--pl-muted)" }}
+            className="text-[8px] font-semibold uppercase tracking-[0.2em]"
+            style={{ color: "var(--pl-slate)" }}
           >
-            Lot {entry.lot}
+            {entry.lab}
           </p>
-        )}
 
-        {/* Purity pill */}
-        <span
-          className="w-fit rounded-full px-2.5 py-0.5 text-[9px] font-semibold"
-          style={{
-            backgroundColor: "rgba(16,185,129,0.1)",
-            color: "#059669",
-          }}
-        >
-          {entry.purity} purity
-        </span>
+          <h3
+            className="text-base font-bold leading-tight whitespace-pre-line"
+            style={{ color: "var(--pl-navy)" }}
+          >
+            {entry.title}
+          </h3>
 
-        {(entry.endotoxinTested || entry.sevenXTested) && (
-          <div className="flex flex-wrap gap-1 pt-1">
-            {entry.endotoxinTested && (
-              <span
-                className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]"
-                style={{
-                  backgroundColor: "rgba(27,42,74,0.07)",
-                  color: "var(--pl-navy)",
-                }}
-              >
-                Endotoxin ✔
-              </span>
-            )}
-            {entry.sevenXTested && (
-              <span
-                className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]"
-                style={{
-                  backgroundColor: "rgba(27,42,74,0.07)",
-                  color: "var(--pl-navy)",
-                }}
-              >
-                7X Tested ✔
-              </span>
-            )}
-          </div>
-        )}
+          {entry.lot && (
+            <p
+              className="text-[9px] uppercase tracking-[0.08em]"
+              style={{ color: "var(--pl-muted)" }}
+            >
+              Lot {entry.lot}
+            </p>
+          )}
 
-        {/* CTA buttons */}
-        <div className="mt-auto flex flex-col gap-2 pt-4">
+          {/* Purity pill */}
+          <span
+            className="w-fit rounded-full px-2.5 py-0.5 text-[9px] font-semibold"
+            style={{
+              backgroundColor: "rgba(16,185,129,0.1)",
+              color: "#059669",
+            }}
+          >
+            {entry.purity} purity
+          </span>
+
+          {(entry.endotoxinTested || entry.sevenXTested) && (
+            <div className="flex flex-wrap gap-1 pt-1">
+              {entry.endotoxinTested && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]"
+                  style={{
+                    backgroundColor: "rgba(27,42,74,0.07)",
+                    color: "var(--pl-navy)",
+                  }}
+                >
+                  Endotoxin ✔
+                </span>
+              )}
+              {entry.sevenXTested && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]"
+                  style={{
+                    backgroundColor: "rgba(27,42,74,0.07)",
+                    color: "var(--pl-navy)",
+                  }}
+                >
+                  7X Tested ✔
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* CTA buttons — always pinned to bottom */}
+        <div className="flex flex-col gap-2 pt-4">
           <a
             href={primaryDoc.url}
             target="_blank"
