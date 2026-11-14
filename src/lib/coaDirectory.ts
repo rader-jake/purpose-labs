@@ -202,7 +202,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     lot: "BB10-990010",
     endotoxinTested: true,
-    image: "/products/wolverine-stack-bpc-157-tb-500.png",
+    image: "/products/wolverine-stack-render.jpg",
     docs: [
       { label: "View COA (FTIR/HPLC)", url: "/coas/wolverine-stack-coa-hplc.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/wolverine-stack-coa-endotoxins.pdf" },
