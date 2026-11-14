@@ -56,7 +56,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     endotoxinTested: true,
     sevenXTested: true,
-    image: "/products/pl-rt.png",
+    image: "/products/pl-rt-render.jpg",
     docs: [
       { label: "View COA (ILS · Aug 2026)", url: "/coas/pl-rt-coa.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/GLP-3-RT-CoA-RT1025-Endotoxins-Jul2026.pdf" },
@@ -70,7 +70,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/tb-500-10mg.png",
+    image: "/products/tb-500-10mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/TB500-COA.webp" }],
   },
   {
@@ -80,7 +80,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/bpc-157-10mg.png",
+    image: "/products/bpc-157-10mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/BPC-157-COA.webp" }],
   },
   {
@@ -100,7 +100,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/mt-2.png",
+    image: "/products/mt-2-render.jpg",
     docs: [{ label: "View COA", url: "/coas/MT2-COA.webp" }],
   },
   {
@@ -112,7 +112,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     storage: "R.T.",
     lot: "CP10-980012",
     endotoxinTested: true,
-    image: "/products/cjc-1295-no-dac-ipamorelin.png",
+    image: "/products/cjc-1295-render.jpg",
     docs: [
       { label: "View COA (FTIR/HPLC)", url: "/coas/CJC-COA-hplc.pdf" },
       { label: "View COA (Endotoxins)", url: "/coas/CJC-COA-endotoxins.pdf" },
@@ -125,7 +125,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/semax-10mg.png",
+    image: "/products/semax-10mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/Semax_COA.jpeg" }],
   },
   {
@@ -135,7 +135,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "≥99%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/selank-10mg.png",
+    image: "/products/selank-10mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/Selank_COA.jpeg" }],
   },
   {
@@ -177,7 +177,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.90%",
     method: "Full QC Panel (HPLC)",
     lot: "Tesa-146",
-    image: "/products/pl-tesa.png",
+    image: "/products/pl-tesa-render.jpg",
     docs: [
       { label: "View COA (5mg)", url: "/coas/tesamorelin-5mg-coa.pdf" },
       { label: "View COA (10mg)", url: "/coas/Tesamorelin-COA-Tesa-146-Oct2026.pdf" },
@@ -190,7 +190,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.56%",
     method: "HPLC-UV + LC-MS",
     lot: "IG18584",
-    image: "/products/igf-1-lr3-1mg.png",
+    image: "/products/igf-1-lr3-1mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/IGF-1-LR3-COA.jpg" }],
   },
   {
@@ -215,7 +215,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.74%",
     method: "HPLC-UV + LC-MS",
     lot: "TR8585",
-    image: "/products/pl-tz.png",
+    image: "/products/pl-tz-render.jpg",
     docs: [{ label: "View COA", url: "/coas/TIRZ-COA.jpg" }],
   },
 ];
