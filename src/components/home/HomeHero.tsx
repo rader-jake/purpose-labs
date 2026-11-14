@@ -3,18 +3,12 @@
 import Link from "next/link";
 import { Reveal } from "./Reveal";
 
-const VIALS = [
-  { src: "/hero-bpc157.png", alt: "BPC-157 10MG",  cls: "bogo-vial-l" },
-  { src: "/hero-rt.png",     alt: "GLP-3 RT 10MG", cls: "bogo-vial-c" },
-  { src: "/hero-tb500.png",  alt: "TB-500 10MG",   cls: "bogo-vial-r" },
-];
-
 export function HomeHero() {
   return (
     <section
       className="relative overflow-hidden w-full"
       style={{
-        background: "#f2f4f7",
+        background: "#5b9fd4",
         minHeight: "100svh",
         display: "flex",
         alignItems: "stretch",
@@ -45,8 +39,8 @@ export function HomeHero() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(79,195,161,0.12);
-          border: 1px solid rgba(79,195,161,0.4);
+          background: rgba(255,255,255,0.18);
+          border: 1px solid rgba(255,255,255,0.4);
           border-radius: 100px;
           padding: 7px 16px;
           margin-bottom: 28px;
@@ -55,11 +49,11 @@ export function HomeHero() {
           font-weight: 600;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #2a9d7f;
+          color: #fff;
         }
         .pl-badge-dot {
           width: 7px; height: 7px;
-          background: #4fc3a1;
+          background: #fff;
           border-radius: 50%;
           display: inline-block;
           flex-shrink: 0;
@@ -72,16 +66,19 @@ export function HomeHero() {
           line-height: 0.88;
           letter-spacing: 0.01em;
           text-transform: uppercase;
-          color: #0d1b2e;
+          color: #fff;
           margin: 0 0 26px;
         }
-        .pl-headline .teal { color: #4fc3a1; display: block; }
+        .pl-headline .teal {
+          color: #0d1b2e;
+          display: block;
+        }
 
         .pl-sub {
           font-family: 'Inter', sans-serif;
           font-size: 15px;
           font-weight: 400;
-          color: #5a6a7a;
+          color: rgba(255,255,255,0.85);
           line-height: 1.7;
           margin: 0 0 36px;
           max-width: 380px;
@@ -112,7 +109,7 @@ export function HomeHero() {
         .pl-cta-outline {
           display: inline-block;
           background: transparent;
-          color: #0d1b2e !important;
+          color: #fff !important;
           font-family: 'Inter', sans-serif;
           font-size: 12px;
           font-weight: 600;
@@ -120,11 +117,11 @@ export function HomeHero() {
           text-transform: uppercase;
           padding: 15px 36px;
           text-decoration: none;
-          border: 1.5px solid rgba(13,27,46,0.4);
+          border: 1.5px solid rgba(255,255,255,0.6);
           border-radius: 3px;
-          transition: border-color 0.2s;
+          transition: border-color 0.2s, background 0.2s;
         }
-        .pl-cta-outline:hover { border-color: #0d1b2e; }
+        .pl-cta-outline:hover { border-color: #fff; background: rgba(255,255,255,0.08); }
 
         .pl-trust-row {
           display: flex;
@@ -138,56 +135,36 @@ export function HomeHero() {
           font-family: 'Inter', sans-serif;
           font-size: 12px;
           font-weight: 500;
-          color: #8a9aaa;
+          color: rgba(255,255,255,0.75);
         }
-        .pl-trust-icon { flex-shrink: 0; color: #4fc3a1; }
+        .pl-trust-icon { flex-shrink: 0; color: rgba(255,255,255,0.9); }
 
-        /* Vials */
+        /* Vials — single big image, bouncy */
         #pl-vials {
           flex: 1;
           display: flex;
           align-items: flex-end;
-          justify-content: flex-end;
+          justify-content: center;
           align-self: stretch;
           position: relative;
-          min-height: 600px;
-          overflow: visible;
+          min-height: 560px;
+          padding-bottom: 0;
         }
-        .pl-vial {
+
+        #pl-vials-img {
           position: absolute;
           bottom: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .pl-vial img {
-          display: block;
+          right: -20px;
+          width: clamp(360px, 46vw, 620px);
           object-fit: contain;
-        }
-        .pl-vial-left  { right: 440px; }
-        .pl-vial-left img  { height: clamp(280px, 32vw, 390px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.13)); }
-        .pl-vial-center { right: 190px; bottom: 10px; z-index: 2; }
-        .pl-vial-center img { height: clamp(360px, 42vw, 520px); filter: drop-shadow(0 30px 60px rgba(0,0,0,0.18)); }
-        .pl-vial-right { right: -10px; }
-        .pl-vial-right img  { height: clamp(280px, 32vw, 390px); filter: drop-shadow(0 20px 40px rgba(0,0,0,0.13)); }
-
-        .pl-vial-name {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #0d1b2e;
-          opacity: 0.4;
-          margin-top: 10px;
+          filter: drop-shadow(0 40px 80px rgba(0,0,0,0.25));
+          animation: hero-bounce 4s ease-in-out infinite;
         }
 
-        @keyframes float-l { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
-        @keyframes float-c { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-22px)} }
-        @keyframes float-r { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        .bogo-vial-l { animation: float-l 4.2s ease-in-out 0s infinite; }
-        .bogo-vial-c { animation: float-c 3.8s ease-in-out 0.2s infinite; }
-        .bogo-vial-r { animation: float-r 4.5s ease-in-out 0.4s infinite; }
+        @keyframes hero-bounce {
+          0%,100% { transform: translateY(0px); }
+          50%      { transform: translateY(-22px); }
+        }
 
         @media (max-width: 900px) {
           #pl-hero-inner {
@@ -200,16 +177,15 @@ export function HomeHero() {
           .pl-sub { max-width: 100%; }
           #pl-vials {
             width: 100%;
-            min-height: 320px;
+            min-height: 280px;
             margin-top: 10px;
-            justify-content: center;
           }
-          .pl-vial-left  { right: auto; left: 2%; }
-          .pl-vial-left img  { height: 200px; }
-          .pl-vial-center { right: auto; left: 50%; transform: translateX(-50%); bottom: 10px; }
-          .pl-vial-center img { height: 270px; }
-          .pl-vial-right { right: 2%; left: auto; }
-          .pl-vial-right img  { height: 200px; }
+          #pl-vials-img {
+            position: relative;
+            right: auto;
+            bottom: auto;
+            width: clamp(280px, 85vw, 420px);
+          }
         }
       `}</style>
 
@@ -271,23 +247,15 @@ export function HomeHero() {
 
         </div>
 
-        {/* VIALS */}
+        {/* VIALS — single big bouncy photo */}
         <div id="pl-vials">
-          <div className={`pl-vial pl-vial-left ${VIALS[0].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[0].src} alt={VIALS[0].alt} draggable={false} />
-            <span className="pl-vial-name">BPC-157</span>
-          </div>
-          <div className={`pl-vial pl-vial-center ${VIALS[1].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[1].src} alt={VIALS[1].alt} draggable={false} />
-            <span className="pl-vial-name">GLP-3 RT</span>
-          </div>
-          <div className={`pl-vial pl-vial-right ${VIALS[2].cls}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={VIALS[2].src} alt={VIALS[2].alt} draggable={false} />
-            <span className="pl-vial-name">TB-500</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            id="pl-vials-img"
+            src="/pl-vials-hero.jpg"
+            alt="Purpose Labs TB-500, PL-TZ, BPC-157"
+            draggable={false}
+          />
         </div>
 
       </div>
