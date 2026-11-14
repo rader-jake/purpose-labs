@@ -218,25 +218,7 @@ export function ProductBuyBox({
 
       {addError && <p className="mb-3 text-xs text-red-500">{addError}</p>}
 
-      {/* BOGO callout */}
-      {productId !== 840 && (
-        <div className="mb-5 rounded-2xl px-5 py-4" style={{ background: "#f0f4ff", border: "1.5px solid #d0d9e8" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, background: "#0d1b2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/>
-                <path d="M19 8H5a2 2 0 0 1 0-4h.5"/>
-                <path d="M12 4c0-1.1.9-2 2-2s2 .9 2 2-2 4-2 4"/>
-                <path d="M12 4c0-1.1-.9-2-2-2s-2 .9-2 2 2 4 2 4"/>
-              </svg>
-            </div>
-            <div>
-              <p style={{ fontWeight: 800, fontSize: 13, color: "#0d1b2e", marginBottom: 3 }}>BUY 1, GET 1 FREE</p>
-              <p style={{ fontSize: 12, color: "#5a6a7a", lineHeight: 1.5 }}>Add an eligible product and choose your free vial. No code needed.</p>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       <div className="mb-4"><PaymentIcons /></div>
       <div className="mb-4"><BulkDiscountTiers onSelectQuantity={setQuantity} /></div>
