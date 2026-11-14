@@ -371,9 +371,6 @@ export default function CheckoutPage() {
     return <OrderConfirmation data={orderConfirmation} />;
   }
 
-  const stepLabels = ["Address", "Delivery", "Payment"];
-  const stepLabel = stepLabels[currentStep - 1];
-
   return (
     <div style={{ background: "#fff", minHeight: "100vh", fontFamily: "var(--font-montserrat, sans-serif)" }}>
       {/* ── Header ─────────────────────────────────────────────── */}
@@ -419,28 +416,7 @@ export default function CheckoutPage() {
         </div>
       </header>
 
-      {/* ── Step Progress Bar ───────────────────────────────────── */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e5e7eb" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "10px 24px 0" }}>
-          <p style={{ fontSize: 12, color: "#6b7280", fontWeight: 600, marginBottom: 8 }}>
-            Step {currentStep} of 3 · {stepLabel}
-          </p>
-          <div style={{ display: "flex", gap: 4 }}>
-            {[1, 2, 3].map((s) => (
-              <div
-                key={s}
-                style={{
-                  flex: 1,
-                  height: 3,
-                  borderRadius: 2,
-                  background: s <= currentStep ? "#3B55E6" : "#e5e7eb",
-                  transition: "background 0.3s",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
+
 
       {/* ── Main Layout ─────────────────────────────────────────── */}
       <div
@@ -701,7 +677,7 @@ export default function CheckoutPage() {
 
           {/* ── Support line ─── */}
           <p style={{ fontSize: 12, color: "#9ca3af", textAlign: "center", marginTop: 8 }}>
-            Questions? <a href="mailto:support@purposelabs.shop" style={{ color: "#6b7280" }}>support@purposelabs.shop</a>
+            Questions? <a href="mailto:info@purposelabs.shop" style={{ color: "#6b7280" }}>info@purposelabs.shop</a>
           </p>
         </div>
 
@@ -922,19 +898,15 @@ function StepCard({
   onEdit?: () => void;
   summary?: string;
 }) {
-  const isActive = stepNum === currentStep;
   const isCompleted = stepNum < currentStep;
-  const isLocked = stepNum > currentStep;
 
   return (
     <div
       style={{
-        border: `1.5px solid ${isActive ? "#3B55E6" : "#e5e7eb"}`,
+        border: "1.5px solid #e5e7eb",
         borderRadius: 12,
         overflow: "hidden",
         background: "#fff",
-        transition: "border-color 0.3s",
-        opacity: isLocked ? 0.5 : 1,
       }}
     >
       {/* Card header */}
@@ -944,8 +916,8 @@ function StepCard({
           alignItems: "center",
           justifyContent: "space-between",
           padding: "14px 18px",
-          borderBottom: isActive ? "1px solid #e5e7eb" : "none",
-          background: isActive ? "#fff" : "#fafafa",
+          borderBottom: "1px solid #e5e7eb",
+          background: "#fff",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -954,7 +926,7 @@ function StepCard({
               width: 26,
               height: 26,
               borderRadius: "50%",
-              background: isCompleted ? "#3B55E6" : isActive ? "#1B2A4A" : "#e5e7eb",
+              background: isCompleted ? "#3B55E6" : "#1B2A4A",
               color: "#fff",
               display: "flex",
               alignItems: "center",
@@ -990,8 +962,8 @@ function StepCard({
           </button>
         )}
       </div>
-      {/* Card body — only visible when active */}
-      {isActive && <div style={{ padding: "16px 18px" }}>{children}</div>}
+      {/* Card body — always visible */}
+      <div style={{ padding: "16px 18px" }}>{children}</div>
     </div>
   );
 }
