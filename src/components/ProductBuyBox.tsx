@@ -122,189 +122,152 @@ export function ProductBuyBox({
   }
 
   return (
-    <div style={{ fontFamily: "var(--pl-font-body)" }}>
+    <div style={{ fontFamily: "var(--pl-font-body)", color: "#0d1b2e" }}>
+
+      {/* Product name */}
       <h1
-        className="mb-1 text-3xl sm:mb-2 sm:text-4xl lg:text-5xl"
+        className="mb-2"
         style={{
-          color: "var(--pl-ivory)",
-          fontFamily: "var(--pl-font-display)",
-          fontWeight: 500,
+          fontFamily: "var(--pl-font-display, 'Barlow Condensed', sans-serif)",
+          fontWeight: 900,
+          fontSize: "clamp(1.8rem, 4vw, 2.6rem)",
+          lineHeight: 1.1,
+          color: "#0d1b2e",
         }}
       >
         {name}
       </h1>
 
-      <div className="mb-3 flex items-baseline gap-3 sm:mb-6">
+      {/* Price */}
+      <div className="mb-1 flex items-baseline gap-3">
         {hasDiscount && (
-          <span
-            className="text-lg line-through opacity-50"
-            style={{ color: "var(--pl-ivory)" }}
-          >
+          <span className="text-lg line-through opacity-40" style={{ color: "#0d1b2e" }}>
             ${displayedRegularPrice}
           </span>
         )}
-        <p
-          className="text-xl font-semibold sm:text-2xl"
-          style={{ color: hasDiscount ? "#4ade80" : "var(--pl-ivory)" }}
-        >
+        <p className="text-3xl font-black" style={{ color: "#0d1b2e" }}>
           ${displayedSalePrice || effectivePrice}
         </p>
         {hasDiscount && (
-          <span
-            className="rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide"
-            style={{ backgroundColor: "#1B2A4A", color: "#ffffff" }}
-          >
+          <span className="rounded-full px-2 py-0.5 text-xs font-bold uppercase" style={{ background: "#0d1b2e", color: "#fff" }}>
             SALE
           </span>
         )}
       </div>
 
-      {/* BOGO per-vial price hint */}
+      {/* Per-vial BOGO hint */}
       {productId !== 840 && parseFloat(displayedSalePrice || effectivePrice || "0") > 0 && (
-        <p className="mb-1 text-sm font-semibold" style={{ color: "var(--pl-ivory)", marginTop: "-8px" }}>
-          = ${(parseFloat(displayedSalePrice || effectivePrice || "0") / 2).toFixed(2)}/vial with BOGO deal
+        <p className="mb-4 text-sm font-semibold" style={{ color: "#356ba9" }}>
+          = ${(parseFloat(displayedSalePrice || effectivePrice || "0") / 2).toFixed(2)}/vial with BOGO
         </p>
       )}
 
-      {/* BOGO Callout — Sunday style (hidden for bundle products like 840) */}
-      {productId !== 840 && <div
-        className="mb-4 sm:mb-6 rounded-xl px-5 py-4"
-        style={{
-          background: "#F8F6F1",
-          border: "1px solid #E0D9CE",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-            background: "#EAE6DF", display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1B2A4A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="8" width="18" height="13" rx="2" />
-              <path d="M12 8v13" />
-              <path d="M19 8H5a2 2 0 0 1 0-4h.5" />
-              <path d="M12 4c0-1.1.9-2 2-2s2 .9 2 2-2 4-2 4" />
-              <path d="M12 4c0-1.1-.9-2-2-2s-2 .9-2 2 2 4 2 4" />
-            </svg>
-          </div>
-          <div>
-            <p style={{ fontWeight: 800, fontSize: 13, color: "#1B2A4A", letterSpacing: "0.02em", marginBottom: 4, fontFamily: "var(--pl-font-body)" }}>
-              BUY 1, GET 1 FREE
-            </p>
-            <p style={{ fontSize: 12, color: "#6B6258", lineHeight: 1.5, fontFamily: "var(--pl-font-body)" }}>
-              Add an eligible product and choose your free vial of equal or lesser value.
-            </p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#1B2A4A", marginTop: 4, fontFamily: "var(--pl-font-body)" }}>
-              No code needed. Choose your free vial in the cart.
-            </p>
-          </div>
-        </div>
-      </div>}
-
+      {/* Size pills */}
       {hasVariations && (
-        <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-6">
-          {sortedVariations.map((variation) => {
-            const label = variation.attributes[0]?.option ?? "Option";
-            const selected = variation.id === selectedVariationId;
-            return (
-              <button
-                key={variation.id}
-                onClick={() => { setSelectedVariationId(variation.id); onVariantChange?.(variation.id); }}
-                aria-pressed={selected}
-                className="rounded-lg border px-3 py-3 text-center text-xs font-medium transition-colors duration-200 hover:border-current"
-                style={{
-                  borderColor: selected ? "var(--pl-ivory)" : "rgba(255,255,255,0.25)",
-                  backgroundColor: selected ? "var(--pl-ivory)" : "transparent",
-                  color: selected ? "var(--pl-navy)" : "var(--pl-ivory)",
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
+        <div className="mb-5">
+          <p className="mb-2 text-xs font-bold uppercase tracking-widest" style={{ color: "#5a6a7a" }}>Size (MG)</p>
+          <div className="flex flex-wrap gap-2">
+            {sortedVariations.map((variation) => {
+              const label = variation.attributes[0]?.option ?? "Option";
+              const selected = variation.id === selectedVariationId;
+              return (
+                <button
+                  key={variation.id}
+                  onClick={() => { setSelectedVariationId(variation.id); onVariantChange?.(variation.id); }}
+                  aria-pressed={selected}
+                  className="rounded-full px-5 py-2 text-sm font-bold border transition-all duration-150"
+                  style={{
+                    background: selected ? "#0d1b2e" : "#fff",
+                    color: selected ? "#fff" : "#0d1b2e",
+                    borderColor: selected ? "#0d1b2e" : "#d0d9e8",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
-      <div className="mb-3 sm:mb-6">
-        <BulkDiscountTiers onSelectQuantity={setQuantity} />
-      </div>
-
-      {/* Dosage pill */}
-      {(() => {
-        const dosageMatch = name.match(/(\d+\s?mg)/i);
-        const dosage = dosageMatch ? dosageMatch[1].toUpperCase() : null;
-        return dosage ? (
-          <div className="mb-4">
-            <span
-              className="inline-block rounded-full px-4 py-1.5 text-xs font-black uppercase tracking-widest"
-              style={{ background: "rgba(255,255,255,0.12)", color: "var(--pl-ivory)", border: "1px solid rgba(255,255,255,0.2)" }}
-            >
-              {dosage}
-            </span>
-          </div>
-        ) : null;
-      })()}
-
-      {/* Qty stepper + Add to Cart */}
-      <div className="mb-3 flex items-center gap-3 sm:mb-5">
-        {/* − qty + stepper */}
+      {/* Qty + Add to Cart + COA — all in one row */}
+      <div className="mb-4 flex items-center gap-2">
+        {/* Qty stepper */}
         <div
-          className="flex items-center rounded-xl border overflow-hidden flex-shrink-0"
-          style={{ borderColor: "rgba(255,255,255,0.25)" }}
+          className="flex items-center rounded-full border overflow-hidden flex-shrink-0"
+          style={{ borderColor: "#d0d9e8", background: "#fff" }}
         >
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="w-11 h-12 flex items-center justify-center text-xl font-bold hover:bg-white/10 transition-colors"
-            style={{ color: "var(--pl-ivory)" }}
-            aria-label="Decrease quantity"
-          >
-            −
-          </button>
-          <span
-            className="w-9 text-center text-sm font-bold select-none"
-            style={{ color: "var(--pl-ivory)" }}
-          >
+            className="w-10 h-12 flex items-center justify-center text-xl font-bold hover:bg-gray-50 transition-colors"
+            style={{ color: "#0d1b2e" }}
+          >−</button>
+          <span className="w-8 text-center text-sm font-bold select-none" style={{ color: "#0d1b2e" }}>
             {quantity}
           </span>
           <button
             onClick={() => setQuantity((q) => q + 1)}
-            className="w-11 h-12 flex items-center justify-center text-xl font-bold hover:bg-white/10 transition-colors"
-            style={{ color: "var(--pl-ivory)" }}
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
+            className="w-10 h-12 flex items-center justify-center text-xl font-bold hover:bg-gray-50 transition-colors"
+            style={{ color: "#0d1b2e" }}
+          >+</button>
         </div>
 
-        {/* Full-width Add to Cart */}
+        {/* Add to Cart */}
         <button
           onClick={handleAddToCart}
           disabled={effectiveOutOfStock || isAdding}
-          className="flex-1 h-12 flex items-center justify-center gap-2 rounded-xl text-sm font-black transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ backgroundColor: "var(--pl-ivory)", color: "var(--pl-navy)" }}
+          className="flex-1 h-12 flex items-center justify-center gap-2 rounded-full text-sm font-black transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{ background: "#0d1b2e", color: "#fff" }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
-          </svg>
-          {effectiveOutOfStock ? "Out of stock" : isAdding ? "Adding…" : "Add to Cart"}
+          {effectiveOutOfStock ? "Out of Stock" : isAdding ? "Adding…" : "Add to Cart"}
         </button>
+
+        {/* COA button */}
+        <div style={{ ["--pl-navy" as string]: "#0d1b2e" }}>
+          <CoaButton productSlug={productSlug} compact />
+        </div>
       </div>
 
       {addError && (
-        <p className="mb-3 text-xs" style={{ color: "var(--pl-ivory)" }}>
-          {addError}
-        </p>
+        <p className="mb-3 text-xs text-red-500">{addError}</p>
       )}
 
-      <div className="mb-3 sm:mb-6">
+      {/* BOGO callout */}
+      {productId !== 840 && (
+        <div
+          className="mb-4 rounded-2xl px-5 py-4"
+          style={{ background: "#eef2f8", border: "1.5px solid #d0d9e8" }}
+        >
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+              background: "#0d1b2e", display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/>
+                <path d="M19 8H5a2 2 0 0 1 0-4h.5"/>
+                <path d="M12 4c0-1.1.9-2 2-2s2 .9 2 2-2 4-2 4"/>
+                <path d="M12 4c0-1.1-.9-2-2-2s-2 .9-2 2 2 4 2 4"/>
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontWeight: 800, fontSize: 13, color: "#0d1b2e", marginBottom: 3 }}>BUY 1, GET 1 FREE</p>
+              <p style={{ fontSize: 12, color: "#5a6a7a", lineHeight: 1.5 }}>
+                Add an eligible product and choose your free vial of equal or lesser value. No code needed.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-4">
         <PaymentIcons />
       </div>
 
-      {/* CoaButton was styled for the light page — override its color
-          variable locally so it reads correctly against this dark hero */}
-      <div style={{ ["--pl-navy" as string]: "var(--pl-ivory)" }}>
-        <CoaButton productSlug={productSlug} />
+      <div className="mb-4">
+        <BulkDiscountTiers onSelectQuantity={setQuantity} />
       </div>
+
     </div>
   );
 }
