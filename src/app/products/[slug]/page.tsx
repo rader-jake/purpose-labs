@@ -36,83 +36,139 @@ export default async function ProductPage({
   // fetch — skip the extra request for the other 21 simple products.
   const variations = product.type === "variable" ? await getProductVariations(product.id) : [];
 
-  return (
-    <main>
-      {/* Hero: gradient (not solid) navy, fading to transparent only at
-          the very edges so it blends into the page rather than reading
-          as a hard box. The original stops (80% 80% ellipse, transparent
-          from 75%) faded out well before reaching the buy box column —
-          confirmed by screenshot, not just eyeballing the CSS — leaving
-          the ivory CTA button and tier selectors low-contrast against a
-          washed-out background. Holding solid navy out to 65% of a
-          full-size ellipse keeps that whole column legible while still
-          tapering at the corners for the "open" feel. */}
-      <section
-        className="relative flex min-h-[calc(100vh-92px-34px)] items-center overflow-hidden px-6 py-6 sm:px-10 sm:py-10 lg:py-16"
-        style={{
-          background:
-            "radial-gradient(ellipse 100% 100% at 50% 45%, var(--pl-navy) 0%, var(--pl-navy) 65%, transparent 100%)",
-        }}
-      >
-        <ParticleBackground count={70} />
+  const inStock = product.stock_status !== "outofstock";
 
-        <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-6 lg:grid-cols-2 lg:gap-12">
-          {slug.includes("ghk-cu") && !slug.includes("stack") && !slug.includes("glow") && !slug.includes("bundle") ? (
-            <GhkCuVialViewer
-              productId={product.id}
-              productSlug={product.slug}
-              name={product.name}
-              price={product.price}
-              regularPrice={product.regular_price}
-              salePrice={product.sale_price}
-              outOfStock={product.stock_status === "outofstock"}
-              variations={variations}
-            />
-          ) : (
-            <>
-              <div>
-                {(() => {
-                  const labelMap: Record<string, string> = {
-                    "wolverine-stack": "/3d/label-wolverine.png",
-                    "wolverine": "/3d/label-wolverine.png",
-                    "gluta": "/3d/label-glutathione.png",
-                    "l-carnitine": "/3d/label-lcarnitine.png",
-                    "nad": "/3d/label-nad.png",
-                    "reconstitution": "/3d/label-bacwater.png",
-                    "glp-3-10mg": "/3d/label-glp3rt.png",
-                    "glp-3rt": "/3d/label-glp3rt.png",
-                    "pl-rt": "/3d/label-glp3rt.png",
-                    "purpose-labs-3rt": "/3d/label-glp3rt.png",
-                    "bpc-157": "/3d/label-bpc157.png",
-                    "bpc157": "/3d/label-bpc157.png",
-                    "tb-500": "/3d/label-tb500.png",
-                    "tb500": "/3d/label-tb500.png",
-                    "cjc-1295": "/3d/label-cjc1295.png",
-                    "cjc1295": "/3d/label-cjc1295.png",
-                    "mt-2": "/3d/label-mt2.png",
-                    "melanotan": "/3d/label-mt2.png",
-                    "semax": "/3d/label-semax.png",
-                    "selank": "/3d/label-selank.png",
-                    "tirzepatide": "/3d/label-tirzepatide.png",
-                    "pl-tz": "/3d/label-tirzepatide.png",
-                    "igf-1": "/3d/label-igf1lr3.png",
-                    "igf1": "/3d/label-igf1lr3.png",
-                    "tesamorelin": "/3d/label-tesamorelin.png",
-                    "tesa": "/3d/label-tesamorelin.png",
-                    "pl-tesa": "/3d/label-tesamorelin.png",
-                    "klow": "/3d/label-klow.png",
-                    "mots-c": "/3d/label-motsc.png",
-                    "motsc": "/3d/label-motsc.png",
-                  };
-                  const isSingleVial = !slug.includes("spray") && !slug.includes("dispersal") && !slug.includes("reconstitution") && !slug.includes("bundle") && !slug.includes("glow") && (!slug.includes("stack") || slug.includes("wolverine"));
-                  const labelSrc = isSingleVial ? Object.entries(labelMap).find(([key]) => slug.includes(key))?.[1] : undefined;
-                  const isLiquid = slug.includes("l-carnitine") || slug.includes("reconstitution") ;
-                  const modelSrc = slug.includes("klow") ? "/3d/vial_powder_blue.glb" : isLiquid ? "/3d/vial_new.glb" : "/3d/vial_powder_white.glb";
-                  if (labelSrc) return <ProductVialViewer labelSrc={labelSrc} modelSrc={modelSrc} />;
-                  if (image) return <ProductTilt imageSrc={image.src} imageAlt={image.alt || product.name} />;
-                  return null;
-                })()}
+  return (
+    <main style={{ background: "#f2f4f7", minHeight: "100vh" }}>
+      {/* Product Hero — NextGen style */}
+      <section className="w-full px-4 py-8 sm:px-8 sm:py-12">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 items-start">
+
+            {/* LEFT: Image card */}
+            <div
+              className="relative w-full overflow-hidden"
+              style={{
+                borderRadius: 24,
+                background: "#356ba9",
+                aspectRatio: "1 / 1",
+              }}
+            >
+              {image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={image.src}
+                  alt={image.alt || product.name}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              )}
+
+              {/* Purity badge — top left */}
+              <div
+                className="absolute top-4 left-4"
+                style={{
+                  background: "rgba(13,27,46,0.75)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: 100,
+                  padding: "6px 14px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: "#fff",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  fontFamily: "var(--pl-font-body)",
+                }}
+              >
+                ≥99% (HPLC Verified) Purity
               </div>
+
+              {/* In Stock badge — top right */}
+              <div
+                className="absolute top-4 right-4"
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  borderRadius: 100,
+                  padding: "6px 14px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: "#fff",
+                  letterSpacing: "0.06em",
+                  textTransform: "uppercase",
+                  fontFamily: "var(--pl-font-body)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <span style={{ width: 7, height: 7, borderRadius: "50%", background: inStock ? "#4ade80" : "#f87171", display: "inline-block", flexShrink: 0 }} />
+                {inStock ? "In Stock" : "Out of Stock"}
+              </div>
+            </div>
+
+            {/* RIGHT: Info + Buy Box */}
+            <div style={{ fontFamily: "var(--pl-font-body)" }}>
+
+              {/* Category eyebrow */}
+              <p style={{
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#356ba9",
+                marginBottom: 10,
+              }}>
+                Peptides
+              </p>
+
+              {/* Product name */}
+              <h1 style={{
+                fontFamily: "var(--pl-font-display, 'Barlow Condensed', sans-serif)",
+                fontSize: "clamp(2rem, 5vw, 3rem)",
+                fontWeight: 900,
+                color: "#0d1b2e",
+                lineHeight: 1.1,
+                marginBottom: 16,
+              }}>
+                {product.name}
+              </h1>
+
+              {/* Short description */}
+              {product.short_description && (
+                <div
+                  style={{ color: "#5a6a7a", fontSize: 15, lineHeight: 1.7, marginBottom: 20 }}
+                  dangerouslySetInnerHTML={{ __html: product.short_description }}
+                />
+              )}
+
+              {/* Trust chips */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 28 }}>
+                {["≥99% HPLC Purity", "Lot-linked COA", "Research use only"].map((chip) => (
+                  <div key={chip} style={{
+                    display: "flex", alignItems: "center", gap: 7,
+                    border: "1.5px solid #d0d9e8",
+                    borderRadius: 100,
+                    padding: "6px 14px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "#0d1b2e",
+                    background: "#fff",
+                  }}>
+                    <svg width="13" height="13" fill="none" stroke="#356ba9" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    {chip}
+                  </div>
+                ))}
+              </div>
+
+              {/* Buy Box */}
               <ProductBuyBox
                 productId={product.id}
                 productSlug={product.slug}
@@ -120,11 +176,12 @@ export default async function ProductPage({
                 price={product.price}
                 regularPrice={product.regular_price}
                 salePrice={product.sale_price}
-                outOfStock={product.stock_status === "outofstock"}
+                outOfStock={!inStock}
                 variations={variations}
               />
-            </>
-          )}
+            </div>
+
+          </div>
         </div>
       </section>
 
