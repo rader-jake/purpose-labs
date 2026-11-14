@@ -73,7 +73,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
       <Link
         href={`/products/${product.slug}`}
         className="relative flex items-center justify-center overflow-hidden"
-        style={{ background: "#DDE3EE", aspectRatio: "1/1" }}
+        style={{ background: "#FFFFFF", aspectRatio: "1/1" }}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
