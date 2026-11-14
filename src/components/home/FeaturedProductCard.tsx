@@ -20,6 +20,25 @@ const DOSAGE_OVERRIDES: Record<string, string> = {
   "pink-korean-gluta-1200mg": "1200MG",
 };
 
+// Per-product card background colors (navy accent tones)
+const CARD_BG: Record<string, string> = {
+  "bpc-157-10mg": "#1B2A4A",
+  "bpc157": "#1B2A4A",
+  "tb-500-10mg": "#1B2A4A",
+  "tb500": "#1B2A4A",
+  "pl-rt": "#243352",
+  "pl-tz": "#1B2A4A",
+  "igf-1-lr3-1mg": "#1B2A4A",
+  "default": "#1B2A4A",
+};
+
+function getCardBg(slug: string): string {
+  for (const key of Object.keys(CARD_BG)) {
+    if (slug.includes(key)) return CARD_BG[key];
+  }
+  return CARD_BG.default;
+}
+
 function extractDosage(name: string, slug: string): string | null {
   const override = DOSAGE_OVERRIDES[slug];
   if (override) return override;
@@ -50,6 +69,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
     : null;
 
   const dosage = isVariable ? null : extractDosage(product.name, product.slug);
+  const cardBg = getCardBg(product.slug);
 
   async function handleAddToCart() {
     setIsAdding(true);
@@ -67,37 +87,37 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
   }
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-[rgba(0,0,0,0.07)] hover:shadow-[0_8px_32px_rgba(20,39,78,0.10)] transition-all duration-300">
+    <div className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-[rgba(0,0,0,0.07)] hover:shadow-[0_8px_32px_rgba(20,39,78,0.13)] transition-all duration-300">
 
-      {/* Image */}
+      {/* Image — colored bg, large vial */}
       <Link
         href={`/products/${product.slug}`}
         className="relative flex items-center justify-center overflow-hidden"
-        style={{ background: "#FFFFFF", aspectRatio: "1/1" }}
+        style={{ background: cardBg, aspectRatio: "1/1" }}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image.src}
             alt={image.alt || product.name}
-            className="w-4/5 h-4/5 object-contain select-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
+            className="w-[85%] h-[85%] object-contain select-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="text-xs text-gray-400">No Image</div>
+          <div className="text-xs text-white opacity-40">No Image</div>
         )}
       </Link>
 
       {/* Info */}
       <div className="flex flex-col p-4 gap-3">
 
-        {/* 1. Product name — fixed 2-line height so cards stay aligned */}
+        {/* Product name */}
         <h3 className="text-base font-bold leading-tight line-clamp-2" style={{ color: "#0D1A30", minHeight: "2.5rem" }}>
           <Link href={`/products/${product.slug}`} className="hover:opacity-70 transition-opacity">
             {product.name}
           </Link>
         </h3>
 
-        {/* 2. Variant size pills (variable) OR dosage pill + qty stepper (simple) */}
+        {/* Dosage pill / variant pills */}
         {isVariable ? (
           <div className="flex flex-wrap gap-2">
             {variations.map((v) => {
@@ -107,7 +127,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
                 <button
                   key={v.id}
                   onClick={() => setSelectedVariation(v)}
-                  className="rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide border transition-all duration-150"
+                  className="rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-wide border transition-all duration-150"
                   style={{
                     background: isSelected ? "#0D1A30" : "transparent",
                     color: isSelected ? "#fff" : "#0D1A30",
@@ -119,47 +139,29 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
               );
             })}
           </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            {dosage ? (
-              <span className="rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white" style={{ background: "#0D1A30" }}>
-                {dosage}
-              </span>
-            ) : <span />}
-
-            {/* +/- qty stepper on the right */}
-            <div className="flex items-center rounded-lg overflow-hidden border" style={{ borderColor: "rgba(0,0,0,0.12)" }}>
-              <button
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                disabled={outOfStock || quantity <= 1}
-                className="w-9 h-9 flex items-center justify-center text-lg font-bold disabled:opacity-30 hover:bg-gray-100 transition-colors"
-                style={{ color: "#0D1A30" }}
-              >−</button>
-              <span className="w-8 text-center text-sm font-bold select-none" style={{ color: "#0D1A30" }}>
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(q => q + 1)}
-                disabled={outOfStock}
-                className="w-9 h-9 flex items-center justify-center text-lg font-bold disabled:opacity-30 hover:bg-gray-100 transition-colors"
-                style={{ color: "#0D1A30" }}
-              >+</button>
-            </div>
+        ) : dosage ? (
+          <div>
+            <span
+              className="inline-block rounded-full px-5 py-2 text-[13px] font-bold uppercase tracking-wide text-white"
+              style={{ background: "#0D1A30" }}
+            >
+              {dosage}
+            </span>
           </div>
-        )}
+        ) : null}
 
-        {/* 3. Price */}
+        {/* Price */}
         {displayPrice && (
-          <p className="text-xl font-bold" style={{ color: "#0D1A30" }}>
+          <p className="text-2xl font-bold" style={{ color: "#0D1A30" }}>
             {displayPrice}
           </p>
         )}
 
-        {/* 4. Add to Cart */}
+        {/* Add to Cart — pill shaped */}
         <button
           onClick={handleAddToCart}
           disabled={outOfStock || isAdding}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-black text-white transition-opacity hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex h-12 w-full items-center justify-center gap-2 rounded-full text-sm font-black text-white transition-opacity hover:opacity-85 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: "#0D1A30" }}
         >
           <CartIcon />
