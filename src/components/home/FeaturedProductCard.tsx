@@ -99,7 +99,7 @@ export function FeaturedProductCard({ product, variations = [] }: FeaturedProduc
           <img
             src={image.src}
             alt={image.alt || product.name}
-            className="w-[85%] h-[85%] object-contain select-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover select-none pointer-events-none transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="text-xs text-white opacity-40">No Image</div>
