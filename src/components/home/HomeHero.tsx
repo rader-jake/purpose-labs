@@ -263,7 +263,7 @@ export function HomeHero() {
               position: "absolute",
               bottom: 0,
               right: "-20px",
-              width: "clamp(380px, 48vw, 640px)",
+              width: "clamp(460px, 58vw, 780px)",
               objectFit: "contain",
               filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.12))",
             }}
