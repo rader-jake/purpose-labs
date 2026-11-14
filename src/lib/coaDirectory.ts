@@ -145,7 +145,7 @@ export const COA_DIRECTORY: CoaEntry[] = [
     purity: "99.7%",
     method: "FTIR + HPLC",
     storage: "R.T.",
-    image: "/products/mots-c-10mg.png",
+    image: "/products/mots-c-10mg-render.jpg",
     docs: [{ label: "View COA", url: "/coas/MOTS_COA.jpg" }],
   },
   {
