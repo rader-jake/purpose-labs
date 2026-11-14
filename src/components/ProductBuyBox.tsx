@@ -124,15 +124,6 @@ export function ProductBuyBox({
   return (
     <div style={{ fontFamily: "var(--pl-font-body)", color: "#0d1b2e" }}>
 
-      {/* Name */}
-      <h1
-        className="mb-1"
-        style={{ fontFamily: "var(--pl-font-display)", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.4rem)", lineHeight: 1.1, color: "#0d1b2e" }}
-      >
-        {name}
-      </h1>
-      <p className="mb-4 text-sm" style={{ color: "#6b7280" }}>For research use only. Not for human or veterinary consumption.</p>
-
       {/* Price */}
       <div className="mb-1 flex items-baseline gap-3">
         {hasDiscount && (
