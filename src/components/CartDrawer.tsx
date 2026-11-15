@@ -454,14 +454,14 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
 
   const ItemImage = () => image ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={image.src} alt={image.alt || item.name} className="h-16 w-16 object-contain" />
+    <img src={image.src} alt={image.alt || item.name} className="h-full w-full object-cover" />
   ) : null;
 
   return (
     <>
       {/* Row 1: FREE unit */}
       <li className="flex gap-4">
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "var(--pl-ivory-soft)" }}>
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "#fff", overflow: "hidden" }}>
           <ItemImage />
         </div>
         <div className="flex flex-1 flex-col gap-1">
@@ -490,7 +490,7 @@ function BacWaterLineItems({ item }: { item: CartItem }) {
       {/* Row 2: Paid units (only shown if qty > 1) */}
       {paidQty > 0 && (
         <li className="flex gap-4">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "var(--pl-ivory-soft)" }}>
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded" style={{ backgroundColor: "#fff", overflow: "hidden" }}>
             <ItemImage />
           </div>
           <div className="flex flex-1 flex-col gap-1">
@@ -559,11 +559,11 @@ function CartLineItem({ item }: { item: CartItem }) {
     <li className="flex gap-4">
       <div
         className="flex h-20 w-20 shrink-0 items-center justify-center rounded"
-        style={{ backgroundColor: "var(--pl-ivory-soft)" }}
+        style={{ backgroundColor: "#fff", overflow: "hidden" }}
       >
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image.src} alt={image.alt || item.name} className="h-16 w-16 object-contain" />
+          <img src={image.src} alt={image.alt || item.name} className="h-full w-full object-cover" />
         ) : null}
       </div>
 
