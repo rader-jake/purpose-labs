@@ -1,11 +1,5 @@
 // src/app/contact/page.tsx
 
-const SOCIALS = [
-  { label: "Instagram", href: "https://www.instagram.com/purposelabs.shop/" },
-  { label: "TikTok", href: "https://www.tiktok.com/@purposelabs.shop" },
-  { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61587139832831" },
-];
-
 export default function ContactPage() {
   return (
     <main
@@ -53,29 +47,6 @@ export default function ContactPage() {
         <p className="mt-1 text-xs" style={{ color: "var(--pl-muted)" }}>
           Response within 24 hours
         </p>
-      </div>
-
-      <div>
-        <p
-          className="mb-4 text-xs font-semibold uppercase tracking-[0.1em]"
-          style={{ color: "var(--pl-navy)" }}
-        >
-          Social
-        </p>
-        <div className="flex justify-center gap-6">
-          {SOCIALS.map((social) => (
-            <a
-              key={social.label}
-              href={social.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm transition-opacity duration-200 hover:opacity-70"
-              style={{ color: "var(--pl-slate)" }}
-            >
-              {social.label}
-            </a>
-          ))}
-        </div>
       </div>
     </main>
   );
