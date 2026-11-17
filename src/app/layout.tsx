@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat, Anton, Nunito, Barlow_Condensed } from "next/font/google";
+import { Cormorant_Garamond, Montserrat, Anton, Nunito, Barlow_Condensed, Inter } from "next/font/google";
 import { ShellWrapper } from "@/components/ShellWrapper";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartProvider } from "@/lib/cart/CartContext";
@@ -51,6 +51,12 @@ const montserrat = Montserrat({
   variable: "--font-body",
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
+});
+
 export const metadata: Metadata = {
   title: "Purpose Labs | Research Peptides",
   description: "Research-grade peptides, third-party tested.",
@@ -66,7 +72,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${montserrat.variable} ${anton.variable} ${nunito.variable} ${barlowCondensed.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${montserrat.variable} ${anton.variable} ${nunito.variable} ${barlowCondensed.variable} ${inter.variable} h-full antialiased`}
       // The no-flash script below adds a "pl-age-ok" class to this
       // exact element before React hydrates, for already-verified
       // visitors — an intentional, expected mismatch against the

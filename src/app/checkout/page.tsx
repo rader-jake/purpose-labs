@@ -369,7 +369,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div style={{ background: "#fff", minHeight: "100vh", fontFamily: "var(--font-montserrat, sans-serif)" }}>
+    <div style={{ background: "#F9FAFB", minHeight: "100vh", fontFamily: "Inter, sans-serif" }}>
       {/* ── Header ─────────────────────────────────────────────── */}
       <header
         style={{
@@ -860,13 +860,14 @@ function StepCard({
               width: 26,
               height: 26,
               borderRadius: "50%",
-              background: isCompleted ? "#3B55E6" : "#1B2A4A",
-              color: "#fff",
+              background: isCompleted ? "#E8F5E9" : "#F3F4F6",
+              color: isCompleted ? "#16a34a" : "#6B7280",
+              border: "1.5px solid " + (isCompleted ? "#86efac" : "#E5E7EB"),
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               fontSize: 12,
-              fontWeight: 700,
+              fontWeight: 600,
               flexShrink: 0,
             }}
           >
@@ -875,13 +876,13 @@ function StepCard({
           <span
             style={{
               fontSize: 15,
-              fontWeight: 700,
-              color: "#1B2A4A",
-              fontFamily: "var(--font-barlow, sans-serif)",
-              letterSpacing: "0.04em",
+              fontWeight: 600,
+              color: "#111827",
+              fontFamily: "Inter, sans-serif",
+              letterSpacing: 0,
             }}
           >
-            {title.toUpperCase()}
+            {title}
           </span>
           {isCompleted && summary && (
             <span style={{ fontSize: 12, color: "#6b7280", marginLeft: 4 }}>{summary}</span>
