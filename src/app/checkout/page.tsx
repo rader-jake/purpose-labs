@@ -725,8 +725,8 @@ export default function CheckoutPage() {
                   </div>
                 ))}
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                  <span style={{ color: "#6b7280" }}>Shipping</span>
-                  <span style={{ color: "#1B2A4A", fontWeight: 700 }}>FREE</span>
+                  <span style={{ color: "#6b7280" }}>Shipping — <span style={{ color: "#16a34a", fontWeight: 600 }}>FedEx 2-Day</span></span>
+                  <span style={{ color: "#16a34a", fontWeight: 700 }}>FREE</span>
                 </div>
                 {shipmentProtection && (
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
