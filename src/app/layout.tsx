@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Montserrat, Anton, Nunito, Barlow_Condensed, Inter } from "next/font/google";
+import { Cormorant_Garamond } from "next/font/google";
+import { Montserrat } from "next/font/google";
+import { Anton } from "next/font/google";
+import { Nunito } from "next/font/google";
+import { Barlow_Condensed } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ShellWrapper } from "@/components/ShellWrapper";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartProvider } from "@/lib/cart/CartContext";
