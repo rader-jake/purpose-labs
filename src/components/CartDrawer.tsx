@@ -288,7 +288,6 @@ function FreeShippingProgress({
     return (
       <div className="mx-6 mt-4 rounded-2xl px-5 py-4" style={{ background: "linear-gradient(135deg, #0d1b2e 0%, #1b3a6b 100%)" }}>
         <div className="flex items-center gap-2 mb-1">
-          <span style={{ fontSize: 18 }}>🚀</span>
           <p className="text-sm font-black uppercase tracking-wide" style={{ color: "#fff", fontFamily: "var(--pl-font-body)", letterSpacing: "0.05em" }}>
             FREE 2-Day FedEx Unlocked!
           </p>
