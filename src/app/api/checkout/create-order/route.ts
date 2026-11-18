@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendTikTokEvent } from "@/lib/tiktok-events";
-import { cookies } from "next/headers";
 
 const WP_BASE = "https://joshuar120.sg-host.com";
 const WC_KEY = "ck_a1f40e9cce84ad42533a358083d6b819b670d7c9";
@@ -26,6 +25,29 @@ async function sendTelegramAlert(message: string) {
   } catch (e) {
     console.error("[telegram-alert] failed:", e);
   }
+}
+
+// WooCommerce fires the order emails, Affiliatly tracking, stock reduction and
+// the Meta/TikTok purchase events the moment an order is marked paid. The
+// "BOGO Auto-Discount (Order Hook)" snippet zeroes the free line on
+// woocommerce_rest_insert_shop_order_object, which fires AFTER the order has
+// been saved and (with set_paid) already marked paid — so everything above
+// saw the un-zeroed, doubled order. Creating the order as "pending" lets the
+// snippet zero the free line first; the second call then marks it paid.
+async function markOrderPaid(orderId: number, transactionId: string, retries = 3): Promise<{ ok: boolean; data: Record<string, unknown> }> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const res = await fetch(`${WP_BASE}/wp-json/wc/v3/orders/${orderId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Accept: "application/json", Authorization: AUTH },
+      body: JSON.stringify({ set_paid: true, transaction_id: transactionId }),
+      cache: "no-store",
+    });
+    const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (res.ok) return { ok: true, data };
+    console.error(`[create-order] mark-paid error (attempt ${attempt}/${retries}) for order ${orderId}:`, data);
+    if (attempt < retries) await new Promise((r) => setTimeout(r, 1000 * attempt));
+  }
+  return { ok: false, data: {} };
 }
 
 async function createWCOrder(orderPayload: Record<string, unknown>, retries = 2): Promise<{ ok: boolean; data: Record<string, unknown> }> {
@@ -58,11 +80,12 @@ export async function POST(request: NextRequest) {
       line_items?: Array<{ product_id: number; quantity: number; variation_id?: number }>;
       coupon_lines?: string[];
       amount_minor?: number;
+      expected_items_minor?: number;
       currency?: string;
       aff_id?: string;
     };
 
-    const { payment_intent_id, billing_address, shipping_address, line_items, coupon_lines, amount_minor, aff_id } = body;
+    const { payment_intent_id, billing_address, shipping_address, line_items, coupon_lines, amount_minor, expected_items_minor, aff_id } = body;
 
     if (!payment_intent_id) {
       return NextResponse.json({ message: "payment_intent_id is required" }, { status: 400 });
@@ -72,9 +95,10 @@ export async function POST(request: NextRequest) {
     const orderPayload: Record<string, unknown> = {
       payment_method: "stripe",
       payment_method_title: "Credit / Debit Card",
-      set_paid: true,
+      // Not paid yet: see markOrderPaid().
+      set_paid: false,
       transaction_id: payment_intent_id,
-      status: "processing",
+      status: "pending",
       billing: billing_address ? {
         first_name: billing_address.first_name ?? "",
         last_name: billing_address.last_name ?? "",
@@ -98,26 +122,10 @@ export async function POST(request: NextRequest) {
         country: shipping_address.country ?? "US",
         phone: shipping_address.phone ?? "",
       } : undefined,
-      line_items: await (async () => {
-        // Read BOGO free picks from cookie
-        const store = await cookies();
-        const bogoRaw = store.get("pl_bogo_free_ids")?.value;
-        const bogoFreeIds: number[] = bogoRaw ? JSON.parse(bogoRaw) : [];
-        const bogoFreeRemaining = new Map<number, number>();
-        for (const id of bogoFreeIds) {
-          bogoFreeRemaining.set(id, (bogoFreeRemaining.get(id) ?? 0) + 1);
-        }
-        const BOGO_DEDUP_EXCLUDED = new Set([94, 837, 840, 842, 846, 848]);
-        return (line_items ?? []).map((item) => {
-          if (BOGO_DEDUP_EXCLUDED.has(item.product_id)) return item;
-          const remaining = bogoFreeRemaining.get(item.product_id) ?? 0;
-          if (remaining > 0) {
-            bogoFreeRemaining.set(item.product_id, remaining - 1);
-            return { ...item, subtotal: "0", total: "0", meta_data: [{ key: "Promotion", value: "BOGO Free" }] };
-          }
-          return item;
-        });
-      })(),
+      // Sent as the cart has them (paid line + free twin). Do NOT pre-zero the
+      // twin here: the WordPress BOGO snippet owns that, and zeroing it twice
+      // makes it zero both lines.
+      line_items: line_items ?? [],
       coupon_lines: (coupon_lines ?? []).map((code) => ({ code })),
       meta_data: [
         { key: "_stripe_payment_intent", value: payment_intent_id },
@@ -146,8 +154,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ order_id: payment_intent_id, wc_error: data }, { status: 200 });
     }
 
+    const orderId = Number(data.id);
+
+    // Safety net: the order's lines should add up to what the customer's cart
+    // showed. A gap means the WordPress BOGO snippet didn't zero the free line.
+    const orderLines = (data.line_items as Array<{ total?: string }> | undefined) ?? [];
+    const orderItemsMinor = Math.round(orderLines.reduce((sum, l) => sum + Number(l.total ?? 0), 0) * 100);
+    const lineMismatch =
+      typeof expected_items_minor === "number" && Math.abs(orderItemsMinor - expected_items_minor) >= 2;
+    if (lineMismatch) {
+      console.error("[create-order] order lines do not match cart", { orderId, orderItemsMinor, expected_items_minor });
+      await sendTelegramAlert(
+        `⚠️ <b>ORDER LINES DON'T MATCH CART</b>\n\n` +
+        `Order <b>#${orderId}</b>: the cart total for items was <b>$${(expected_items_minor / 100).toFixed(2)}</b> but WooCommerce recorded <b>$${(orderItemsMinor / 100).toFixed(2)}</b>.\n\n` +
+        `Likely the BOGO free line wasn't zeroed (check the "BOGO Auto-Discount (Order Hook)" snippet). The order is being marked paid now, so its emails and Affiliatly tracking will use the wrong total — fix the order and resend.`
+      );
+    }
+
+    // Mark paid only now that the free line has been zeroed, so the confirmation
+    // emails, stock changes and affiliate/ad tracking all see the real order.
+    const paid = await markOrderPaid(orderId, payment_intent_id);
+    if (!paid.ok) {
+      const name = `${billing_address?.first_name ?? ""} ${billing_address?.last_name ?? ""}`.trim() || "Unknown";
+      await sendTelegramAlert(
+        `⚠️ <b>ORDER NOT MARKED PAID — Action Required</b>\n\n` +
+        `Order <b>#${orderId}</b> for <b>${name}</b> was created, but marking it paid failed after 3 attempts. The customer was charged on Stripe.\n\n` +
+        `<b>Stripe Payment Intent:</b> <code>${payment_intent_id}</code>\n\n` +
+        `Open the order in WooCommerce and mark it Processing.`
+      );
+      console.error("[create-order] mark-paid failed after retries. Telegram alert sent.", orderId, payment_intent_id);
+    }
+    const finalOrder = paid.ok ? paid.data : data;
+
+    // WordPress now reports affiliate sales itself when the order is paid
+    // (the Affiliatly snippets set one of these flags). Only report from here
+    // when it didn't, so the same sale isn't sent twice.
+    const finalMeta = (finalOrder.meta_data as Array<{ key: string }> | undefined) ?? [];
+    const wordpressTracked = finalMeta.some((m) => m.key === "_pl_aff_tracked_v2" || m.key === "_pl_affiliatly_tracked");
+
     // Track affiliate sale in Affiliatly
-    if (aff_id && wcOk) {
+    if (aff_id && wcOk && !wordpressTracked) {
       try {
         const affId = parseInt(aff_id, 10);
         const orderId = String(data.id ?? payment_intent_id);

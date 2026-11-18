@@ -295,6 +295,9 @@ export default function CheckoutPage() {
           line_items: lineItems,
           coupon_lines: couponCodes,
           amount_minor: Number(cart?.totals.total_price ?? 0),
+          // What the cart charged for items (after discounts, before shipping/tax);
+          // the server compares it to the order WooCommerce records.
+          expected_items_minor: (cart?.items ?? []).reduce((sum, item) => sum + Number(item.totals.line_total), 0),
           aff_id: affId,
         }),
       });
