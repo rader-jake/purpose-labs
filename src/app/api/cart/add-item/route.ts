@@ -14,7 +14,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tokens = await ensureTokens(await readTokens());
+    const serverTokens = await readTokens();
+    // If client sends a cart token (from localStorage) and we don't have one server-side,
+    // use it so the item is added to the correct existing WC session instead of creating a new one.
+    const clientCartToken = request.headers.get("x-wc-cart-token");
+    const mergedTokens = {
+      ...serverTokens,
+      cartToken: serverTokens.cartToken || clientCartToken || undefined,
+    };
+    const tokens = await ensureTokens(mergedTokens);
     const { data, tokens: nextTokens } = await addCartItem(tokens, id, quantity);
 
     const { cart: finalCart, tokens: finalTokens } = await finalizeCart(

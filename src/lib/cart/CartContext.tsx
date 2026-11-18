@@ -147,9 +147,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback(async (id: number, quantity: number) => {
     setError(null);
     try {
+      const cartToken = typeof localStorage !== "undefined" ? localStorage.getItem("wc/cartToken") : null;
+      const addHeaders: Record<string, string> = { "Content-Type": "application/json" };
+      if (cartToken) addHeaders["x-wc-cart-token"] = cartToken;
       const response = await fetch("/api/cart/add-item", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: addHeaders,
         body: JSON.stringify({ id, quantity }),
       });
       const data = await parseCartResponse(response);
