@@ -12,6 +12,7 @@ import type { PaymentStepProps } from "@/lib/payment/types";
 import { formatMoney } from "@/lib/cart/money";
 import { trackAddPaymentInfo } from "@/lib/tiktok-pixel";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { ShipsTodayTimer } from "@/components/ShipsTodayTimer";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -140,10 +141,10 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
         <CountdownTimer label="BOGO + FREE 2-Day FedEx ends in" />
       </div>
 
-      {/* Ships today nudge */}
-      <p className="text-xs text-center" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
-        🚚 <strong style={{ color: "var(--pl-navy)" }}>Ships today</strong> if ordered by 2PM EST
-      </p>
+      {/* Ships today countdown */}
+      <div className="flex justify-center">
+        <ShipsTodayTimer />
+      </div>
 
       <button
         type="submit"
@@ -161,9 +162,9 @@ function CheckoutForm({ amountCents, onSuccess, onError, onAttemptSubmit, isAddr
       {/* Trust badges */}
       <div className="flex items-center justify-center gap-4 flex-wrap pt-1">
         {[
-          "🔒 Secured by Stripe",
-          "🇺🇸 US-Based",
-          "↩️ Satisfaction Guarantee",
+          "Secured by Stripe",
+          "US-Based",
+          "Satisfaction Guarantee",
         ].map((badge) => (
           <span key={badge} className="text-xs" style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}>
             {badge}
