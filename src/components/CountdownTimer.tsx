@@ -7,7 +7,7 @@ function getDeadline(): Date {
   return new Date("2026-11-21T17:00:00-05:00");
 }
 
-export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) {
+export function CountdownTimer({ label = "Offer ends in", dark = false }: { label?: string; dark?: boolean }) {
   const [target] = useState(() => getDeadline());
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
@@ -32,12 +32,19 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
     { val: pad(timeLeft.s), unit: "Sec" },
   ];
 
+  const labelColor = dark ? "rgba(255,255,255,0.5)" : "var(--pl-muted)";
+  const digitColor = dark ? "#ffffff" : "var(--pl-navy)";
+  const unitColor = dark ? "rgba(255,255,255,0.4)" : "rgba(27,42,74,0.4)";
+  const separatorColor = dark ? "rgba(255,255,255,0.25)" : "rgba(27,42,74,0.25)";
+  const blockBorder = dark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(27,42,74,0.12)";
+  const blockBg = dark ? "rgba(255,255,255,0.08)" : "rgba(27,42,74,0.03)";
+
   return (
     <div className="flex flex-col items-start gap-2" style={{ fontFamily: "var(--pl-font-body)" }}>
       {/* Label */}
       <span
         className="text-[9px] font-semibold uppercase tracking-[0.22em]"
-        style={{ color: "var(--pl-muted)", letterSpacing: "0.22em" }}
+        style={{ color: labelColor }}
       >
         {label}
       </span>
@@ -49,7 +56,7 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
             {i > 0 && (
               <span
                 className="text-base font-light mb-3"
-                style={{ color: "rgba(27,42,74,0.25)", lineHeight: 1 }}
+                style={{ color: separatorColor, lineHeight: 1 }}
               >
                 ·
               </span>
@@ -59,15 +66,15 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
               style={{
                 minWidth: 42,
                 padding: "8px 10px 6px",
-                border: "1px solid rgba(27,42,74,0.12)",
+                border: blockBorder,
                 borderRadius: 6,
-                background: "rgba(27,42,74,0.03)",
+                background: blockBg,
               }}
             >
               <span
                 className="tabular-nums"
                 style={{
-                  color: "var(--pl-navy)",
+                  color: digitColor,
                   fontSize: 22,
                   fontWeight: 300,
                   letterSpacing: "0.02em",
@@ -80,7 +87,7 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
               <span
                 className="uppercase"
                 style={{
-                  color: "rgba(27,42,74,0.4)",
+                  color: unitColor,
                   fontSize: 7,
                   fontWeight: 600,
                   letterSpacing: "0.18em",

@@ -295,7 +295,7 @@ function FreeShippingProgress({
         <p className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.65)", fontFamily: "var(--pl-font-body)" }}>
           Your order ships fast — on us. Don&apos;t miss it.
         </p>
-        <CountdownTimer label="Offer ends in" />
+        <CountdownTimer label="Offer ends in" dark />
       </div>
     );
   }
