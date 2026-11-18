@@ -699,28 +699,37 @@ export default function CheckoutPage() {
 
               {/* Pricing breakdown */}
               <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 10, display: "flex", flexDirection: "column", gap: 6 }}>
-                {Number(cart.totals.total_discount) > 0 && (
-                  <>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                      <span style={{ color: "#6b7280" }}>Retail price</span>
-                      <span style={{ color: "#9ca3af", textDecoration: "line-through" }}>
-                        {formatMoney(cart.totals.total_items)}
-                      </span>
+                {(() => {
+                  const bacwaterDiscount = cart.coupons
+                    .filter((c) => c.code.toLowerCase() === "pl-auto-bacwater")
+                    .reduce((sum, c) => sum + Number(c.totals.total_discount), 0);
+                  const visibleDiscount = Number(cart.totals.total_discount) - bacwaterDiscount;
+                  const visibleRetail = Number(cart.totals.total_items) - bacwaterDiscount;
+                  return visibleDiscount > 0 ? (
+                    <>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                        <span style={{ color: "#6b7280" }}>Retail price</span>
+                        <span style={{ color: "#9ca3af", textDecoration: "line-through" }}>
+                          {formatMoney(visibleRetail)}
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                        <span style={{ color: "#16a34a", fontWeight: 600 }}>You save</span>
+                        <span style={{ color: "#16a34a", fontWeight: 600 }}>
+                          -{formatMoney(visibleDiscount)}
+                        </span>
+                      </div>
+                    </>
+                  ) : null;
+                })()}
+                {cart.coupons
+                  .filter((coupon) => coupon.code.toLowerCase() !== "pl-auto-bacwater")
+                  .map((coupon) => (
+                    <div key={coupon.code} style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                      <span style={{ color: "#6b7280" }}>Code: {coupon.code.toUpperCase()}</span>
+                      <span style={{ color: "#16a34a" }}>-{formatMoney(coupon.totals.total_discount)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-                      <span style={{ color: "#16a34a", fontWeight: 600 }}>You save</span>
-                      <span style={{ color: "#16a34a", fontWeight: 600 }}>
-                        -{formatMoney(cart.totals.total_discount)}
-                      </span>
-                    </div>
-                  </>
-                )}
-                {cart.coupons.map((coupon) => (
-                  <div key={coupon.code} style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
-                    <span style={{ color: "#6b7280" }}>Code: {coupon.code.toUpperCase()}</span>
-                    <span style={{ color: "#16a34a" }}>-{formatMoney(coupon.totals.total_discount)}</span>
-                  </div>
-                ))}
+                  ))}
                 {cart.fees.map((fee) => (
                   <div key={fee.key} style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
                     <span style={{ color: "#6b7280" }}>{fee.name}</span>
