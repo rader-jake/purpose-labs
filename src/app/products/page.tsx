@@ -9,17 +9,29 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const products = await getProducts({ orderby: "menu_order", exclude: NON_MERCHANDISABLE_PRODUCT_IDS });
+  let products = [];
+  let variationsMap: Record<number, WooProductVariation[]> = {};
 
-  // Fetch variations for all variable products in parallel
-  const variationsMap: Record<number, WooProductVariation[]> = {};
-  await Promise.all(
-    products
-      .filter((p) => p.type === "variable")
-      .map(async (p) => {
-        variationsMap[p.id] = await getProductVariations(p.id);
-      })
-  );
+  try {
+    products = await getProducts({ orderby: "menu_order", exclude: NON_MERCHANDISABLE_PRODUCT_IDS });
+
+    // Fetch variations for all variable products in parallel
+    await Promise.all(
+      products
+        .filter((p) => p.type === "variable")
+        .map(async (p) => {
+          try {
+            variationsMap[p.id] = await getProductVariations(p.id);
+          } catch {
+            variationsMap[p.id] = [];
+          }
+        })
+    );
+  } catch (err) {
+    console.error("Failed to load products:", err);
+    // Re-throw so error.tsx can catch it
+    throw err;
+  }
 
   return (
     <main
