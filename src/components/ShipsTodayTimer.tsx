@@ -49,16 +49,12 @@ export function ShipsTodayTimer() {
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
-  if (expired) {
-    return (
-      <p
-        className="text-xs text-center"
-        style={{ color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)" }}
-      >
-        Order now —{" "}
-        <strong style={{ color: "var(--pl-navy)" }}>ships tomorrow</strong>
-      </p>
-    );
+  // Only show timer when cutoff is within 4 hours — avoids showing "21 hrs" at night
+  const totalSecondsLeft = timeLeft.h * 3600 + timeLeft.m * 60 + timeLeft.s;
+  const FOUR_HOURS = 4 * 3600;
+
+  if (expired || totalSecondsLeft > FOUR_HOURS) {
+    return null;
   }
 
   const units = [
