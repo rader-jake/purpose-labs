@@ -26,25 +26,69 @@ export function CountdownTimer({ label = "Offer ends in" }: { label?: string }) 
 
   const pad = (n: number) => String(n).padStart(2, "0");
 
+  const units = [
+    { val: pad(timeLeft.d ?? 0), unit: "Day" },
+    { val: pad(timeLeft.h), unit: "Hr" },
+    { val: pad(timeLeft.s), unit: "Sec" },
+  ];
+
   return (
-    <div className="flex items-center gap-2 flex-wrap" style={{ fontFamily: "var(--pl-font-body)" }}>
-      <span className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--pl-muted)" }}>
+    <div className="flex flex-col items-start gap-2" style={{ fontFamily: "var(--pl-font-body)" }}>
+      {/* Label */}
+      <span
+        className="text-[9px] font-semibold uppercase tracking-[0.22em]"
+        style={{ color: "var(--pl-muted)", letterSpacing: "0.22em" }}
+      >
         {label}
       </span>
-      <div className="flex items-center gap-1">
-        {[
-          { val: pad(timeLeft.d ?? 0), unit: "day" },
-          { val: pad(timeLeft.h), unit: "hr" },
-          { val: pad(timeLeft.s), unit: "sec" },
-        ].map(({ val, unit }, i) => (
-          <span key={unit} className="flex items-center gap-1">
-            {i > 0 && <span style={{ color: "var(--pl-muted)", fontSize: 12 }}>:</span>}
+
+      {/* Digit blocks */}
+      <div className="flex items-center gap-2">
+        {units.map(({ val, unit }, i) => (
+          <span key={unit} className="flex items-center gap-2">
+            {i > 0 && (
+              <span
+                className="text-base font-light mb-3"
+                style={{ color: "rgba(27,42,74,0.25)", lineHeight: 1 }}
+              >
+                ·
+              </span>
+            )}
             <span
-              className="inline-flex flex-col items-center justify-center rounded-md px-2 py-1"
-              style={{ background: "var(--pl-navy)", minWidth: 36 }}
+              className="inline-flex flex-col items-center justify-center"
+              style={{
+                minWidth: 42,
+                padding: "8px 10px 6px",
+                border: "1px solid rgba(27,42,74,0.12)",
+                borderRadius: 6,
+                background: "rgba(27,42,74,0.03)",
+              }}
             >
-              <span className="text-sm font-black tabular-nums" style={{ color: "#fff", lineHeight: 1 }}>{val}</span>
-              <span className="text-[8px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>{unit}</span>
+              <span
+                className="tabular-nums"
+                style={{
+                  color: "var(--pl-navy)",
+                  fontSize: 22,
+                  fontWeight: 300,
+                  letterSpacing: "0.02em",
+                  lineHeight: 1,
+                  fontFamily: "var(--pl-font-display)",
+                }}
+              >
+                {val}
+              </span>
+              <span
+                className="uppercase"
+                style={{
+                  color: "rgba(27,42,74,0.4)",
+                  fontSize: 7,
+                  fontWeight: 600,
+                  letterSpacing: "0.18em",
+                  marginTop: 4,
+                }}
+              >
+                {unit}
+              </span>
             </span>
           </span>
         ))}
