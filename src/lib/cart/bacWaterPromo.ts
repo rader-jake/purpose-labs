@@ -51,14 +51,9 @@ export async function syncBacWaterPromo(
         currentTokens = result.tokens;
       }
     } else {
-      // No qualifying items — remove coupon first, then remove bac water
+      // No qualifying items — remove coupon only, leave bac water in cart at full price
       if (promoAlreadyApplied) {
         const result = await removeCoupon(currentTokens, PROMO_COUPON);
-        current = result.data as Cart;
-        currentTokens = result.tokens;
-      }
-      if (bacWaterItem) {
-        const result = await removeCartItem(currentTokens, bacWaterItem.key);
         current = result.data as Cart;
         currentTokens = result.tokens;
       }
