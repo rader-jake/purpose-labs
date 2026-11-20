@@ -41,23 +41,6 @@ export function CartApplePay({
         total: { label: "Purpose Labs", amount: totalCents },
         requestPayerName: true,
         requestPayerEmail: true,
-        requestShipping: true,
-        shippingOptions: [
-          {
-            id: "standard",
-            label: "Standard Shipping",
-            detail: "",
-            amount: 0,
-          },
-        ],
-      });
-
-      // Required: respond to shipping address changes or Apple Pay blocks payment
-      pr.on("shippingaddresschange", (ev) => {
-        ev.updateWith({
-          status: "success",
-          shippingOptions: [{ id: "standard", label: "Standard Shipping", detail: "Free 2-day FedEx", amount: 0 }],
-        });
       });
 
       pr.on("paymentmethod", async (ev) => {
