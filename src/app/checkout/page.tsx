@@ -7,7 +7,6 @@ import { formatMoney } from "@/lib/cart/money";
 import { getDisplayLines } from "@/lib/cart/displayLines";
 import { StripePaymentStep } from "@/components/checkout/StripePaymentStep";
 import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
-import { CartApplePay } from "@/components/CartApplePay";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
@@ -456,21 +455,6 @@ export default function CheckoutPage() {
       >
         {/* ── LEFT COLUMN ─── */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }} className="checkout-left">
-
-          {/* ── EXPRESS CHECKOUT (Apple Pay) ─── */}
-          {totalCents > 0 && (
-            <div style={{ marginBottom: 8 }}>
-              <CartApplePay
-                totalCents={totalCents}
-              />
-              {/* Divider */}
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
-                <div style={{ flex: 1, borderTop: "1px solid var(--pl-border)" }} />
-                <span style={{ fontSize: 11, color: "var(--pl-muted)", fontFamily: "var(--pl-font-body)", textTransform: "uppercase", letterSpacing: "0.1em" }}>or fill in details below</span>
-                <div style={{ flex: 1, borderTop: "1px solid var(--pl-border)" }} />
-              </div>
-            </div>
-          )}
 
           {/* ── STEP 1: Contact / Email ─── */}
           <StepCard
