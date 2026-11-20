@@ -246,6 +246,11 @@ function BeaconPaymentForm({
       requestShipping: true,
       shippingOptions: [{ id: "standard", label: "Standard Shipping", detail: "", amount: 0 }],
     });
+    // Required when requestShipping: true — must call updateWith or the sheet stalls
+    pr.on("shippingaddresschange", (ev) => {
+      ev.updateWith({ status: "success", shippingOptions: [{ id: "standard", label: "Standard Shipping", detail: "", amount: 0 }] });
+    });
+
     pr.canMakePayment().then((result) => {
       if (result) {
         setPaymentRequest(pr);
