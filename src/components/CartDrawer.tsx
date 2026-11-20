@@ -153,7 +153,6 @@ export function CartDrawer() {
             </div>
             <CartApplePay
               totalCents={Number(cart.totals.total_price)}
-              onSuccess={closeDrawer}
             />
             <Link
               href="/checkout"
