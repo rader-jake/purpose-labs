@@ -283,7 +283,22 @@ export default function CheckoutPage() {
 
   async function handlePaymentSuccess(result: PaymentResult) {
     setPaymentError(null);
-    const address = buildAddressInput();
+    const formAddress = buildAddressInput();
+    // If Apple Pay provided an address, use it; otherwise fall back to form
+    const address = result.walletAddress
+      ? {
+          first_name: result.walletAddress.first_name,
+          last_name: result.walletAddress.last_name,
+          address_1: result.walletAddress.address_1,
+          address_2: result.walletAddress.address_2,
+          city: result.walletAddress.city,
+          state: result.walletAddress.state,
+          postcode: result.walletAddress.postcode,
+          country: result.walletAddress.country,
+          phone: result.walletAddress.phone,
+        }
+      : formAddress;
+    const email = result.walletAddress?.email || customerInfo.email;
     try {
       const lineItems = (cart?.items ?? []).map((item) => ({
         product_id: item.id,
@@ -297,7 +312,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           payment_intent_id: result.transactionId,
-          billing_address: { ...address, email: customerInfo.email },
+          billing_address: { ...address, email },
           shipping_address: address,
           line_items: lineItems,
           coupon_lines: couponCodes,
@@ -329,7 +344,7 @@ export default function CheckoutPage() {
       localStorage.removeItem("pl_checkout_shipping");
     } catch {}
     setOrderConfirmation(
-      buildMockOrderConfirmation(cart!, result.transactionId, { ...address, email: customerInfo.email }, address)
+      buildMockOrderConfirmation(cart!, result.transactionId, { ...address, email }, address)
     );
   }
 

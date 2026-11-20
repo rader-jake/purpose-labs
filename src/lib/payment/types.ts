@@ -8,9 +8,24 @@ import type { ComponentType } from "react";
 // principle discussed for the backend generally, applied here on the
 // frontend's payment step.
 
+export interface WalletAddress {
+  first_name: string;
+  last_name: string;
+  email: string;
+  address_1: string;
+  address_2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  phone: string;
+}
+
 export interface PaymentResult {
   /** Processor-specific transaction/order identifier. Opaque to checkout. */
   transactionId: string;
+  /** Address collected by wallet (Apple Pay / Google Pay) — bypasses form fields. */
+  walletAddress?: WalletAddress;
 }
 
 export interface PaymentError {

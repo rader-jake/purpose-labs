@@ -243,6 +243,8 @@ function BeaconPaymentForm({
       },
       requestPayerName: true,
       requestPayerEmail: true,
+      requestShipping: true,
+      shippingOptions: [{ id: "standard", label: "Standard Shipping", detail: "", amount: 0 }],
     });
     pr.canMakePayment().then((result) => {
       if (result) {
@@ -334,17 +336,29 @@ function BeaconPaymentForm({
               country: ev.paymentMethod.billing_details?.address?.country ?? "US",
               phone: "",
             },
-            shipping_address: {
-              first_name: shippingAddressRef.current.first_name,
-              last_name: shippingAddressRef.current.last_name,
-              address_1: shippingAddressRef.current.address_1,
-              address_2: shippingAddressRef.current.address_2 || "",
-              city: shippingAddressRef.current.city,
-              state: shippingAddressRef.current.state,
-              postcode: shippingAddressRef.current.postcode,
-              country: shippingAddressRef.current.country || "US",
-              phone: shippingAddressRef.current.phone || "",
-            },
+            shipping_address: ev.shippingAddress
+              ? {
+                  first_name: ev.payerName?.split(" ")[0] ?? shippingAddressRef.current.first_name,
+                  last_name: ev.payerName?.split(" ").slice(1).join(" ") ?? shippingAddressRef.current.last_name,
+                  address_1: ev.shippingAddress.addressLine?.[0] ?? shippingAddressRef.current.address_1,
+                  address_2: ev.shippingAddress.addressLine?.[1] ?? shippingAddressRef.current.address_2 ?? "",
+                  city: ev.shippingAddress.city ?? shippingAddressRef.current.city,
+                  state: ev.shippingAddress.region ?? shippingAddressRef.current.state,
+                  postcode: ev.shippingAddress.postalCode ?? shippingAddressRef.current.postcode,
+                  country: ev.shippingAddress.country ?? shippingAddressRef.current.country ?? "US",
+                  phone: shippingAddressRef.current.phone || "",
+                }
+              : {
+                  first_name: shippingAddressRef.current.first_name,
+                  last_name: shippingAddressRef.current.last_name,
+                  address_1: shippingAddressRef.current.address_1,
+                  address_2: shippingAddressRef.current.address_2 || "",
+                  city: shippingAddressRef.current.city,
+                  state: shippingAddressRef.current.state,
+                  postcode: shippingAddressRef.current.postcode,
+                  country: shippingAddressRef.current.country || "US",
+                  phone: shippingAddressRef.current.phone || "",
+                },
             amount_minor: amountCents,
             currency: currencyCode.toLowerCase(),
           }),
@@ -355,7 +369,24 @@ function BeaconPaymentForm({
         }
 
         const orderId = walletOrderData?.order_id ?? paymentIntentId;
-        onSuccess({ transactionId: String(orderId) });
+        const apShipping = ev.shippingAddress;
+        const firstName = ev.payerName?.split(" ")[0] ?? "";
+        const lastName = ev.payerName?.split(" ").slice(1).join(" ") ?? "";
+        onSuccess({
+          transactionId: String(orderId),
+          walletAddress: apShipping ? {
+            first_name: firstName,
+            last_name: lastName,
+            email: ev.payerEmail ?? "",
+            address_1: apShipping.addressLine?.[0] ?? "",
+            address_2: apShipping.addressLine?.[1] ?? "",
+            city: apShipping.city ?? "",
+            state: apShipping.region ?? "",
+            postcode: apShipping.postalCode ?? "",
+            country: apShipping.country ?? "US",
+            phone: "",
+          } : undefined,
+        });
       } catch (err) {
         ev.complete("fail");
         onError({ message: err instanceof Error ? err.message : "Payment failed." });
