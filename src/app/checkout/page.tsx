@@ -203,7 +203,8 @@ export default function CheckoutPage() {
   const isAddressValid = isEmailValid && Object.keys(addressErrors).length === 0;
 
   const shownEmailErrors = attemptedSubmit && currentStep === 1 ? emailErrors : {};
-  const shownAddressErrors = attemptedSubmit && currentStep === 2 ? addressErrors : {};
+  // Show address errors on step 2, OR if payment was attempted while address incomplete (step 3)
+  const shownAddressErrors = attemptedSubmit && (currentStep === 2 || currentStep === 3) ? addressErrors : {};
 
   async function syncAddressIfComplete() {
     if (isSyncingAddress) return;
@@ -247,6 +248,12 @@ export default function CheckoutPage() {
     setAttemptedSubmit(true);
     if (EMAIL_PATTERN.test(customerInfo.email.trim())) {
       void ttqIdentify(customerInfo.email.trim());
+    }
+    // Scroll back to the first incomplete step so errors are visible
+    if (!isEmailValid) {
+      setCurrentStep(1);
+    } else if (!isAddressValid) {
+      setCurrentStep(2);
     }
   }
 
