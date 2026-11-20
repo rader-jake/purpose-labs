@@ -90,6 +90,50 @@ async function storeApiFetch(
     console.error(
       `[storeApiFetch] Non-JSON response from WooCommerce Store API — status=${response.status} url=${targetUrl} contentType="${contentType}" bodyPreview=${JSON.stringify(rawBody.slice(0, 300))}`
     );
+
+    // Retry up to 2 times with 500ms delay — handles transient SiteGround
+    // anti-bot HTML interstitials that occasionally replace the real response.
+    const maxRetries = 2;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      console.log(`[storeApiFetch] Retry attempt ${attempt}/${maxRetries} for ${targetUrl}`);
+      const retryResponse = await fetch(targetUrl, {
+        ...init,
+        headers,
+        cache: "no-store",
+      });
+      const retryContentType = retryResponse.headers.get("content-type") ?? "";
+      const retryBody = await retryResponse.text();
+      if (retryContentType.includes("application/json")) {
+        // Success — parse and return from the retry path
+        let retryData: unknown;
+        try {
+          retryData = JSON.parse(retryBody);
+        } catch {
+          throw new StoreApiError(
+            "The store's checkout service returned an unexpected response. Please try again in a moment.",
+            retryResponse.status || 502,
+            { targetUrl, contentType: retryContentType, bodyPreview: retryBody.slice(0, 300) }
+          );
+        }
+        const retryTokens: CartTokens = {
+          cartToken: retryResponse.headers.get("Cart-Token") ?? tokens.cartToken,
+          nonce: retryResponse.headers.get("Nonce") ?? tokens.nonce,
+        };
+        if (!retryResponse.ok) {
+          throw new StoreApiError(
+            (retryData as Record<string, string>)?.message ?? retryResponse.statusText,
+            retryResponse.status,
+            retryData
+          );
+        }
+        return { data: retryData, tokens: retryTokens };
+      }
+      console.error(
+        `[storeApiFetch] Retry ${attempt} still non-JSON — status=${retryResponse.status} contentType="${retryContentType}" bodyPreview=${JSON.stringify(retryBody.slice(0, 300))}`
+      );
+    }
+
     throw new StoreApiError(
       "The store's checkout service returned an unexpected response. Please try again in a moment.",
       response.status || 502,
