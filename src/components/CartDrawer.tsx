@@ -12,6 +12,7 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { getBogoOffer } from "@/lib/cart/bogoRules";
 import { isSplitBacWater, itemDisplayTotal } from "@/lib/cart/displayLines";
 import BogoPickerModal from "@/components/BogoPickerModal";
+import { CartApplePay } from "@/components/CartApplePay";
 
 export function CartDrawer() {
   const { cart, isLoading, error, isDrawerOpen, closeDrawer } = useCart();
@@ -150,6 +151,10 @@ export function CartDrawer() {
                 )))}
               </span>
             </div>
+            <CartApplePay
+              totalCents={Number(cart.totals.total_price)}
+              onSuccess={closeDrawer}
+            />
             <Link
               href="/checkout"
               onClick={closeDrawer}
