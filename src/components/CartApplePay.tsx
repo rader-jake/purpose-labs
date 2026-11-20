@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loadStripe, PaymentRequest } from "@stripe/stripe-js";
 
 const LEGAL_VERSION = "2026.07.22-1";
@@ -18,6 +18,9 @@ export function CartApplePay({
   const [attested, setAttested] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [postPayError, setPostPayError] = useState<string | null>(null);
+  const attestTsRef = useRef("");
+  const attestedRef = useRef(false);
 
   useEffect(() => {
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) return;
@@ -122,6 +125,15 @@ export function CartApplePay({
             body: JSON.stringify({
               payment_intent_id: paymentIntentId,
               cart_token: cartToken,
+              payment_method: "beacon_checkout",
+              extensions: {
+                "beacon-checkout": {
+                  legal_version: LEGAL_VERSION,
+                  attest_all: "1",
+                  attest_ts_all: attestTsRef.current,
+                  buyer_type: "individual",
+                },
+              },
               billing_address: {
                 first_name: firstName,
                 last_name: lastName,
@@ -152,12 +164,13 @@ export function CartApplePay({
             }),
           });
 
+          const walletData = await walletRes.json().catch(() => ({}));
           if (!walletRes.ok) {
-            setError("Order creation failed. Contact support.");
+            console.error("[CartApplePay] wallet-order failed:", walletData);
+            setPostPayError("Payment went through but order failed. Please contact support with your payment reference: " + (paymentIntentId ?? "unknown"));
             return;
           }
 
-          setShowModal(false);
           onSuccess?.();
           window.location.href = `/checkout/order-received/stripe-redirect?payment_intent=${paymentIntentId}`;
         } catch {
@@ -193,12 +206,19 @@ export function CartApplePay({
 
   function handlePay() {
     if (!attested || !paymentRequest) return;
+    attestedRef.current = true;
+    attestTsRef.current = new Date().toISOString();
     setShowModal(false);
     paymentRequest.show();
   }
 
   return (
     <>
+      {postPayError && (
+        <p className="text-xs mb-2 p-3 rounded-lg" style={{ color: "#dc2626", backgroundColor: "#fef2f2", fontFamily: "var(--pl-font-body)" }}>
+          {postPayError}
+        </p>
+      )}
       {/* Apple Pay button */}
       <button
         onClick={handleApplePayClick}
