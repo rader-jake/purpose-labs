@@ -75,10 +75,16 @@ export function CartApplePay({
             return;
           }
 
-          const { clientSecret, paymentIntentId } = await intentRes.json();
+          const intentData = await intentRes.json();
+          const clientSecret = intentData?.client_secret;
+          if (!clientSecret) {
+            ev.complete("fail");
+            setError("Payment could not be started. Please try again.");
+            return;
+          }
 
           // Confirm the payment
-          const { error: stripeError } = await stripe.confirmCardPayment(
+          const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(
             clientSecret,
             { payment_method: ev.paymentMethod.id },
             { handleActions: false }
@@ -92,28 +98,57 @@ export function CartApplePay({
 
           ev.complete("success");
 
+          // Handle 3DS if needed
+          if (paymentIntent?.status === "requires_action") {
+            const { error } = await stripe.confirmCardPayment(clientSecret);
+            if (error) {
+              setError(error.message ?? "Payment failed.");
+              return;
+            }
+          }
+
+          const paymentIntentId = paymentIntent?.id;
+
           // Create WooCommerce order
           const shipping = ev.shippingAddress;
+          const nameParts = (ev.payerName ?? "").split(" ");
+          const firstName = nameParts[0] ?? "";
+          const lastName = nameParts.slice(1).join(" ") ?? "";
+
           const walletRes = await fetch("/api/checkout/beacon-wallet-order", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               payment_intent_id: paymentIntentId,
               cart_token: cartToken,
-              legal_version: LEGAL_VERSION,
+              billing_address: {
+                first_name: firstName,
+                last_name: lastName,
+                email: ev.payerEmail ?? "",
+                address_1: ev.paymentMethod.billing_details?.address?.line1 ?? "",
+                address_2: ev.paymentMethod.billing_details?.address?.line2 ?? "",
+                city: ev.paymentMethod.billing_details?.address?.city ?? "",
+                state: ev.paymentMethod.billing_details?.address?.state ?? "",
+                postcode: ev.paymentMethod.billing_details?.address?.postal_code ?? "",
+                country: ev.paymentMethod.billing_details?.address?.country ?? "US",
+                phone: "",
+              },
               shipping_address: shipping
                 ? {
-                    first_name: shipping.recipient ?? "",
+                    first_name: firstName,
+                    last_name: lastName,
                     address_1: shipping.addressLine?.[0] ?? "",
                     address_2: shipping.addressLine?.[1] ?? "",
                     city: shipping.city ?? "",
                     state: shipping.region ?? "",
                     postcode: shipping.postalCode ?? "",
                     country: shipping.country ?? "US",
+                    phone: "",
                   }
                 : undefined,
-              payer_email: ev.payerEmail,
-              payer_name: ev.payerName,
+              amount_minor: totalCents,
+              currency: "usd",
             }),
           });
 
