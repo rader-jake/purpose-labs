@@ -625,6 +625,7 @@ export default function CheckoutPage() {
                 <StripePaymentStep
                   amountCents={totalCents}
                   currencyCode="usd"
+                  email={customerInfo.email || undefined}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}
                   onAttemptSubmit={!isAddressValid ? handleAttemptSubmit : undefined}

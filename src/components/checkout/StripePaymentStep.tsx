@@ -180,6 +180,7 @@ export function StripePaymentStep(props: PaymentStepProps & { onAttemptSubmit?: 
       body: JSON.stringify({
         amountCents: props.amountCents,
         currencyCode: props.currencyCode,
+        email: props.email,
       }),
     })
       .then((r) => r.json())

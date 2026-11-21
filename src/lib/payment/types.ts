@@ -36,6 +36,8 @@ export interface PaymentStepProps {
   /** Amount due, in minor units (cents) — matches Store API's totals.total_price. */
   amountCents: number;
   currencyCode: string;
+  /** Customer email — used to look up / create a Stripe Customer so saved cards work for returning buyers. */
+  email?: string;
   onSuccess: (result: PaymentResult) => void;
   onError: (error: PaymentError) => void;
   /** Called when pay is clicked but address fields above are incomplete. */
