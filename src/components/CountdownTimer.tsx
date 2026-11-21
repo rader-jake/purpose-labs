@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-// Deadline: Black Friday — November 28, 2026 at 11:59 PM ET
+// Deadline: Cyber Monday — December 1, 2026 at 11:59 PM ET
 function getDeadline(): Date {
-  return new Date("2026-11-28T23:59:00-05:00");
+  return new Date("2026-12-01T23:59:00-05:00");
 }
 
 export function CountdownTimer({ label = "Offer ends in", dark = false }: { label?: string; dark?: boolean }) {

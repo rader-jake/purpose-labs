@@ -134,13 +134,13 @@ async function wooCommerceFetch<T>(
       headers: {
         Authorization: `Basic ${basicAuth}`,
       },
-      // Products change infrequently; revalidate periodically rather than
-      // caching forever. Order lookups (post-payment confirmation) opt into
+      // Products change infrequently; revalidate every 5 minutes.
+      // Order lookups (post-payment confirmation) opt into
       // "no-store" instead — a stale "pending" status right after a
       // customer completes payment would be actively misleading.
       ...(options.cache === "no-store"
         ? { cache: "no-store" as const }
-        : { next: { revalidate: 0 } }),
+        : { next: { revalidate: 300 } }),
     });
   } catch (err) {
     clearTimeout(timeoutId);
