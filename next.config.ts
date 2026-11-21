@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
         destination: "/products/:slug",
         permanent: true,
       },
+      {
+        source: "/cart",
+        destination: "/checkout",
+        permanent: false,
+      },
+      {
+        source: "/cart/",
+        destination: "/checkout",
+        permanent: false,
+      },
     ];
   },
   async headers() {
