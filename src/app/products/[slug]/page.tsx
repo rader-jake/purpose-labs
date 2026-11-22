@@ -5,7 +5,7 @@
 // component. Don't merge these back into one "use client" file — that
 // breaks async data fetching in the App Router.
 
-import { getProduct, getProductVariations, getRelatedProducts } from "@/lib/woocommerce";
+import { getProduct, getProductVariations, getRelatedProducts, getProducts, NON_MERCHANDISABLE_PRODUCT_IDS } from "@/lib/woocommerce";
 import { ParticleBackground } from "@/components/ParticleBackground";
 import { ProductTilt } from "@/components/ProductTilt";
 import { ProductVialViewer } from "@/components/ProductVialViewer";
@@ -15,8 +15,21 @@ import { ProductCard } from "@/components/ProductCard";
 import { SectionHeading } from "@/components/SectionHeading";
 import { notFound } from "next/navigation";
 
-// Revalidate every 60s so price/sale changes from WooCommerce show up quickly
-export const revalidate = 60;
+// Revalidate every 5 min so price/sale changes from WooCommerce show up quickly
+export const revalidate = 300;
+
+// Allow new products added after build to be served dynamically
+export const dynamicParams = true;
+
+// Pre-build all product pages at deploy time so they're static/fast
+export async function generateStaticParams() {
+  try {
+    const products = await getProducts({ exclude: NON_MERCHANDISABLE_PRODUCT_IDS });
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export default async function ProductPage({
   params,
