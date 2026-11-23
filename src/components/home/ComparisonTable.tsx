@@ -66,8 +66,9 @@ export function ComparisonTable() {
         </Reveal>
 
         <Reveal delay={100}>
-          <div className="overflow-hidden rounded-2xl" style={{ border: "1px solid rgba(20,39,78,0.10)" }}>
-            <table className="w-full text-sm border-collapse">
+          <div className="rounded-2xl" style={{ border: "1px solid rgba(20,39,78,0.10)", overflow: "hidden" }}>
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse" style={{ minWidth: "480px" }}>
               <thead>
                 <tr style={{ background: "#14274E" }}>
                   <th
@@ -117,6 +118,7 @@ export function ComparisonTable() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </Reveal>
       </div>
