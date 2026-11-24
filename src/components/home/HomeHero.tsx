@@ -219,9 +219,9 @@ export function HomeHero() {
           <div className="pl-headline-wrap">
           <Reveal delay={120}>
             <h1 className="pl-headline">
-              Buy One,
-              <span className="teal">Get One</span>
-              Free
+              Black Friday
+              <span className="teal">BOGO + Free</span>
+              2-Day Shipping
             </h1>
           </Reveal>
           </div>
