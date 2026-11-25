@@ -7,6 +7,7 @@ import { formatMoney } from "@/lib/cart/money";
 import { getDisplayLines } from "@/lib/cart/displayLines";
 import { StripePaymentStep } from "@/components/checkout/StripePaymentStep";
 import { BeaconPaymentStep } from "@/components/checkout/BeaconPaymentStep";
+import { CartApplePay } from "@/components/CartApplePay";
 import { OrderConfirmation } from "@/components/checkout/OrderConfirmation";
 import { buildMockOrderConfirmation, type OrderConfirmationData } from "@/lib/order/types";
 import type { PaymentError, PaymentResult } from "@/lib/payment/types";
@@ -439,6 +440,19 @@ export default function CheckoutPage() {
       </header>
 
 
+
+      {/* ── Express Checkout (Apple Pay / Google Pay) ──────────── */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 24px 0" }}>
+        <div style={{ maxWidth: 620 }}>
+          <CartApplePay totalCents={totalCents} />
+          {/* Divider */}
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "16px 0 4px" }}>
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+            <span style={{ fontSize: 12, color: "#9ca3af", fontFamily: "Inter, sans-serif", whiteSpace: "nowrap" }}>or fill in your details below</span>
+            <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+          </div>
+        </div>
+      </div>
 
       {/* ── Main Layout ─────────────────────────────────────────── */}
       <div
